@@ -184,7 +184,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("MorphEvent"):FireServer(unpac
 local ComTab = Window:CreateTab("💯 Combo50Streak 💯", nil) -- Title, Image
 local Section = ComTab:CreateSection("Combo50Streak")
 
-local Button =ComTab:CreateButton({
+local Button = ComTab:CreateButton({
    Name = "AtivadeCombo50Streak",
    Callback = function()
    local args = {
