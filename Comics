@@ -242,8 +242,7 @@ local Toggle = ITab:CreateToggle({
    Callback = function(Value)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local true = (Value)           
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")          
 
 -- Posição de teleporte
 local teleportPosition = Vector3.new(-935, 323, 677)
