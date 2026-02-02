@@ -246,7 +246,7 @@ local ITab = Window:CreateTab("💰 Misc 💰", nil) -- Title, Image
 local Section = ITab:CreateSection("Misc")
 
 local Toggle = ITab:CreateToggle({
-   Name = "Teleport",
+   Name = "Auto Farm",
    CurrentValue = false,
    Flag = "TeleportToggle1",
    Callback = function(Value)
