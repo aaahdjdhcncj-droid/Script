@@ -242,6 +242,17 @@ game:GetService("ReplicatedStorage"):WaitForChild("CharChange"):FireServer(unpac
         end,
 })
 
+local Button = DTab:CreateButton({
+   Name = "FAKEBigManTing",
+   Callback = function()
+   local args = {
+	game:GetService("ReplicatedStorage"):WaitForChild("FAKEBigManTing")
+}
+game:GetService("ReplicatedStorage"):WaitForChild("CharChange"):FireServer(unpack(args))
+        end,
+})
+
+
 local ITab = Window:CreateTab("💰 Misc 💰", nil) -- Title, Image
 local Section = ITab:CreateSection("Misc")
 
