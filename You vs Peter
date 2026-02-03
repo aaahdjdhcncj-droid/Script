@@ -426,7 +426,7 @@ local ETab = Window:CreateTab("⚡ Teleporte ⚡"", nil) -- Title, image
 local Button = ETab:CreateButton({
    Name = "Lobby",
    Callback = function()
-   Script de Teleporte
+   -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -443,7 +443,7 @@ print("Teleportado para:", targetPosition)
 local Button = ETab:CreateButton({               
    Name = "Map",
    Callback = function()
-   Script de Teleporte
+   -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -459,7 +459,7 @@ print("Teleportado para:", targetPosition)
 local Button = ETab:CreateButton({
    Name = "Peter Spawm",
    Callback = function()
-   Script de Teleporte
+   -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
