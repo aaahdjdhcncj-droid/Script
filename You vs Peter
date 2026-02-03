@@ -470,10 +470,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local LTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
-local Section = LTab:CreateSection("Misc")
+local PTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
+local Section = PTab:CreateSection("Misc")
 
-local Toggle = LTab:CreateToggle({
+local Toggle = PTab:CreateToggle({
     Name = "Funny Auto Farm",
     CurrentValue = false,
     Flag = "ToggleGirarPeter",
@@ -539,7 +539,7 @@ local Toggle = LTab:CreateToggle({
     end,
 })
 
-local Button = LTab:CreateButton({
+local Button = PTab:CreateButton({
    Name = "Infinite Yield",
    Callback = function()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
