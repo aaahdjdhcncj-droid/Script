@@ -422,7 +422,7 @@ local Section = TTab:CreateSection("Teleporte")
 local Button = TTab:CreateButton({
    Name = "Lobby",
    Callback = function()
-   Script de Teleporte
+--   Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -439,7 +439,7 @@ print("Teleportado para:", targetPosition)
 local Button = TTab:CreateButton({
    Name = "Map",
    Callback = function()
-    Script de Teleporte
+ -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -456,7 +456,7 @@ print("Teleportado para:", targetPosition)
 local Button = TTab:CreateButton({
    Name = "Peter Spamw",
    Callback = function()
-   Script de Teleporte
+-- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
