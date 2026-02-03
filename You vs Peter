@@ -257,15 +257,6 @@ LocalPlayer:GetPropertyChangedSignal("Team"):Connect(function()
     end
 end)
 
--- Executar imediatamente ao carregar
-wait(2) -- Espera o jogo carregar
-if isPlayerInTeamPeter() then
-    print("Script ativado! Você está no Team Peter.")
-    processTeamBrian()
-else
-    print("Aguardando você entrar no Team Peter...")
-end
-
 -- Loop contínuo para verificar (a cada 3 segundos)
 while true do
     wait(3)
@@ -289,7 +280,7 @@ local LocalPlayer = Players.LocalPlayer
 -- Configurações
 local TEAM_BRIAN_NAME = "Brian" -- Nome do time Brian
 local PART_POSITION = Vector3.new(276, 115, 36) -- Posição da part
-local PART_SIZE = Vector3.new(10, 1, 10) -- Tamanho médio/pequeno
+local PART_SIZE = Vector3.new(50, 1, 50) -- Tamanho médio/pequeno
 local DECAL_ID = "rbxassetid://15886830797" -- ID da decal
 
 -- Aguarda o personagem carregar completamente
@@ -327,7 +318,7 @@ local function createPlatform()
     platform.Anchored = true
     platform.CanCollide = true
     platform.Material = Enum.Material.SmoothPlastic
-    platform.BrickColor = BrickColor.new("Bright blue")
+    platform.BrickColor = BrickColor.new("Relly Red")
     platform.TopSurface = Enum.SurfaceType.Studs -- Studs no topo
     platform.BottomSurface = Enum.SurfaceType.Smooth
     platform.Transparency = 0
@@ -449,7 +440,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 -- Posição de destino
-local targetPosition = Vector3.new(115, 13, -110)
+local targetPosition = Vector3.new(115, 10, -110)
 
 -- Teleportar
 humanoidRootPart.CFrame = CFrame.new(targetPosition)
@@ -492,7 +483,7 @@ local Section = UTab:CreateSection("Misc")
                 local RunService = game:GetService("RunService")
                 
                 local angulo = 0
-                local raio = 12 -- 25 Studs de distância
+                local raio = 25 -- 25 Studs de distância
                 local velocidade = 2 -- Velocidade de rotação (graus por frame)
                 
                 local conexao
