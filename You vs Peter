@@ -246,7 +246,7 @@ teleportToAllBrianPlayers()
    end,
 })
 
-local Button = Tab:CreateButton({
+local Button = GTab:CreateButton({
    Name = "Brian Auto Win",
    Callback = function()
    -- Script de Teleporte para Part Personalizada
@@ -354,13 +354,13 @@ executeTeleport()
    end,
 })
 
-local Tab = Window:CreateTab("⚡ Teleporte ⚡", nil) -- Title, Image
-local Section = Tab:CreateSection("Teleporte")
+local OTab = Window:CreateTab("⚡ Teleporte ⚡", nil) -- Title, Image
+local Section = OTab:CreateSection("Teleporte")
 
-local Button = Tab:CreateButton({
+local Button = OTab:CreateButton({
    Name = "Lobby",
    Callback = function()
-   Script de Teleporte
+  -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -374,10 +374,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local Button = Tab:CreateButton({
+local Button = OTab:CreateButton({
    Name = "Map",
    Callback = function()
-    Script de Teleporte
+  -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -391,10 +391,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local Button = Tab:CreateButton({
+local Button = OTab:CreateButton({
    Name = "Peter Spamw",
    Callback = function()
-   Script de Teleporte
+   -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -408,10 +408,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local Tab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
+local LTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
 local Section = Tab:CreateSection("Misc")
 
-local Toggle = Tab:CreateToggle({
+local Toggle = LTab:CreateToggle({
     Name = "Funny Auto Farm",
     CurrentValue = false,
     Flag = "ToggleGirarPeter",
@@ -477,7 +477,7 @@ local Toggle = Tab:CreateToggle({
     end,
 })
 
-local Button = Tab:CreateButton({
+local Button = LTab:CreateButton({
    Name = "Infinite Yield",
    Callback = function()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
