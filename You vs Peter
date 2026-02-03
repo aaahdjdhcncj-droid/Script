@@ -279,8 +279,8 @@ local LocalPlayer = Players.LocalPlayer
 
 -- Configurações
 local TEAM_BRIAN_NAME = "Brian" -- Nome do time Brian
-local PART_POSITION = Vector3.new(276, 115, 36) -- Posição da part
-local PART_SIZE = Vector3.new(50, 1, 50) -- Tamanho médio/pequeno
+local PART_POSITION = Vector3.new(258, 110, 28) -- Posição da part
+local PART_SIZE = Vector3.new(25, 1, 25) -- Tamanho médio/pequeno
 local DECAL_ID = "rbxassetid://15886830797" -- ID da decal
 
 -- Aguarda o personagem carregar completamente
@@ -397,12 +397,6 @@ local function executeTeleport()
         end
     end
 end
-
--- Atualiza quando o personagem respawna
-LocalPlayer.CharacterAdded:Connect(function(newCharacter)
-    wait(1) -- Aguarda o personagem carregar
-    executeTeleport()
-end)
 
 -- Aguarda um pouco antes de executar (para garantir que tudo carregou)
 wait(1)
