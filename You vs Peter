@@ -454,7 +454,8 @@ local targetPosition = Vector3.new(115, 13, -110)
 -- Teleportar
 humanoidRootPart.CFrame = CFrame.new(targetPosition)
 print("Teleportado para:", targetPosition)
-
+     end,
+})
 
 local Button = ETab:CreateButton({
    Name = "Peter Spawm",
