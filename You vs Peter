@@ -417,7 +417,7 @@ executeTeleport()
 })
 
 local OTab = Window:CreateTab("⚡ Teleporte ⚡", nil) -- Title, Image
-local Section = Tab:CreateSection("Teleporte")
+local Section = OTab:CreateSection("Teleporte")
 
 local Button = OTab:CreateButton({
    Name = "Lobby",
