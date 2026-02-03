@@ -421,7 +421,7 @@ executeTeleport()
 
 
 local ETab = Window:CreateTab("⚡ Teleporte ⚡"", nil) -- Title, image
-    local Section = ETab:CreateSection("Teleporte)
+    local Section = ETab:CreateSection("Teleporte")
 
 local Button = ETab:CreateButton({
    Name = "Lobby",
