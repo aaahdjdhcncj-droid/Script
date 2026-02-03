@@ -142,7 +142,7 @@ local backpack = player:WaitForChild("Backpack")
 
 -- Criar a tool
 local tpTool = Instance.new("Tool")
-tpTool.Name = "tptool"
+tpTool.Name = "TpTool"
 tpTool.RequiresHandle = false
 tpTool.CanBeDropped = false
 tpTool.Parent = backpack
@@ -171,78 +171,105 @@ local Section = GTab:CreateSection("Game")
 local Button = GTab:CreateButton({
    Name = "Peter Auto Win",
    Callback = function()
-  -- Script de Teleporte para Players do Team Brian
--- Só funciona quando você estiver no Team Peter
+   -- Script de Teleporte Automático por Time
+-- Coloque este script em StarterPlayer > StarterPlayerScripts
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-
--- Configurações
-local TEAM_BRIAN_NAME = "Brian" -- Nome do time Brian
-local TEAM_PETER_NAME = "Peter" -- Nome do time Peter
-local TELEPORT_DELAY = 0.5 -- Delay entre teleportes em segundos
 
 -- Função para verificar se o jogador local está no Team Peter
-local function isOnTeamPeter()
-    if LocalPlayer.Team and LocalPlayer.Team.Name == TEAM_PETER_NAME then
+local function isPlayerInTeamPeter()
+    if LocalPlayer.Team and LocalPlayer.Team.Name == "Peter" then
         return true
     end
     return false
 end
 
--- Função para teleportar para um jogador específico
-local function teleportToPlayer(targetPlayer)
-    if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local targetHRP = targetPlayer.Character.HumanoidRootPart
-        HumanoidRootPart.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 3)
-        print("Teleportado para:", targetPlayer.Name)
-        return true
-    end
-    return false
-end
-
--- Função para verificar se um jogador está no Team Brian
-local function isOnTeamBrian(player)
-    if player.Team and player.Team.Name == TEAM_BRIAN_NAME then
-        return true
-    end
-    return false
-end
-
--- Função principal de teleporte
-local function teleportToAllBrianPlayers()
-    -- Verifica se você está no Team Peter
-    if not isOnTeamPeter() then
-        warn("Você precisa estar no Team Peter para usar este script!")
+-- Função para teleportar um jogador até você
+local function teleportPlayerToMe(targetPlayer)
+    if not isPlayerInTeamPeter() then
+        warn("Você precisa estar no Team Peter para teleportar!")
         return
     end
     
-    print("Iniciando teleporte para players do Team Brian...")
-    local teleportCount = 0
+    local character = LocalPlayer.Character
+    local targetCharacter = targetPlayer.Character
     
-    -- Itera por todos os jogadores
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and isOnTeamBrian(player) then
-            if teleportToPlayer(player) then
-                teleportCount = teleportCount + 1
-                wait(TELEPORT_DELAY)
-            end
+    if character and targetCharacter then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        local targetRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+        
+        if humanoidRootPart and targetRootPart then
+            -- Teleporta o jogador do Team Brian exatamente para sua posição
+            targetRootPart.CFrame = humanoidRootPart.CFrame
+            print("Teleportado " .. targetPlayer.Name .. " para você")
         end
     end
-    
-    print("Teleporte concluído! Total de players visitados:", teleportCount)
 end
-            
--- Atualiza a referência do personagem quando respawnar
-LocalPlayer.CharacterAdded:Connect(function(newCharacter)
-    Character = newCharacter
-    HumanoidRootPart = newCharacter:WaitForChild("HumanoidRootPart")
+
+-- Função principal para processar players do Team Brian
+local function processTeamBrian()
+    if not isPlayerInTeamPeter() then
+        return
+    end
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Team and player.Team.Name == "Brian" then
+            teleportPlayerToMe(player)
+            wait(0.3) -- Pequeno delay entre teleportes
+        end
+    end
+end
+
+-- Monitorar quando novos jogadores entram no Team Brian
+Players.PlayerAdded:Connect(function(player)
+    player:GetPropertyChangedSignal("Team"):Connect(function()
+        if player.Team and player.Team.Name == "Brian" and isPlayerInTeamPeter() then
+            wait(1) -- Espera o personagem spawnar
+            teleportPlayerToMe(player)
+        end
+    end)
 end)
 
--- Executa o teleporte
-teleportToAllBrianPlayers()
+-- Monitorar mudanças de time dos jogadores já existentes
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        player:GetPropertyChangedSignal("Team"):Connect(function()
+            if player.Team and player.Team.Name == "Brian" and isPlayerInTeamPeter() then
+                wait(1)
+                teleportPlayerToMe(player)
+            end
+        end)
+    end
+end
+
+-- Monitorar quando você muda de time
+LocalPlayer:GetPropertyChangedSignal("Team"):Connect(function()
+    if isPlayerInTeamPeter() then
+        print("Você entrou no Team Peter! Teleporte ativado.")
+        wait(1)
+        processTeamBrian()
+    else
+        print("Você não está no Team Peter. Teleporte desativado.")
+    end
+end)
+
+-- Executar imediatamente ao carregar
+wait(2) -- Espera o jogo carregar
+if isPlayerInTeamPeter() then
+    print("Script ativado! Você está no Team Peter.")
+    processTeamBrian()
+else
+    print("Aguardando você entrar no Team Peter...")
+end
+
+-- Loop contínuo para verificar (a cada 3 segundos)
+while true do
+    wait(3)
+    if isPlayerInTeamPeter() then
+        processTeamBrian()
+    end
+            end
    end,
 })
 
@@ -253,15 +280,21 @@ local Button = GTab:CreateButton({
 -- Só funciona quando você estiver no Team Brian
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
 -- Configurações
 local TEAM_BRIAN_NAME = "Brian" -- Nome do time Brian
 local PART_POSITION = Vector3.new(276, 115, 36) -- Posição da part
 local PART_SIZE = Vector3.new(6, 1, 6) -- Tamanho médio/pequeno
 local DECAL_ID = "rbxassetid://15886830797" -- ID da decal
+
+-- Aguarda o personagem carregar completamente
+local function waitForCharacter()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10)
+    return character, humanoidRootPart
+end
 
 -- Função para verificar se o jogador local está no Team Brian
 local function isOnTeamBrian()
@@ -273,57 +306,82 @@ end
 
 -- Função para criar a Part com Decal
 local function createPlatform()
+    print("Tentando criar plataforma...")
+    
     -- Verifica se você está no Team Brian
     if not isOnTeamBrian() then
         warn("Você precisa estar no Team Brian para usar este script!")
+        warn("Seu time atual:", LocalPlayer.Team and LocalPlayer.Team.Name or "Nenhum")
         return nil
     end
+    
+    print("Você está no Team Brian! Criando plataforma...")
     
     -- Cria a Part
     local platform = Instance.new("Part")
     platform.Name = "BrianPlatform"
     platform.Size = PART_SIZE
-    platform.Position = PART_POSITION
     platform.Anchored = true
     platform.CanCollide = true
     platform.Material = Enum.Material.SmoothPlastic
     platform.BrickColor = BrickColor.new("Bright blue")
     platform.TopSurface = Enum.SurfaceType.Studs -- Studs no topo
     platform.BottomSurface = Enum.SurfaceType.Smooth
+    platform.Transparency = 0
     
     -- Cria a Decal no topo da Part
     local decal = Instance.new("Decal")
     decal.Name = "TopDecal"
     decal.Face = Enum.NormalId.Top -- Decal no topo
     decal.Texture = DECAL_ID
+    decal.Transparency = 0
     decal.Parent = platform
     
-    -- Adiciona a Part ao Workspace
+    -- Adiciona a Part ao Workspace primeiro
     platform.Parent = workspace
     
-    print("Plataforma criada na posição:", PART_POSITION)
+    -- Depois define a posição (mais confiável)
+    platform.CFrame = CFrame.new(PART_POSITION)
+    
+    print("Plataforma criada com sucesso na posição:", PART_POSITION)
+    print("Plataforma Parent:", platform.Parent)
     return platform
 end
 
 -- Função para teleportar para cima da Part
-local function teleportToPlatform()
-    if HumanoidRootPart then
+local function teleportToPlatform(humanoidRootPart)
+    if humanoidRootPart then
         -- Teleporta para 3 studs acima da posição da plataforma
         local teleportPosition = PART_POSITION + Vector3.new(0, PART_SIZE.Y/2 + 3, 0)
-        HumanoidRootPart.CFrame = CFrame.new(teleportPosition)
-        print("Teleportado para a plataforma!")
+        humanoidRootPart.CFrame = CFrame.new(teleportPosition)
+        print("Teleportado para a plataforma na posição:", teleportPosition)
         return true
+    else
+        warn("HumanoidRootPart não encontrado!")
     end
     return false
 end
 
 -- Função principal
 local function executeTeleport()
+    print("=== Iniciando script ===")
+    
+    -- Aguarda o personagem
+    local character, humanoidRootPart = waitForCharacter()
+    
+    if not humanoidRootPart then
+        warn("Não foi possível encontrar o HumanoidRootPart!")
+        return
+    end
+    
     -- Verifica se você está no Team Brian
     if not isOnTeamBrian() then
         warn("Você precisa estar no Team Brian para usar este script!")
+        warn("Seu time atual:", LocalPlayer.Team and LocalPlayer.Team.Name or "Nenhum")
         return
     end
+    
+    print("Verificando plataforma existente...")
     
     -- Verifica se já existe uma plataforma
     local existingPlatform = workspace:FindFirstChild("BrianPlatform")
@@ -331,36 +389,40 @@ local function executeTeleport()
     if existingPlatform then
         -- Se já existe, apenas teleporta para a posição
         print("Plataforma já existe, teleportando...")
-        teleportToPlatform()
+        teleportToPlatform(humanoidRootPart)
     else
         -- Cria nova plataforma
+        print("Plataforma não existe, criando...")
         local platform = createPlatform()
         
         if platform then
-            wait(0.1) -- Pequeno delay para garantir que a part foi criada
-            teleportToPlatform()
+            wait(0.2) -- Delay para garantir que a part foi criada
+            teleportToPlatform(humanoidRootPart)
+        else
+            warn("Falha ao criar plataforma!")
         end
     end
 end
 
--- Atualiza a referência do personagem quando respawnar
+-- Atualiza quando o personagem respawna
 LocalPlayer.CharacterAdded:Connect(function(newCharacter)
-    Character = newCharacter
-    HumanoidRootPart = newCharacter:WaitForChild("HumanoidRootPart")
+    wait(1) -- Aguarda o personagem carregar
+    executeTeleport()
 end)
 
--- Executa automaticamente
+-- Aguarda um pouco antes de executar (para garantir que tudo carregou)
+wait(1)
 executeTeleport()
    end,
 })
 
 local OTab = Window:CreateTab("⚡ Teleporte ⚡", nil) -- Title, Image
-local Section = OTab:CreateSection("Teleporte")
+local Section = Tab:CreateSection("Teleporte")
 
 local Button = OTab:CreateButton({
    Name = "Lobby",
    Callback = function()
-  -- Script de Teleporte
+   -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -374,10 +436,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local Button = OTab:CreateButton({
-   Name = "Map",
+local Button = Tab:CreateButton({
+   Name = "OMap",
    Callback = function()
-  -- Script de Teleporte
+    -- Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -409,7 +471,7 @@ print("Teleportado para:", targetPosition)
 })
 
 local LTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
-local Section = LTab:CreateSection("Misc")
+local Section = Tab:CreateSection("Misc")
 
 local Toggle = LTab:CreateToggle({
     Name = "Funny Auto Farm",
@@ -426,8 +488,8 @@ local Toggle = LTab:CreateToggle({
                 local RunService = game:GetService("RunService")
                 
                 local angulo = 0
-                local raio = 25 -- 25 Studs de distância
-                local velocidade = 0.5 -- Velocidade de rotação (graus por frame)
+                local raio = 12 -- 25 Studs de distância
+                local velocidade = 3 -- Velocidade de rotação (graus por frame)
                 
                 local conexao
                 conexao = RunService.Heartbeat:Connect(function()
