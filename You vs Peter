@@ -24,7 +24,7 @@ local Window = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 
-   KeySystem = True, -- Set this to true to use our key system
+   KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
       Title = "KeySystem",
       Subtitle = "Insert the Key",
@@ -273,7 +273,7 @@ while true do
    end,
 })
 
-local Button = Tab:CreateButton({
+local Button = GTab:CreateButton({
    Name = "Brian Auto Win",
    Callback = function()
    -- Script de Teleporte para Part Personalizada
@@ -454,7 +454,7 @@ print("Teleportado para:", targetPosition)
 })
 
 local Button = TTab:CreateButton({
-   Name = "Peter Spamw",
+   Name = "Peter Spawn",
    Callback = function()
 -- Script de Teleporte
 local player = game.Players.LocalPlayer
