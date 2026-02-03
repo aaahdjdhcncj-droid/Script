@@ -24,7 +24,7 @@ local Window = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 
-   KeySystem = True, -- Set this to true to use our key system
+   KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
       Title = "KeySystem",
       Subtitle = "Insert the Key",
@@ -63,7 +63,7 @@ end)
 
 local Input = MTab:CreateInput({
    Name = "Walk Speed",
-   CurrentValue = "1",
+   CurrentValue = "16",
    PlaceholderText = "1-300",
    RemoveTextAfterFocusLost = false,
    Flag = "Input1",
@@ -74,7 +74,7 @@ local Input = MTab:CreateInput({
 
 local Input = MTab:CreateInput({
    Name = "Jump Power",
-   CurrentValue = "1",
+   CurrentValue = "50",
    PlaceholderText = "1-300",
    RemoveTextAfterFocusLost = false,
    Flag = "Input1",
@@ -409,7 +409,7 @@ print("Teleportado para:", targetPosition)
 })
 
 local LTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
-local Section = Tab:CreateSection("Misc")
+local Section = LTab:CreateSection("Misc")
 
 local Toggle = LTab:CreateToggle({
     Name = "Funny Auto Farm",
