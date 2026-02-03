@@ -24,7 +24,7 @@ local Window = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 
-   KeySystem = true, -- Set this to true to use our key system
+   KeySystem = True, -- Set this to true to use our key system
    KeySettings = {
       Title = "KeySystem",
       Subtitle = "Insert the Key",
@@ -63,7 +63,7 @@ end)
 
 local Input = MTab:CreateInput({
    Name = "Walk Speed",
-   CurrentValue = "16",
+   CurrentValue = "1",
    PlaceholderText = "1-300",
    RemoveTextAfterFocusLost = false,
    Flag = "Input1",
@@ -74,7 +74,7 @@ local Input = MTab:CreateInput({
 
 local Input = MTab:CreateInput({
    Name = "Jump Power",
-   CurrentValue = "50",
+   CurrentValue = "1",
    PlaceholderText = "1-300",
    RemoveTextAfterFocusLost = false,
    Flag = "Input1",
@@ -273,7 +273,7 @@ while true do
    end,
 })
 
-local Button = GTab:CreateButton({
+local Button = Tab:CreateButton({
    Name = "Brian Auto Win",
    Callback = function()
    -- Script de Teleporte para Part Personalizada
@@ -416,13 +416,13 @@ executeTeleport()
    end,
 })
 
-local OTab = Window:CreateTab("⚡ Teleporte ⚡", nil) -- Title, Image
-local Section = OTab:CreateSection("Teleporte")
+local TTab = Window:CreateTab("⚡ Teleporte ⚡", nil) -- Title, Image
+local Section = TTab:CreateSection("Teleporte")
 
-local Button = OTab:CreateButton({
+local Button = TTab:CreateButton({
    Name = "Lobby",
    Callback = function()
-   -- Script de Teleporte
+   Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -436,10 +436,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local Button = Tab:CreateButton({
-   Name = "OMap",
+local Button = TTab:CreateButton({
+   Name = "Map",
    Callback = function()
-    -- Script de Teleporte
+    Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -453,10 +453,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local Button = OTab:CreateButton({
+local Button = TTab:CreateButton({
    Name = "Peter Spamw",
    Callback = function()
-   -- Script de Teleporte
+   Script de Teleporte
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -470,10 +470,10 @@ print("Teleportado para:", targetPosition)
    end,
 })
 
-local PTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
-local Section = PTab:CreateSection("Misc")
+local KTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
+local Section = KTab:CreateSection("Misc")
 
-local Toggle = PTab:CreateToggle({
+local Toggle = KTab:CreateToggle({
     Name = "Funny Auto Farm",
     CurrentValue = false,
     Flag = "ToggleGirarPeter",
@@ -539,7 +539,7 @@ local Toggle = PTab:CreateToggle({
     end,
 })
 
-local Button = PTab:CreateButton({
+local Button = KTab:CreateButton({
    Name = "Infinite Yield",
    Callback = function()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
