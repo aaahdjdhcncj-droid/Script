@@ -471,7 +471,7 @@ print("Teleportado para:", targetPosition)
 })
 
 local LTab = Window:CreateTab("🤣 Misc 🤣", nil) -- Title, Image
-local Section = Tab:CreateSection("Misc")
+local Section = LTab:CreateSection("Misc")
 
 local Toggle = LTab:CreateToggle({
     Name = "Funny Auto Farm",
