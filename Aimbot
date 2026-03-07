@@ -11,7 +11,7 @@ local Window = Rayfield:CreateWindow({
    ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
 
    DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from emitting warnings when the script has a version mismatch with the interface.
+   DisableBuildWarnings = false -- Prevents Rayfield from emitting warnings when the script has a version mismatch with the interface.
 
    ConfigurationSaving = {
       Enabled = true,
@@ -27,13 +27,13 @@ local Window = Rayfield:CreateWindow({
 
    KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
-      Title = "keysystem",
-      Subtitle = "Get Key",
-      Note = "Key: Hi", -- Use this to tell the user how to get a key
+      Title = "🔑 key System",
+      Subtitle = "Pegue a Key para Usar o Script ",
+      Note = "Key: O que mais tem no Rio de Janeiro", -- Use this to tell the user how to get a key
       FileName = "Key", -- It is recommended to use something unique, as other scripts using Rayfield may overwrite your key file
       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hi"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
+      Key = {"Ladrão"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
    }
 })
 
@@ -53,7 +53,7 @@ end)
 })
 
 local Slider = MTab:CreateSlider({
-   Name = "Walk Speed",
+   Name = "Walk Speed 🏎️",
    Range = {0, 500},
    Increment = 1,
    Suffix = "Speed",
@@ -65,7 +65,7 @@ local Slider = MTab:CreateSlider({
 })
 
 local Slider = MTab:CreateSlider({
-   Name = "Jump Power",
+   Name = "Jump Power 🦘",
    Range = {0, 500},
    Increment = 1,
    Suffix = "Jump",
@@ -77,7 +77,7 @@ local Slider = MTab:CreateSlider({
 })
 
 local Button = MTab:CreateButton({
-   Name = "Infinite Yield",
+   Name = "Infinite Yield ♾️",
    Callback = function()
    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
    end,
@@ -87,7 +87,7 @@ local ITab = Window:CreateTab("⚠️ Misc ⚠️", nil) -- Title, Image
 local Section = ITab:CreateSection("Misc")
 
 local Button = ITab:CreateButton({
-   Name = "Kill Gui",
+   Name = "Kill Gui ☠️",
    Callback = function()
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -116,16 +116,214 @@ end
 })
 
 local Button = ITab:CreateButton({
-   Name = "Aimbot 🎯",
+   Name = "Aim Bot 🎯",
    Callback = function()
-loadstring(game:HttpGet("https://pastebin.com/raw/qtZt0Nzb"))()
- end,
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+--------------------------------------------------
+-- CONFIG
+--------------------------------------------------
+
+local AimEnabled = false
+local FOV = 200
+local Smoothness = 0.15
+
+--------------------------------------------------
+-- GUI
+--------------------------------------------------
+
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0,200,0,120)
+Frame.Position = UDim2.new(0.4,0,0.3,0)
+Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Frame.Active = true
+Frame.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,25)
+Title.Text = "Admin Aim"
+Title.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Parent = Frame
+
+local Toggle = Instance.new("TextButton")
+Toggle.Size = UDim2.new(1,-10,0,30)
+Toggle.Position = UDim2.new(0,5,0,35)
+Toggle.Text = "Aim: OFF"
+Toggle.Parent = Frame
+
+local Minimize = Instance.new("TextButton")
+Minimize.Size = UDim2.new(0,25,0,25)
+Minimize.Position = UDim2.new(1,-25,0,0)
+Minimize.Text = "-"
+Minimize.Parent = Frame
+
+--------------------------------------------------
+-- MINIMIZAR
+--------------------------------------------------
+
+local minimized = false
+
+Minimize.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	
+	for _,v in pairs(Frame:GetChildren()) do
+		if v:IsA("TextButton") and v ~= Minimize then
+			v.Visible = not minimized
+		end
+	end
+	
+	if minimized then
+		Frame.Size = UDim2.new(0,200,0,25)
+	else
+		Frame.Size = UDim2.new(0,200,0,120)
+	end
+end)
+
+--------------------------------------------------
+-- DRAG GUI
+--------------------------------------------------
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+Frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		Frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+--------------------------------------------------
+-- FOV CIRCLE
+--------------------------------------------------
+
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Color = Color3.fromRGB(0,255,0)
+FOVCircle.Radius = FOV
+FOVCircle.Thickness = 2
+FOVCircle.Filled = false
+FOVCircle.Visible = true
+
+RunService.RenderStepped:Connect(function()
+	local mouse = UIS:GetMouseLocation()
+	FOVCircle.Position = mouse
+end)
+
+--------------------------------------------------
+-- PLAYER MAIS PRÓXIMO
+--------------------------------------------------
+
+function GetClosestPlayer()
+
+	local closest = nil
+	local shortest = FOV
+
+	for _,player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+			
+			local pos, visible = Camera:WorldToViewportPoint(player.Character.Head.Position)
+			
+			if visible then
+				
+				local dist = (Vector2.new(pos.X,pos.Y) - UIS:GetMouseLocation()).Magnitude
+				
+				if dist < shortest then
+					shortest = dist
+					closest = player
+				end
+				
+			end
+			
+		end
+	end
+	
+	return closest
+	
+end
+
+--------------------------------------------------
+-- AIMBOT
+--------------------------------------------------
+
+RunService.RenderStepped:Connect(function()
+
+	if AimEnabled then
+		
+		local target = GetClosestPlayer()
+		
+		if target and target.Character and target.Character:FindFirstChild("Head") then
+			
+			local head = target.Character.Head
+			
+			Camera.CFrame = Camera.CFrame:Lerp(
+				CFrame.new(Camera.CFrame.Position, head.Position),
+				Smoothness
+			)
+			
+		end
+		
+	end
+	
+end)
+
+--------------------------------------------------
+-- BOTÃO AIM
+--------------------------------------------------
+
+Toggle.MouseButton1Click:Connect(function()
+
+	AimEnabled = not AimEnabled
+	
+	if AimEnabled then
+		Toggle.Text = "Aim: ON"
+	else
+		Toggle.Text = "Aim: OFF"
+	end
+	
+end)
+   end,
 })
+
 local ETab = Window:CreateTab("❄️ ESP ❄️", nil) -- Title, Image
 local Section = ETab:CreateSection("ESP")
 
 local Button = ETab:CreateButton({
-   Name = "Highlight",
+   Name = "Highlight 💡",
    Callback = function()
    local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
@@ -175,7 +373,7 @@ Players.PlayerAdded:Connect(playerAdded)
 })
 
 local Button = ETab:CreateButton({
-   Name = "ESP Name",
+   Name = "ESP Name 💢",
    Callback = function()
    local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
