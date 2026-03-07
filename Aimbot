@@ -118,12 +118,11 @@ end
 local Button = ITab:CreateButton({
    Name = "Aim Bot 🎯",
    Callback = function()
-local Players = game:GetService("Players")
+    local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UIS = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
 
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
 --------------------------------------------------
 -- CONFIG
@@ -137,184 +136,148 @@ local Smoothness = 0.15
 -- GUI
 --------------------------------------------------
 
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local gui = Instance.new("ScreenGui")
+gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
+-- MENU
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0,200,0,120)
-Frame.Position = UDim2.new(0.4,0,0.3,0)
+Frame.Size = UDim2.new(0,160,0,90)
+Frame.Position = UDim2.new(0,20,0,200)
 Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Frame.Active = true
-Frame.Parent = ScreenGui
+Frame.Draggable = true
+Frame.Parent = gui
 
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1,0,0,25)
-Title.Text = "Admin Aim"
-Title.BackgroundColor3 = Color3.fromRGB(40,40,40)
-Title.TextColor3 = Color3.new(1,1,1)
-Title.Parent = Frame
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(1,0,0,40)
+Button.Position = UDim2.new(0,0,0,0)
+Button.Text = "Aim Assist OFF"
+Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Button.TextColor3 = Color3.new(1,1,1)
+Button.Parent = Frame
 
-local Toggle = Instance.new("TextButton")
-Toggle.Size = UDim2.new(1,-10,0,30)
-Toggle.Position = UDim2.new(0,5,0,35)
-Toggle.Text = "Aim: OFF"
-Toggle.Parent = Frame
+Button.MouseButton1Click:Connect(function()
 
-local Minimize = Instance.new("TextButton")
-Minimize.Size = UDim2.new(0,25,0,25)
-Minimize.Position = UDim2.new(1,-25,0,0)
-Minimize.Text = "-"
-Minimize.Parent = Frame
+	AimEnabled = not AimEnabled
 
---------------------------------------------------
--- MINIMIZAR
---------------------------------------------------
-
-local minimized = false
-
-Minimize.MouseButton1Click:Connect(function()
-	minimized = not minimized
-	
-	for _,v in pairs(Frame:GetChildren()) do
-		if v:IsA("TextButton") and v ~= Minimize then
-			v.Visible = not minimized
-		end
-	end
-	
-	if minimized then
-		Frame.Size = UDim2.new(0,200,0,25)
+	if AimEnabled then
+		Button.Text = "Aim Assist ON"
 	else
-		Frame.Size = UDim2.new(0,200,0,120)
+		Button.Text = "Aim Assist OFF"
 	end
+
 end)
 
 --------------------------------------------------
--- DRAG GUI
+-- FOV CIRCULO
 --------------------------------------------------
 
-local dragging
-local dragInput
-local dragStart
-local startPos
+local FOVCircle = Instance.new("Frame")
+FOVCircle.Size = UDim2.new(0,FOV*2,0,FOV*2)
+FOVCircle.AnchorPoint = Vector2.new(0.5,0.5)
+FOVCircle.Position = UDim2.new(0.5,0,0.5,0)
+FOVCircle.BackgroundTransparency = 1
+FOVCircle.Parent = gui
 
-Frame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = Frame.Position
-		
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(0,255,100)
+Stroke.Thickness = 2
+Stroke.Parent = FOVCircle
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(1,0)
+Corner.Parent = FOVCircle
+
+--------------------------------------------------
+-- VISIBILIDADE
+--------------------------------------------------
+
+local function IsVisible(part)
+
+	local origin = Camera.CFrame.Position
+	local direction = (part.Position - origin)
+
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {LocalPlayer.Character}
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+
+	local result = workspace:Raycast(origin, direction, params)
+
+	if result and result.Instance then
+		return result.Instance:IsDescendantOf(part.Parent)
 	end
-end)
 
-Frame.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
+	return false
 
-UIS.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
-		Frame.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
-	end
-end)
+end
 
 --------------------------------------------------
--- FOV CIRCLE
+-- PLAYER MAIS PERTO DO FOV
 --------------------------------------------------
 
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Color = Color3.fromRGB(0,255,0)
-FOVCircle.Radius = FOV
-FOVCircle.Thickness = 2
-FOVCircle.Filled = false
-FOVCircle.Visible = true
-
-RunService.RenderStepped:Connect(function()
-	local mouse = UIS:GetMouseLocation()
-	FOVCircle.Position = mouse
-end)
-
---------------------------------------------------
--- PLAYER MAIS PRÓXIMO
---------------------------------------------------
-
-function GetClosestPlayer()
+local function GetClosest()
 
 	local closest = nil
 	local shortest = FOV
 
 	for _,player in pairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-			
-			local pos, visible = Camera:WorldToViewportPoint(player.Character.Head.Position)
-			
-			if visible then
-				
-				local dist = (Vector2.new(pos.X,pos.Y) - UIS:GetMouseLocation()).Magnitude
-				
-				if dist < shortest then
-					shortest = dist
-					closest = player
+
+		if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team then
+
+			local char = player.Character
+			if char then
+
+				local head = char:FindFirstChild("Head")
+				local humanoid = char:FindFirstChildOfClass("Humanoid")
+
+				if head and humanoid and humanoid.Health > 0 then
+
+					local screenPos, visible = Camera:WorldToViewportPoint(head.Position)
+
+					if visible then
+
+						local dist = (Vector2.new(screenPos.X,screenPos.Y) - Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)).Magnitude
+
+						if dist < shortest and IsVisible(head) then
+
+							shortest = dist
+							closest = head
+
+						end
+
+					end
+
 				end
-				
+
 			end
-			
+
 		end
+
 	end
-	
+
 	return closest
-	
+
 end
 
 --------------------------------------------------
--- AIMBOT
+-- AIM
 --------------------------------------------------
 
 RunService.RenderStepped:Connect(function()
 
-	if AimEnabled then
-		
-		local target = GetClosestPlayer()
-		
-		if target and target.Character and target.Character:FindFirstChild("Head") then
-			
-			local head = target.Character.Head
-			
-			Camera.CFrame = Camera.CFrame:Lerp(
-				CFrame.new(Camera.CFrame.Position, head.Position),
-				Smoothness
-			)
-			
-		end
-		
+	if not AimEnabled then return end
+
+	local target = GetClosest()
+
+	if target then
+
+		local camPos = Camera.CFrame.Position
+		local new = CFrame.new(camPos, target.Position)
+
+		Camera.CFrame = Camera.CFrame:Lerp(new, Smoothness)
+
 	end
-	
-end)
 
---------------------------------------------------
--- BOTÃO AIM
---------------------------------------------------
-
-Toggle.MouseButton1Click:Connect(function()
-
-	AimEnabled = not AimEnabled
-	
-	if AimEnabled then
-		Toggle.Text = "Aim: ON"
-	else
-		Toggle.Text = "Aim: OFF"
-	end
-	
 end)
    end,
 })
