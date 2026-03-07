@@ -129,7 +129,7 @@ local LocalPlayer = Players.LocalPlayer
 --------------------------------------------------
 
 local AimEnabled = false
-local FOV = 200
+local FOV = 30
 local Smoothness = 0.15
 
 --------------------------------------------------
