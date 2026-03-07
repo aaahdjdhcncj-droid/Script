@@ -25,7 +25,7 @@ local Window = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
    },
 
-   KeySystem = false, -- Set this to true to use our key system
+   KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
       Title = "keysystem",
       Subtitle = "Get Key",
@@ -43,7 +43,12 @@ local Section = MTab:CreateSection("Main")
 local Button = MTab:CreateButton({
    Name = "Inf Jump",
    Callback = function()
-   Local infinitejumpenabled=truegame:getservice("userinputService").jumpRequest:conect(funtion,()
+   local infiniteJumpEnabled = true
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if infiniteJumpEnabled then
+        game.Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
    end,
 })
 
@@ -55,11 +60,11 @@ local Slider = MTab:CreateSlider({
    CurrentValue = 16,
    Flag = "Slider1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
-   game.Players.LocalPlayer.Character.Humanoid.Walkspeed = (Value)
+   game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value)
    end,
 })
 
-local Slider = Tab:CreateSlider({
+local Slider = MTab:CreateSlider({
    Name = "Jump Power",
    Range = {0, 500},
    Increment = 1,
@@ -71,17 +76,17 @@ local Slider = Tab:CreateSlider({
    end,
 })
 
-local Button = Tab:CreateButton({
+local Button = MTab:CreateButton({
    Name = "Infinite Yield",
    Callback = function()
    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
    end,
 })
     
-local Tab = Window:CreateTab("⚠️ Misc ⚠️", nil) -- Title, Image
-local Section = Tab:CreateSection("Misc")
+local ITab = Window:CreateTab("⚠️ Misc ⚠️", nil) -- Title, Image
+local Section = ITab:CreateSection("Misc")
 
-local Button = Tab:CreateButton({
+local Button = ITab:CreateButton({
    Name = "Kill Gui",
    Callback = function()
 local Players = game:GetService("Players")
@@ -192,7 +197,7 @@ end)
    end,
 })
 
-local Button = Tab:CreateButton({
+local Button = ITab:CreateButton({
    Name = "Aimbot 🎯",
    Callback = function()
     local Players = game:GetService("Players")
@@ -231,10 +236,10 @@ end)
    end,
 })
 
-local Tab = Window:CreateTab("❄️ ESP ❄️", nil) -- Title, Image
-local Section = Tab:CreateSection("ESP")
+local ETab = Window:CreateTab("❄️ ESP ❄️", nil) -- Title, Image
+local Section = ETab:CreateSection("ESP")
 
-local Button = Tab:CreateButton({
+local Button = ETab:CreateButton({
    Name = "Highlight",
    Callback = function()
    local Players = game:GetService("Players")
@@ -284,7 +289,7 @@ Players.PlayerAdded:Connect(playerAdded)
    end,
 })
 
-local Button = Tab:CreateButton({
+local Button = ETab:CreateButton({
    Name = "ESP Name",
    Callback = function()
    local Players = game:GetService("Players")
@@ -356,6 +361,5 @@ end
 Players.PlayerAdded:Connect(playerAdded)
    end,
 })
-
 
 
