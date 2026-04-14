@@ -1,0 +1,89 @@
+-- HighlightKeys.lua
+-- Navega em: Map > Functional > SpawnedItems
+-- Faz Highlight em todos os Tools cujo nome contém "Key" (ex: Red Key, Green Key, Blue Key, etc.)
+
+-- =====================================================
+-- CONFIGURAÇÕES
+-- =====================================================
+local HIGHLIGHT_COLOR     = Color3.fromRGB(255, 215, 0)   -- Cor do contorno (dourado)
+local FILL_COLOR          = Color3.fromRGB(255, 255, 255)  -- Cor do preenchimento
+local FILL_TRANSPARENCY   = 0.6                            -- Transparência do preenchimento (0 = sólido, 1 = invisível)
+local OUTLINE_TRANSPARENCY = 0                             -- Transparência do contorno
+local KEYWORD             = "Key"                          -- Palavra-chave para identificar os Tools
+-- =====================================================
+
+-- Referências ao caminho Map > Functional > SpawnedItems
+local Map           = workspace:FindFirstChild("Map")
+local Functional    = Map and Map:FindFirstChild("Functional")
+local SpawnedItems  = Functional and Functional:FindFirstChild("SpawnedItems")
+
+if not SpawnedItems then
+	warn("[HighlightKeys] Caminho inválido! Verifique se existe: workspace.Map.Functional.SpawnedItems")
+	return
+end
+
+-- Função que cria (ou reseta) o Highlight num Tool
+local function applyHighlight(tool)
+	-- Remove highlight anterior se já existir
+	local existing = tool:FindFirstChildOfClass("SelectionBox") or tool:FindFirstChild("KeyHighlight")
+	if existing then
+		existing:Destroy()
+	end
+
+	-- Cria o Highlight
+	local highlight = Instance.new("Highlight")
+	highlight.Name              = "KeyHighlight"
+	highlight.FillColor         = FILL_COLOR
+	highlight.FillTransparency  = FILL_TRANSPARENCY
+	highlight.OutlineColor      = HIGHLIGHT_COLOR
+	highlight.OutlineTransparency = OUTLINE_TRANSPARENCY
+	highlight.Adornee           = tool
+	highlight.Parent            = tool
+
+	print(string.format("[HighlightKeys] ✅  Highlight aplicado em: '%s'", tool.Name))
+end
+
+-- Função principal: varre todos os filhos de SpawnedItems
+local function scanAndHighlight()
+	local count = 0
+
+	for _, item in ipairs(SpawnedItems:GetChildren()) do
+		-- Verifica se é um Tool e se o nome contém a palavra-chave (case-sensitive opcional)
+		if item:IsA("Tool") and string.find(item.Name, KEYWORD) then
+			applyHighlight(item)
+			count += 1
+		end
+	end
+
+	if count == 0 then
+		warn(string.format("[HighlightKeys] Nenhum Tool com '%s' encontrado em SpawnedItems.", KEYWORD))
+	else
+		print(string.format("[HighlightKeys] 🔑 Total de Tools com highlight: %d", count))
+	end
+end
+
+-- =====================================================
+-- Executa na primeira vez
+-- =====================================================
+scanAndHighlight()
+
+-- =====================================================
+-- (OPCIONAL) Detecta novos Tools adicionados dinamicamente
+-- =====================================================
+SpawnedItems.ChildAdded:Connect(function(child)
+	if child:IsA("Tool") and string.find(child.Name, KEYWORD) then
+		-- Pequeno delay para garantir que o Tool está completamente carregado
+		task.wait(0.1)
+		applyHighlight(child)
+		print(string.format("[HighlightKeys] 🔑 Novo Tool detectado e destacado: '%s'", child.Name))
+	end
+end)
+
+-- Remove o Highlight quando o Tool é removido de SpawnedItems
+SpawnedItems.ChildRemoved:Connect(function(child)
+	if child:IsA("Tool") and string.find(child.Name, KEYWORD) then
+		local h = child:FindFirstChild("KeyHighlight")
+		if h then h:Destroy() end
+	end
+end)
+
