@@ -1,581 +1,378 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Cookie Hub 🍪",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   Name = "Cookie Hub ðŸª",
+   Icon = 0,
    LoadingTitle = "Loading...",
    LoadingSubtitle = "By Yoricks",
-   ShowText = "Rayfield", -- for mobile users to unhide Rayfield, change if you'd like
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
-
+   ShowText = "Rayfield",
+   Theme = "Default",
+   ToggleUIKeybind = "K",
    DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from emitting warnings when the script has a version mismatch with the interface.
-
-   -- ScriptID = "sid_xxxxxxxxxxxx", -- Your Script ID from developer.sirius.menu — enables analytics, managed keys, and script hosting
+   DisableBuildWarnings = false,
 
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = Cu, -- Create a custom folder for your hub/game
+      FolderName = "CookieHub", -- CORRIGIDO: era `Cu` (sem aspas)
       FileName = "Big Hub"
    },
 
    Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include Discord.gg/. E.g. Discord.gg/ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
    },
 
-   KeySystem = true, -- Set this to true to use our key system
+   KeySystem = true,
    KeySettings = {
       Title = "Get Key",
       Subtitle = "Key System",
-      Note = "Use A Key Que Esta No Nosso Discord", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique, as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"keygameGetServicePlayerCoocKiehub"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
+      Note = "Use A Key Que Esta No Nosso Discord",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"keygameGetServicePlayerCoocKiehub"}
    }
 })
 
-local MTab = Window:CreateTab("🔧 Main 🔧", nil) -- Title, Image
+-- ================================================
+-- TAB: MAIN
+-- ================================================
+local MTab = Window:CreateTab("ðŸ”§ Main ðŸ”§", nil)
 local Section = MTab:CreateSection("Main")
 
+-- Infinite Jump
 local Button = MTab:CreateButton({
    Name = "Infinite Jump",
    Callback = function()
-   local InfiniteJumpEnabled = true
-game:GetService("UserInputService").JumpRequest:connect(function()
-	if InfiniteJumpEnabled then
-		game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
-	end
-end)
+      local InfiniteJumpEnabled = true
+      game:GetService("UserInputService").JumpRequest:Connect(function() -- CORRIGIDO: connect â†’ Connect
+         if InfiniteJumpEnabled then
+            game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+         end
+      end)
    end,
 })
 
-local Button = MTab:CreateButton({
+-- Infinite Yield
+local Button2 = MTab:CreateButton({ -- CORRIGIDO: nome de variÃ¡vel Ãºnico
    Name = "Infinite Yield",
    Callback = function()
-   loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
    end,
 })
 
-local Input = MTab:CreateInput({
+-- Walk Speed
+local InputWalkSpeed = MTab:CreateInput({ -- CORRIGIDO: nome de variÃ¡vel Ãºnico
    Name = "Walk Speed",
    CurrentValue = "16",
    PlaceholderText = "16-300",
-   RemoveTextAfterFocusLost = True,
-   Flag = "Input1",
+   RemoveTextAfterFocusLost = true, -- CORRIGIDO: True â†’ true
+   Flag = "Input_WalkSpeed", -- CORRIGIDO: flag Ãºnica
    Callback = function(Text)
-   game.Players.LocalPlayer.Character.Humanoid.Walkspeed = (Text)
+      local speed = tonumber(Text) -- CORRIGIDO: tonumber para converter string â†’ nÃºmero
+      if speed then
+         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed -- CORRIGIDO: Walkspeed â†’ WalkSpeed
+      end
    end,
 })
 
-local Input = MTab:CreateInput({
+-- Jump Power
+local InputJumpPower = MTab:CreateInput({ -- CORRIGIDO: nome de variÃ¡vel Ãºnico
    Name = "Jump Power",
    CurrentValue = "50",
    PlaceholderText = "50-300",
    RemoveTextAfterFocusLost = false,
-   Flag = "Input1",
+   Flag = "Input_JumpPower", -- CORRIGIDO: flag Ãºnica
    Callback = function(Text)
-   game.Players.LocalPlayer.Character.Humanoid.Jumppower = (Text)
+      local power = tonumber(Text) -- CORRIGIDO: tonumber
+      if power then
+         game.Players.LocalPlayer.Character.Humanoid.JumpPower = power -- CORRIGIDO: Jumppower â†’ JumpPower
+      end
    end,
 })
 
-local ETab = Window:CreateTab("👽 Visual Esp 👽", nil) -- Title, Image
-local Section = ETab:CreateSection("Visual Esp")
-
-local Toggle = ETab:CreateToggle({
-   Name = "Key Esp",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
--- ToggleTool com UI Library Toggle
--- Coloque em: StarterPlayerScripts
-
-local Players = game:GetService("Players")
-
-local player    = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid  = character:WaitForChild("Humanoid")
-local backpack  = player:WaitForChild("Backpack")
-
--- =====================================================
--- CONFIGURAÇÃO
--- =====================================================
-local INTERVAL = 0.08  -- segundos entre cada equip/unequip
--- =====================================================
-
-local isLooping  = false
-local loopThread = nil
-
-local function getCurrentTool()
-	for _, item in ipairs(character:GetChildren()) do
-		if item:IsA("Tool") then return item end
-	end
-	return nil
-end
-
-local function getBackpackTool()
-	return backpack:FindFirstChildOfClass("Tool")
-end
-
-local function startLoop()
-	local tool = getCurrentTool() or getBackpackTool()
-	if not tool then
-		print("[ToggleTool] ⚠️ Nenhum Tool disponível!")
-		return
-	end
-
-	isLooping = true
-	print("[ToggleTool] ▶ Loop iniciado!")
-
-	loopThread = task.spawn(function()
-		while isLooping do
-			if getCurrentTool() then
-				humanoid:UnequipTools()
-			else
-				local toEquip = getBackpackTool()
-				if toEquip then
-					humanoid:EquipTool(toEquip)
-				end
-			end
-			task.wait(INTERVAL)
-		end
-	end)
-end
-
-local function stopLoop()
-	isLooping = false
-	if loopThread then
-		task.cancel(loopThread)
-		loopThread = nil
-	end
-	humanoid:UnequipTools()
-	print("[ToggleTool] ⏹ Loop parado.")
-end
-
--- =====================================================
--- TOGGLE DA UI LIBRARY
--- =====================================================
-local Toggle = Tab:CreateToggle({
-	Name = "Auto Equip Tool",
-	CurrentValue = false,
-	Flag = "ToggleAutoEquipTool",
-	Callback = function(Value)
-		if Value then
-			startLoop()
-		else
-			stopLoop()
-		end
-	end,
-})
-
--- =====================================================
--- RESPAWN: para o loop e reseta o toggle
--- =====================================================
-player.CharacterAdded:Connect(function(newChar)
-	if isLooping then
-		isLooping = false
-		if loopThread then
-			task.cancel(loopThread)
-			loopThread = nil
-		end
-		Toggle:Set(false)
-	end
-	character = newChar
-	humanoid  = newChar:WaitForChild("Humanoid")
-end)
-            
-   end,
-})
-
-local Toggle = ETab:CreateToggle({
-   Name = "Cookie Esp",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   -- CookieHighlight com UI Library Toggle
--- Coloque em: StarterPlayerScripts
--- Busca Models com "Cookie" no nome em: workspace.Map.Functional.SpawnedItems
-
--- =====================================================
--- CONFIGURAÇÃO
--- =====================================================
-local KEYWORD              = "Cookie"
-local HIGHLIGHT_COLOR      = Color3.fromRGB(255, 30, 30)  -- contorno vermelho
-local FILL_COLOR           = Color3.fromRGB(255, 0, 0)    -- preenchimento vermelho
-local FILL_TRANSPARENCY    = 0.6
-local OUTLINE_TRANSPARENCY = 0
--- =====================================================
-
-local isActive   = false
-local loopThread = nil
-local connections = {}  -- guarda conexões de ChildAdded/ChildRemoved
-
--- Caminho até SpawnedItems
-local Map          = workspace:WaitForChild("Map")
-local Functional   = Map:WaitForChild("Functional")
-local SpawnedItems = Functional:WaitForChild("SpawnedItems")
-
--- =====================================================
--- HIGHLIGHT
--- =====================================================
-local function applyHighlight(model)
-	if model:FindFirstChild("CookieHighlight") then return end
-	local h = Instance.new("Highlight")
-	h.Name                = "CookieHighlight"
-	h.FillColor           = FILL_COLOR
-	h.FillTransparency    = FILL_TRANSPARENCY
-	h.OutlineColor        = HIGHLIGHT_COLOR
-	h.OutlineTransparency = OUTLINE_TRANSPARENCY
-	h.Adornee             = model
-	h.Parent              = model
-end
-
-local function removeHighlight(model)
-	local h = model:FindFirstChild("CookieHighlight")
-	if h then h:Destroy() end
-end
-
-local function isCookie(item)
-	return item:IsA("Model") and string.find(item.Name, KEYWORD)
-end
-
-local function highlightAll()
-	for _, item in ipairs(SpawnedItems:GetChildren()) do
-		if isCookie(item) then
-			applyHighlight(item)
-		end
-	end
-end
-
-local function removeAll()
-	for _, item in ipairs(SpawnedItems:GetChildren()) do
-		if isCookie(item) then
-			removeHighlight(item)
-		end
-	end
-end
-
--- =====================================================
--- START / STOP
--- =====================================================
-local function startHighlight()
-	isActive = true
-	highlightAll()
-	print("[CookieHighlight] 🔴 Ativado!")
-
-	-- Detecta cookies que spawnarem depois
-	connections[1] = SpawnedItems.ChildAdded:Connect(function(child)
-		if isActive and isCookie(child) then
-			task.wait(0.05)
-			applyHighlight(child)
-		end
-	end)
-
-	-- Remove highlight quando o cookie for coletado/destruído
-	connections[2] = SpawnedItems.ChildRemoved:Connect(function(child)
-		if isCookie(child) then
-			removeHighlight(child)
-		end
-	end)
-end
-
-local function stopHighlight()
-	isActive = false
-
-	-- Desconecta os eventos
-	for _, conn in ipairs(connections) do
-		conn:Disconnect()
-	end
-	connections = {}
-
-	removeAll()
-	print("[CookieHighlight] ⚫ Desativado!")
-end
-
--- =====================================================
--- TOGGLE DA UI LIBRARY
--- =====================================================
-local Toggle = Tab:CreateToggle({
-	Name = "Cookie Highlight",
-	CurrentValue = false,
-	Flag = "ToggleCookieHighlight",
-	Callback = function(Value)
-		if Value then
-			startHighlight()
-		else
-			stopHighlight()
-		end
-	end,
-})
-            
-   end,
-})
-
-local VTab = Window:CreateTab("👵 Veia 👵", nil) -- Title, Image
-local Section = VTab:CreateSection("Vovó")
-
-local Toggle = VTab:CreateToggle({
-   Name = "Trolla a Veia",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   -- GrandmaTeleport com UI Library Toggle
--- Coloque em: StarterPlayerScripts
--- Teleporta o player infinitamente para cima do modelo Grandma em workspace.SpawnedNPCs
-
-local Players = game:GetService("Players")
-
-local player    = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart  = character:WaitForChild("HumanoidRootPart")
-
--- =====================================================
--- CONFIGURAÇÃO
--- =====================================================
-local KEYWORD  = "Grandma"  -- nome do modelo
-local INTERVAL = 0.1        -- segundos entre cada teleporte
-local OFFSET   = Vector3.new(0, 5, 0)  -- altura acima da Grandma
--- =====================================================
-
-local isActive   = false
-local loopThread = nil
-
--- Caminho
-local SpawnedNPCs = workspace:WaitForChild("SpawnedNPCs")
-
--- =====================================================
--- HELPERS
--- =====================================================
-local function getGrandma()
-	for _, item in ipairs(SpawnedNPCs:GetChildren()) do
-		if item:IsA("Model") and string.find(item.Name, KEYWORD) then
-			return item
-		end
-	end
-	return nil
-end
-
-local function getGrandmaCFrame()
-	local grandma = getGrandma()
-	if not grandma then return nil end
-
-	local part = grandma.PrimaryPart or grandma:FindFirstChildOfClass("BasePart")
-	if not part then return nil end
-
-	return part.CFrame + OFFSET
-end
-
--- =====================================================
--- LOOP
--- =====================================================
-local function startLoop()
-	local cf = getGrandmaCFrame()
-	if not cf then
-		print("[GrandmaTeleport] ⚠️ Grandma não encontrada em SpawnedNPCs!")
-		return
-	end
-
-	isActive = true
-	print("[GrandmaTeleport] ▶ Teleporte iniciado!")
-
-	loopThread = task.spawn(function()
-		while isActive do
-			local target = getGrandmaCFrame()
-			if target then
-				rootPart.CFrame = target
-			else
-				print("[GrandmaTeleport] ⚠️ Grandma sumiu, aguardando...")
-				task.wait(1)
-			end
-			task.wait(INTERVAL)
-		end
-	end)
-end
-
-local function stopLoop()
-	isActive = false
-	if loopThread then
-		task.cancel(loopThread)
-		loopThread = nil
-	end
-	print("[GrandmaTeleport] ⏹ Teleporte parado.")
-end
-
--- =====================================================
--- TOGGLE DA UI LIBRARY
--- =====================================================
-local Toggle = Tab:CreateToggle({
-	Name = "Grandma Teleport",
-	CurrentValue = false,
-	Flag = "ToggleGrandmaTeleport",
-	Callback = function(Value)
-		if Value then
-			startLoop()
-		else
-			stopLoop()
-		end
-	end,
-})
-
--- =====================================================
--- RESPAWN
--- =====================================================
-player.CharacterAdded:Connect(function(newChar)
-	if isActive then
-		isActive = false
-		if loopThread then
-			task.cancel(loopThread)
-			loopThread = nil
-		end
-		Toggle:Set(false)
-	end
-	character = newChar
-	rootPart  = newChar:WaitForChild("HumanoidRootPart")
-end)
-        end,            
-})
-
-local Toggle = MTab:CreateToggle({
-   Name = "Auto Cookies",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   -- CookieCollect com UI Library Toggle
--- Coloque em: StarterPlayerScripts
--- Teleporta os CookieObjects para perto do player e aciona o ProximityPrompt
-
+-- Auto Cookies
 local Players        = game:GetService("Players")
-local VirtualUser    = game:GetService("VirtualUser")
+local player_main    = Players.LocalPlayer
+local character_main = player_main.Character or player_main.CharacterAdded:Wait()
+local rootPart_main  = character_main:WaitForChild("HumanoidRootPart")
 
-local player    = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart  = character:WaitForChild("HumanoidRootPart")
+local cookieActive   = false
+local cookieThread   = nil
 
--- =====================================================
--- CONFIGURAÇÃO
--- =====================================================
-local KEYWORD  = "CookieObject"  -- nome exato do modelo
-local INTERVAL = 0.1             -- segundos entre cada cookie coletado
--- =====================================================
+local Map_c          = workspace:WaitForChild("Map")
+local Functional_c   = Map_c:WaitForChild("Functional")
+local SpawnedItems_c = Functional_c:WaitForChild("SpawnedItems")
 
-local isActive   = false
-local loopThread = nil
-
--- Caminho até SpawnedItems
-local Map          = workspace:WaitForChild("Map")
-local Functional   = Map:WaitForChild("Functional")
-local SpawnedItems = Functional:WaitForChild("SpawnedItems")
-
--- =====================================================
--- HELPERS
--- =====================================================
 local function getCookies()
-	local list = {}
-	for _, item in ipairs(SpawnedItems:GetChildren()) do
-		if item:IsA("Model") and string.find(item.Name, KEYWORD) then
-			table.insert(list, item)
-		end
-	end
-	return list
+   local list = {}
+   for _, item in ipairs(SpawnedItems_c:GetChildren()) do
+      if item:IsA("Model") and string.find(item.Name, "CookieObject") then
+         table.insert(list, item)
+      end
+   end
+   return list
 end
 
 local function getPrompt(cookie)
-	-- Procura ProximityPrompt direto no modelo ou nos filhos
-	local prompt = cookie:FindFirstChildOfClass("ProximityPrompt")
-	if prompt then return prompt end
-	for _, child in ipairs(cookie:GetDescendants()) do
-		if child:IsA("ProximityPrompt") then return child end
-	end
-	return nil
+   local prompt = cookie:FindFirstChildOfClass("ProximityPrompt")
+   if prompt then return prompt end
+   for _, child in ipairs(cookie:GetDescendants()) do
+      if child:IsA("ProximityPrompt") then return child end
+   end
+   return nil
 end
 
 local function collectCookie(cookie)
-	local prompt = getPrompt(cookie)
-	if not prompt then return end
-
-	-- Pega a parte principal do cookie para teleportar
-	local part = cookie.PrimaryPart or cookie:FindFirstChildOfClass("BasePart")
-	if not part then return end
-
-	-- Teleporta o cookie para em cima do player
-	local cf = rootPart.CFrame * CFrame.new(0, 0, -2)
-	cookie:SetPrimaryPartCFrame(cf)
-
-	-- Pequeno delay para o servidor registrar a posição
-	task.wait(0.05)
-
-	-- Aciona o ProximityPrompt
-	fireproximityprompt(prompt)
+   local prompt = getPrompt(cookie)
+   if not prompt then return end
+   local part = cookie.PrimaryPart or cookie:FindFirstChildOfClass("BasePart")
+   if not part then return end
+   local cf = rootPart_main.CFrame * CFrame.new(0, 0, -2)
+   cookie:SetPrimaryPartCFrame(cf)
+   task.wait(0.05)
+   fireproximityprompt(prompt)
 end
 
--- =====================================================
--- LOOP
--- =====================================================
-local function startLoop()
-	isActive = true
-	print("[CookieCollect] 🍪 Iniciado!")
-
-	loopThread = task.spawn(function()
-		while isActive do
-			local cookies = getCookies()
-
-			if #cookies == 0 then
-				task.wait(0.5)  -- espera spawnar mais cookies
-			else
-				for _, cookie in ipairs(cookies) do
-					if not isActive then break end
-					collectCookie(cookie)
-					task.wait(INTERVAL)
-				end
-			end
-		end
-	end)
-end
-
-local function stopLoop()
-	isActive = false
-	if loopThread then
-		task.cancel(loopThread)
-		loopThread = nil
-	end
-	print("[CookieCollect] ⏹ Parado!")
-end
-
--- =====================================================
--- TOGGLE DA UI LIBRARY
--- =====================================================
-local Toggle = Tab:CreateToggle({
-	Name = "Cookie Collect",
-	CurrentValue = false,
-	Flag = "ToggleCookieCollect",
-	Callback = function(Value)
-		if Value then
-			startLoop()
-		else
-			stopLoop()
-		end
-	end,
+local ToggleAutoCookies = MTab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, variÃ¡vel Ãºnica, sem CreateToggle duplicado interno
+   Name = "Auto Cookies",
+   CurrentValue = false,
+   Flag = "Toggle_AutoCookies",
+   Callback = function(Value)
+      if Value then
+         cookieActive = true
+         cookieThread = task.spawn(function()
+            while cookieActive do
+               local cookies = getCookies()
+               if #cookies == 0 then
+                  task.wait(0.5)
+               else
+                  for _, cookie in ipairs(cookies) do
+                     if not cookieActive then break end
+                     collectCookie(cookie)
+                     task.wait(0.1)
+                  end
+               end
+            end
+         end)
+      else
+         cookieActive = false
+         if cookieThread then
+            task.cancel(cookieThread)
+            cookieThread = nil
+         end
+      end
+   end,
 })
 
--- =====================================================
--- RESPAWN
--- =====================================================
-player.CharacterAdded:Connect(function(newChar)
-	if isActive then
-		isActive = false
-		if loopThread then
-			task.cancel(loopThread)
-			loopThread = nil
-		end
-		Toggle:Set(false)
-	end
-	character = newChar
-	rootPart  = newChar:WaitForChild("HumanoidRootPart")
+player_main.CharacterAdded:Connect(function(newChar)
+   if cookieActive then
+      cookieActive = false
+      if cookieThread then task.cancel(cookieThread) cookieThread = nil end
+      ToggleAutoCookies:Set(false)
+   end
+   character_main = newChar
+   rootPart_main  = newChar:WaitForChild("HumanoidRootPart")
 end)
-            
+
+-- ================================================
+-- TAB: VISUAL ESP
+-- ================================================
+local ETab = Window:CreateTab("ðŸ‘½ Visual Esp ðŸ‘½", nil)
+local Section2 = ETab:CreateSection("Visual Esp")
+
+-- Key ESP (Tool Toggle)
+local player_esp    = Players.LocalPlayer
+local character_esp = player_esp.Character or player_esp.CharacterAdded:Wait()
+local humanoid_esp  = character_esp:WaitForChild("Humanoid")
+local backpack_esp  = player_esp:WaitForChild("Backpack")
+
+local toolLooping  = false
+local toolThread   = nil
+
+local function getCurrentTool()
+   for _, item in ipairs(character_esp:GetChildren()) do
+      if item:IsA("Tool") then return item end
+   end
+   return nil
+end
+
+local function getBackpackTool()
+   return backpack_esp:FindFirstChildOfClass("Tool")
+end
+
+local ToggleKeyEsp = ETab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, sem CreateToggle duplicado interno
+   Name = "Key Esp",
+   CurrentValue = false,
+   Flag = "Toggle_KeyEsp",
+   Callback = function(Value)
+      if Value then
+         local tool = getCurrentTool() or getBackpackTool()
+         if not tool then
+            print("[ToggleTool] âš ï¸ Nenhum Tool disponÃ­vel!")
+            return
+         end
+         toolLooping = true
+         toolThread = task.spawn(function()
+            while toolLooping do
+               if getCurrentTool() then
+                  humanoid_esp:UnequipTools()
+               else
+                  local toEquip = getBackpackTool()
+                  if toEquip then humanoid_esp:EquipTool(toEquip) end
+               end
+               task.wait(0.08)
+            end
+         end)
+      else
+         toolLooping = false
+         if toolThread then task.cancel(toolThread) toolThread = nil end
+         humanoid_esp:UnequipTools()
+      end
    end,
+})
+
+player_esp.CharacterAdded:Connect(function(newChar)
+   if toolLooping then
+      toolLooping = false
+      if toolThread then task.cancel(toolThread) toolThread = nil end
+      ToggleKeyEsp:Set(false)
+   end
+   character_esp = newChar
+   humanoid_esp  = newChar:WaitForChild("Humanoid")
+end)
+
+-- Cookie ESP (Highlight)
+local espActive    = false
+local espConns     = {}
+
+local Map_e          = workspace:WaitForChild("Map")
+local Functional_e   = Map_e:WaitForChild("Functional")
+local SpawnedItems_e = Functional_e:WaitForChild("SpawnedItems")
+
+local function applyHighlight(model)
+   if model:FindFirstChild("CookieHighlight") then return end
+   local h = Instance.new("Highlight")
+   h.Name                = "CookieHighlight"
+   h.FillColor           = Color3.fromRGB(255, 0, 0)
+   h.FillTransparency    = 0.6
+   h.OutlineColor        = Color3.fromRGB(255, 30, 30)
+   h.OutlineTransparency = 0
+   h.Adornee             = model
+   h.Parent              = model
+end
+
+local function removeHighlight(model)
+   local h = model:FindFirstChild("CookieHighlight")
+   if h then h:Destroy() end
+end
+
+local function isCookie(item)
+   return item:IsA("Model") and string.find(item.Name, "Cookie")
+end
+
+local ToggleCookieEsp = ETab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, sem CreateToggle duplicado interno
+   Name = "Cookie Esp",
+   CurrentValue = false,
+   Flag = "Toggle_CookieEsp",
+   Callback = function(Value)
+      if Value then
+         espActive = true
+         for _, item in ipairs(SpawnedItems_e:GetChildren()) do
+            if isCookie(item) then applyHighlight(item) end
+         end
+         espConns[1] = SpawnedItems_e.ChildAdded:Connect(function(child)
+            if espActive and isCookie(child) then
+               task.wait(0.05)
+               applyHighlight(child)
+            end
+         end)
+         espConns[2] = SpawnedItems_e.ChildRemoved:Connect(function(child)
+            if isCookie(child) then removeHighlight(child) end
+         end)
+      else
+         espActive = false
+         for _, conn in ipairs(espConns) do conn:Disconnect() end
+         espConns = {}
+         for _, item in ipairs(SpawnedItems_e:GetChildren()) do
+            if isCookie(item) then removeHighlight(item) end
+         end
+      end
+   end,
+})
+
+-- ================================================
+-- TAB: VEIA
+-- ================================================
+local VTab = Window:CreateTab("ðŸ‘µ Veia ðŸ‘µ", nil)
+local Section3 = VTab:CreateSection("VovÃ³")
+
+local player_veia    = Players.LocalPlayer
+local character_veia = player_veia.Character or player_veia.CharacterAdded:Wait()
+local rootPart_veia  = character_veia:WaitForChild("HumanoidRootPart")
+
+local veiaActive   = false
+local veiaThread   = nil
+
+local SpawnedNPCs = workspace:WaitForChild("SpawnedNPCs")
+
+local function getGrandmaCFrame()
+   for _, item in ipairs(SpawnedNPCs:GetChildren()) do
+      if item:IsA("Model") and string.find(item.Name, "Grandma") then
+         local part = item.PrimaryPart or item:FindFirstChildOfClass("BasePart")
+         if part then return part.CFrame + Vector3.new(0, 5, 0) end
+      end
+   end
+   return nil
+end
+
+local ToggleVeia = VTab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, sem CreateToggle duplicado interno
+   Name = "Trolla a Veia",
+   CurrentValue = false,
+   Flag = "Toggle_Veia",
+   Callback = function(Value)
+      if Value then
+         local cf = getGrandmaCFrame()
+         if not cf then
+            print("[GrandmaTeleport] âš ï¸ Grandma nÃ£o encontrada!")
+            return
+         end
+         veiaActive = true
+         veiaThread = task.spawn(function()
+            while veiaActive do
+               local target = getGrandmaCFrame()
+               if target then
+                  rootPart_veia.CFrame = target
+               else
+                  task.wait(1)
+               end
+               task.wait(0.1)
+            end
+         end)
+      else
+         veiaActive = false
+         if veiaThread then task.cancel(veiaThread) veiaThread = nil end
+      end
+   end,
+})
+
+player_veia.CharacterAdded:Connect(function(newChar)
+   if veiaActive then
+      veiaActive = false
+      if veiaThread then task.cancel(veiaThread) veiaThread = nil end
+      ToggleVeia:Set(false)
+   end
+   character_veia = newChar
+   rootPart_veia  = newChar:WaitForChild("HumanoidRootPart")
+end)
+
+-- ================================================
+-- NotificaÃ§Ã£o de carregamento
+-- ================================================
+Rayfield:Notify({
+   Title = "Cookie Hub ðŸª",
+   Content = "Carregado com sucesso!",
+   Duration = 5,
+   Image = 4483362458,
 })
