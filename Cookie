@@ -1,7 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Cookie Hub ðŸª",
+   Name = "Cookie Hub 🍪",
    Icon = 0,
    LoadingTitle = "Loading...",
    LoadingSubtitle = "By Yoricks",
@@ -38,7 +38,7 @@ local Window = Rayfield:CreateWindow({
 -- ================================================
 -- TAB: MAIN
 -- ================================================
-local MTab = Window:CreateTab("ðŸ”§ Main ðŸ”§", nil)
+local MTab = Window:CreateTab(" 🔧 Main 🔧", nil)
 local Section = MTab:CreateSection("Main")
 
 -- Infinite Jump
@@ -179,7 +179,7 @@ end)
 -- ================================================
 -- TAB: VISUAL ESP
 -- ================================================
-local ETab = Window:CreateTab("ðŸ‘½ Visual Esp ðŸ‘½", nil)
+local ETab = Window:CreateTab("👽 Visual Esp 👽, nil)
 local Section2 = ETab:CreateSection("Visual Esp")
 
 -- Key ESP (Tool Toggle)
@@ -305,7 +305,7 @@ local ToggleCookieEsp = ETab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, sem Cre
 -- ================================================
 -- TAB: VEIA
 -- ================================================
-local VTab = Window:CreateTab("ðŸ‘µ Veia ðŸ‘µ", nil)
+local VTab = Window:CreateTab("👵 Veia 👵", nil)
 local Section3 = VTab:CreateSection("VovÃ³")
 
 local player_veia    = Players.LocalPlayer
@@ -321,7 +321,7 @@ local function getGrandmaCFrame()
    for _, item in ipairs(SpawnedNPCs:GetChildren()) do
       if item:IsA("Model") and string.find(item.Name, "Grandma") then
          local part = item.PrimaryPart or item:FindFirstChildOfClass("BasePart")
-         if part then return part.CFrame + Vector3.new(0, 5, 0) end
+         if part then return part.CFrame + Vector3.new(0, 10, 0) end
       end
    end
    return nil
