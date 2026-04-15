@@ -321,7 +321,7 @@ local function getGrandmaCFrame()
    for _, item in ipairs(SpawnedNPCs:GetChildren()) do
       if item:IsA("Model") and string.find(item.Name, "Grandma") then
          local part = item.PrimaryPart or item:FindFirstChildOfClass("BasePart")
-         if part then return part.CFrame + Vector3.new(0, 10, 0) end
+         if part then return part.CFrame + Vector3.new(0, 8, 0) end
       end
    end
    return nil
