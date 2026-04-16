@@ -1,7 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Cookie Hub 🍪",
+   Name = "Cookie Hub ðŸª",
    Icon = 0,
    LoadingTitle = "Loading...",
    LoadingSubtitle = "By Yoricks",
@@ -38,7 +38,7 @@ local Window = Rayfield:CreateWindow({
 -- ================================================
 -- TAB: MAIN
 -- ================================================
-local MTab = Window:CreateTab("🔧 Main 🔧", nil)
+local MTab = Window:CreateTab("ðŸ”§ Main ðŸ”§", nil)
 local Section = MTab:CreateSection("Main")
 
 -- Infinite Jump
@@ -46,7 +46,7 @@ local Button = MTab:CreateButton({
    Name = "Infinite Jump",
    Callback = function()
       local InfiniteJumpEnabled = true
-      game:GetService("UserInputService").JumpRequest:Connect(function() -- CORRIGIDO: connect → Connect
+      game:GetService("UserInputService").JumpRequest:Connect(function() -- CORRIGIDO: connect â†’ Connect
          if InfiniteJumpEnabled then
             game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
          end
@@ -55,7 +55,7 @@ local Button = MTab:CreateButton({
 })
 
 -- Infinite Yield
-local Button2 = MTab:CreateButton({ -- CORRIGIDO: nome de variável único
+local Button2 = MTab:CreateButton({ -- CORRIGIDO: nome de variÃ¡vel Ãºnico
    Name = "Infinite Yield",
    Callback = function()
       loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
@@ -63,31 +63,31 @@ local Button2 = MTab:CreateButton({ -- CORRIGIDO: nome de variável único
 })
 
 -- Walk Speed
-local InputWalkSpeed = MTab:CreateInput({ -- CORRIGIDO: nome de variável único
+local InputWalkSpeed = MTab:CreateInput({ -- CORRIGIDO: nome de variÃ¡vel Ãºnico
    Name = "Walk Speed",
    CurrentValue = "16",
    PlaceholderText = "16-300",
-   RemoveTextAfterFocusLost = true, -- CORRIGIDO: True → true
-   Flag = "Input_WalkSpeed", -- CORRIGIDO: flag única
+   RemoveTextAfterFocusLost = true, -- CORRIGIDO: True â†’ true
+   Flag = "Input_WalkSpeed", -- CORRIGIDO: flag Ãºnica
    Callback = function(Text)
-      local speed = tonumber(Text) -- CORRIGIDO: tonumber para converter string → número
+      local speed = tonumber(Text) -- CORRIGIDO: tonumber para converter string â†’ nÃºmero
       if speed then
-         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed -- CORRIGIDO: Walkspeed → WalkSpeed
+         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed -- CORRIGIDO: Walkspeed â†’ WalkSpeed
       end
    end,
 })
 
 -- Jump Power
-local InputJumpPower = MTab:CreateInput({ -- CORRIGIDO: nome de variável único
+local InputJumpPower = MTab:CreateInput({ -- CORRIGIDO: nome de variÃ¡vel Ãºnico
    Name = "Jump Power",
    CurrentValue = "50",
    PlaceholderText = "50-300",
    RemoveTextAfterFocusLost = false,
-   Flag = "Input_JumpPower", -- CORRIGIDO: flag única
+   Flag = "Input_JumpPower", -- CORRIGIDO: flag Ãºnica
    Callback = function(Text)
       local power = tonumber(Text) -- CORRIGIDO: tonumber
       if power then
-         game.Players.LocalPlayer.Character.Humanoid.JumpPower = power -- CORRIGIDO: Jumppower → JumpPower
+         game.Players.LocalPlayer.Character.Humanoid.JumpPower = power -- CORRIGIDO: Jumppower â†’ JumpPower
       end
    end,
 })
@@ -135,7 +135,7 @@ local function collectCookie(cookie)
    fireproximityprompt(prompt)
 end
 
-local ToggleAutoCookies = MTab:CreateToggle({ -- CORRIGIDO: flag única, variável única, sem CreateToggle duplicado interno
+local ToggleAutoCookies = MTab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, variÃ¡vel Ãºnica, sem CreateToggle duplicado interno
    Name = "Auto Cookies",
    CurrentValue = false,
    Flag = "Toggle_AutoCookies",
@@ -179,7 +179,7 @@ end)
 -- ================================================
 -- TAB: VISUAL ESP
 -- ================================================
-local ETab = Window:CreateTab("👽 Visual Esp 👽", nil)
+local ETab = Window:CreateTab("ðŸ‘½ Visual Esp ðŸ‘½", nil)
 local Section2 = ETab:CreateSection("Visual Esp")
 
 -- Key ESP (Tool Toggle)
@@ -202,7 +202,7 @@ local function getBackpackTool()
    return backpack_esp:FindFirstChildOfClass("Tool")
 end
 
-local ToggleKeyEsp = ETab:CreateToggle({ -- CORRIGIDO: flag única, sem CreateToggle duplicado interno
+local ToggleKeyEsp = ETab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, sem CreateToggle duplicado interno
    Name = "Key Esp",
    CurrentValue = false,
    Flag = "Toggle_KeyEsp",
@@ -210,7 +210,7 @@ local ToggleKeyEsp = ETab:CreateToggle({ -- CORRIGIDO: flag única, sem CreateTo
       if Value then
          local tool = getCurrentTool() or getBackpackTool()
          if not tool then
-            print("[ToggleTool] ⚠️ Nenhum Tool disponível!")
+            print("[ToggleTool] âš ï¸ Nenhum Tool disponÃ­vel!")
             return
          end
          toolLooping = true
@@ -272,7 +272,7 @@ local function isCookie(item)
    return item:IsA("Model") and string.find(item.Name, "Cookie")
 end
 
-local ToggleCookieEsp = ETab:CreateToggle({ -- CORRIGIDO: flag única, sem CreateToggle duplicado interno
+local ToggleCookieEsp = ETab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, sem CreateToggle duplicado interno
    Name = "Cookie Esp",
    CurrentValue = false,
    Flag = "Toggle_CookieEsp",
@@ -305,8 +305,8 @@ local ToggleCookieEsp = ETab:CreateToggle({ -- CORRIGIDO: flag única, sem Creat
 -- ================================================
 -- TAB: VEIA
 -- ================================================
-local VTab = Window:CreateTab("👵 Veia 👵", nil)
-local Section3 = VTab:CreateSection("Vovó")
+local VTab = Window:CreateTab("ðŸ‘µ Veia ðŸ‘µ", nil)
+local Section3 = VTab:CreateSection("VovÃ³")
 
 local player_veia    = Players.LocalPlayer
 local character_veia = player_veia.Character or player_veia.CharacterAdded:Wait()
@@ -327,7 +327,7 @@ local function getGrandmaCFrame()
    return nil
 end
 
-local ToggleVeia = VTab:CreateToggle({ -- CORRIGIDO: flag única, sem CreateToggle duplicado interno
+local ToggleVeia = VTab:CreateToggle({ -- CORRIGIDO: flag Ãºnica, sem CreateToggle duplicado interno
    Name = "Trolla a Veia",
    CurrentValue = false,
    Flag = "Toggle_Veia",
@@ -335,7 +335,7 @@ local ToggleVeia = VTab:CreateToggle({ -- CORRIGIDO: flag única, sem CreateTogg
       if Value then
          local cf = getGrandmaCFrame()
          if not cf then
-            print("[GrandmaTeleport] ⚠️ Grandma não encontrada!")
+            print("[GrandmaTeleport] âš ï¸ Grandma nÃ£o encontrada!")
             return
          end
          veiaActive = true
@@ -368,10 +368,10 @@ player_veia.CharacterAdded:Connect(function(newChar)
 end)
 
 -- ================================================
--- Notificação de carregamento
+-- NotificaÃ§Ã£o de carregamento
 -- ================================================
 Rayfield:Notify({
-   Title = "Cookie Hub 🍪",
+   Title = "Cookie Hub ðŸª",
    Content = "Carregado com sucesso!",
    Duration = 5,
    Image = 4483362458,
