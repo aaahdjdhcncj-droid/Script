@@ -99,6 +99,72 @@ MTab:CreateInput({
 })
 
 -- ================================================
+-- NOCLIP
+-- ================================================
+local noclipActive = false
+local noclipConn   = nil
+
+-- Partes que NÃƒO devem perder colisÃ£o (para nÃ£o cair pelo chÃ£o)
+local function setNoclip(char, state)
+   for _, part in ipairs(char:GetDescendants()) do
+      if part:IsA("BasePart") then
+         -- HumanoidRootPart: sÃ³ desativa colisÃ£o com outras partes, nÃ£o com o chÃ£o
+         -- Usamos CollisionGroup nÃ£o Ã© possÃ­vel no cliente, entÃ£o ignoramos HRP
+         if part.Name ~= "HumanoidRootPart" then
+            part.CanCollide = not state
+         end
+      end
+   end
+end
+
+MTab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "Toggle_Noclip",
+   Callback = function(Value)
+      noclipActive = Value
+      local char = player.Character
+      if Value then
+         noclipConn = game:GetService("RunService").Stepped:Connect(function()
+            char = player.Character
+            if not char then return end
+            for _, part in ipairs(char:GetDescendants()) do
+               if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                  part.CanCollide = false
+               end
+            end
+            -- HumanoidRootPart: desativa colisÃ£o com paredes mas mantÃ©m chÃ£o
+            -- via cancelar PhysicsService no lado cliente
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+               hrp.CanCollide = false
+            end
+         end)
+      else
+         if noclipConn then
+            noclipConn:Disconnect()
+            noclipConn = nil
+         end
+         char = player.Character
+         if char then
+            for _, part in ipairs(char:GetDescendants()) do
+               if part:IsA("BasePart") then
+                  part.CanCollide = true
+               end
+            end
+         end
+      end
+   end,
+})
+
+player.CharacterAdded:Connect(function()
+   if noclipActive then
+      if noclipConn then noclipConn:Disconnect() noclipConn = nil end
+      noclipActive = false
+   end
+end)
+
+-- ================================================
 -- AUTO COOKIES
 -- ================================================
 local cookieActive = false
@@ -154,12 +220,13 @@ local ToggleAutoCookies = MTab:CreateToggle({
                      if prompt then
                         local part = cookie.PrimaryPart or cookie:FindFirstChildOfClass("BasePart")
                         if part then
-                           cookie:SetPrimaryPartCFrame(root.CFrame * CFrame.new(0, 0, -2))
-                           task.wait(0.05)
+                           -- Teleporta o player DENTRO do cookie
+                           root.CFrame = part.CFrame
+                           task.wait(0.08)
                            fireproximityprompt(prompt)
+                           task.wait(0.08)
                         end
                      end
-                     task.wait(0.1)
                   end
                end
             end
