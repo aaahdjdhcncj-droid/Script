@@ -327,13 +327,13 @@ local Toggle = MTab:CreateToggle({
                     end
 
                     -- Esconde quando chegar a 25 studs
-                    if not escondido and menorDistancia <= 25 then
+                    if not escondido and menorDistancia <= 12 then
                         posicaoOriginal = hrp.CFrame
                         hrp.CFrame = hrp.CFrame - Vector3.new(0, 25, 0)
                         escondido = true
 
                     -- Volta quando estiver a mais de 17 studs da posição original
-                    elseif escondido and menorDistancia > 17 then
+                    elseif escondido and menorDistancia > 18 then
                         hrp.CFrame = posicaoOriginal
                         escondido = false
                         posicaoOriginal = nil
@@ -465,6 +465,46 @@ local Toggle = MTab:CreateToggle({
                     end
                 end
             end
+        end
+    end,
+})
+
+local Toggle = Tab:CreateToggle({
+    Name = "Bring Items To Cart",
+    CurrentValue = false,
+    Flag = "BringItemsToCart",
+
+    Callback = function(Value)
+        _G.BringItemsToCart = Value
+
+        if Value then
+            task.spawn(function()
+                while _G.BringItemsToCart do
+                    task.wait(0.2)
+
+                    local folder = workspace:FindFirstChild("GeneratedItems")
+                    local cart = workspace:FindFirstChild("Cart")
+
+                    if not folder or not cart then
+                        continue
+                    end
+
+                    local inside = cart:FindFirstChild("Inside", true)
+
+                    if not inside or not inside:IsA("BasePart") then
+                        continue
+                    end
+
+                    for _, item in ipairs(folder:GetChildren()) do
+                        if item:IsA("Model") then
+                            item:PivotTo(inside.CFrame)
+
+                        elseif item:IsA("BasePart") then
+                            item.CFrame = inside.CFrame
+                        end
+                    end
+                end
+            end)
         end
     end,
 })
