@@ -306,7 +306,7 @@ else
 })
 
 local Toggle = MTab:CreateToggle({
-    Name = "God Mode",
+    Name = "God mode",
     CurrentValue = false,
     Flag = "MonsterAvoid",
 
@@ -316,6 +316,7 @@ local Toggle = MTab:CreateToggle({
         if Value then
             task.spawn(function()
                 local escondido = false
+                local posicaoOriginal = nil
                 local distancia = 25
 
                 while _G.MonsterAvoid do
@@ -337,23 +338,114 @@ local Toggle = MTab:CreateToggle({
                         if monstro and monstro:IsA("Model") then
                             local parte = monstro.PrimaryPart or monstro:FindFirstChildWhichIsA("BasePart")
 
-                            if parte and (parte.Position - hrp.Position).Magnitude <= distancia then
-                                monstroPerto = true
-                                break
+                            if parte then
+                                local dist = (parte.Position - hrp.Position).Magnitude
+
+                                if dist <= distancia then
+                                    monstroPerto = true
+                                    break
+                                end
                             end
                         end
                     end
 
                     if monstroPerto and not escondido then
+                        posicaoOriginal = hrp.CFrame
                         hrp.CFrame = hrp.CFrame - Vector3.new(0, 25, 0)
                         escondido = true
 
                     elseif not monstroPerto and escondido then
-                        hrp.CFrame = hrp.CFrame + Vector3.new(0, 25, 0)
+                        if posicaoOriginal then
+                            hrp.CFrame = posicaoOriginal
+                        end
+
                         escondido = false
+                        posicaoOriginal = nil
                     end
                 end
             end)
+        end
+    end,
+})
+
+local Button = MTab:CreateButton({
+   Name = "FullBright",
+   Callback = function()
+      getgenv().FullBright = true
+
+      task.spawn(function()
+         while getgenv().FullBright do
+            task.wait(0.5)
+
+            local Lighting = game:GetService("Lighting")
+
+            Lighting.Brightness = 10
+            Lighting.ClockTime = 12
+            Lighting.FogEnd = 100000
+            Lighting.GlobalShadows = false
+            Lighting.Ambient = Color3.new(1, 1, 1)
+            Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+         end
+      end)
+   end,
+})
+
+local Toggle = MTab:CreateToggle({
+    Name = "Item ESP",
+    CurrentValue = false,
+    Flag = "ItemESP",
+
+    Callback = function(Value)
+        _G.ItemESP = Value
+
+        if Value then
+            task.spawn(function()
+                while _G.ItemESP do
+                    task.wait(1)
+
+                    local folder = workspace:FindFirstChild("GeneratedItems")
+                    if not folder then continue end
+
+                    for _, item in ipairs(folder:GetChildren()) do
+                        if not item:FindFirstChild("ItemESP") then
+                            local esp = Instance.new("Highlight")
+                            esp.Name = "ItemESP"
+                            esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            esp.FillTransparency = 0.5
+                            esp.OutlineTransparency = 0
+                            esp.Adornee = item
+                            esp.Parent = item
+                        end
+                    end
+                end
+            end)
+        else
+            local folder = workspace:FindFirstChild("GeneratedItems")
+
+            if folder then
+                for _, item in ipairs(folder:GetChildren()) do
+                    local esp = item:FindFirstChild("ItemESP")
+                    if esp then
+                        esp:Destroy()
+                    end
+                end
+            end
+        end
+    end,
+})
+
+local Toggle = MTab:CreateToggle({
+    Name = "3 Pessoa",
+    CurrentValue = false,
+    Flag = "ThirdPerson",
+
+    Callback = function(Value)
+        local Player = game.Players.LocalPlayer
+
+        if Value then
+            Player.CameraMode = Enum.CameraMode.Classic
+        else
+            Player.CameraMode = Enum.CameraMode.LockFirstPerson
         end
     end,
 })
