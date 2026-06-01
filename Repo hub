@@ -74,87 +74,75 @@ local Slider = CTab:CreateSlider({
 })
 
 local Toggle = CTab:CreateToggle({
-   Name = "Fly",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   local FlyConnection
-local BV
-local ScreenGui
-local Vertical = 0
+    Name = "Fly",
+    CurrentValue = false,
+    Flag = "FlyMobile",
 
-Callback = function(Value)
-    if Value then
-        local Player = game.Players.LocalPlayer
-        local Character = Player.Character or Player.CharacterAdded:Wait()
-        local Humanoid = Character:WaitForChild("Humanoid")
-        local HRP = Character:WaitForChild("HumanoidRootPart")
+    Callback = function(Value)
+        _G.FlyMobile = Value
 
-        ScreenGui = Instance.new("ScreenGui")
-        ScreenGui.ResetOnSpawn = false
-        ScreenGui.Parent = Player.PlayerGui
+        if Value then
+            task.spawn(function()
+                local Player = game.Players.LocalPlayer
+                local Character = Player.Character or Player.CharacterAdded:Wait()
+                local Humanoid = Character:WaitForChild("Humanoid")
+                local HRP = Character:WaitForChild("HumanoidRootPart")
 
-        local Up = Instance.new("TextButton")
-        Up.Size = UDim2.new(0, 80, 0, 80)
-        Up.Position = UDim2.new(1, -90, 0.6, -90)
-        Up.Text = "↑"
-        Up.Parent = ScreenGui
+                local Vertical = 0
 
-        local Down = Instance.new("TextButton")
-        Down.Size = UDim2.new(0, 80, 0, 80)
-        Down.Position = UDim2.new(1, -90, 0.6, 0)
-        Down.Text = "↓"
-        Down.Parent = ScreenGui
+                local ScreenGui = Instance.new("ScreenGui")
+                ScreenGui.Name = "FlyGui"
+                ScreenGui.ResetOnSpawn = false
+                ScreenGui.Parent = Player.PlayerGui
 
-        Up.MouseButton1Down:Connect(function()
-            Vertical = 1
-        end)
+                local Up = Instance.new("TextButton")
+                Up.Size = UDim2.new(0, 80, 0, 80)
+                Up.Position = UDim2.new(1, -90, 0.6, -90)
+                Up.Text = "↑"
+                Up.Parent = ScreenGui
 
-        Up.MouseButton1Up:Connect(function()
-            Vertical = 0
-        end)
+                local Down = Instance.new("TextButton")
+                Down.Size = UDim2.new(0, 80, 0, 80)
+                Down.Position = UDim2.new(1, -90, 0.6, 0)
+                Down.Text = "↓"
+                Down.Parent = ScreenGui
 
-        Down.MouseButton1Down:Connect(function()
-            Vertical = -1
-        end)
+                Up.MouseButton1Down:Connect(function()
+                    Vertical = 1
+                end)
 
-        Down.MouseButton1Up:Connect(function()
-            Vertical = 0
-        end)
+                Up.MouseButton1Up:Connect(function()
+                    Vertical = 0
+                end)
 
-        BV = Instance.new("BodyVelocity")
-        BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        BV.Parent = HRP
+                Down.MouseButton1Down:Connect(function()
+                    Vertical = -1
+                end)
 
-        FlyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-            if not Character.Parent then return end
+                Down.MouseButton1Up:Connect(function()
+                    Vertical = 0
+                end)
 
-            BV.Velocity =
-                (Humanoid.MoveDirection * 60) +
-                Vector3.new(0, Vertical * 60, 0)
-        end)
+                local BV = Instance.new("BodyVelocity")
+                BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                BV.Parent = HRP
 
-    else
-        if FlyConnection then
-            FlyConnection:Disconnect()
-            FlyConnection = nil
+                while _G.FlyMobile and Character.Parent do
+                    task.wait()
+
+                    BV.Velocity =
+                        (Humanoid.MoveDirection * 60) +
+                        Vector3.new(0, Vertical * 60, 0)
+                end
+
+                BV:Destroy()
+
+                if ScreenGui then
+                    ScreenGui:Destroy()
+                end
+            end)
         end
-
-        if BV then
-            BV:Destroy()
-            BV = nil
-        end
-
-        if ScreenGui then
-            ScreenGui:Destroy()
-            ScreenGui = nil
-        end
-
-        Vertical = 0
-    end
-            end
-   
-   end,
+    end,
 })
 
 local Toggle = CTab:CreateToggle({
@@ -287,6 +275,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 hrp.CFrame = hrp.CFrame + Vector3.new(0, -25, 0)
    end,
 })
+
 local MTab = Window:CreateTab("🐥 Misc", nil) -- Title, Image
 local Section = MTab:CreateSection("Misc")
 
@@ -317,57 +306,54 @@ else
 })
 
 local Toggle = MTab:CreateToggle({
-   Name = "God Mode",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   local ativo = false
+    Name = "God Mode",
+    CurrentValue = false,
+    Flag = "MonsterAvoid",
 
-Callback = function(Value)
-    ativo = Value
+    Callback = function(Value)
+        _G.MonsterAvoid = Value
 
-    if ativo then
-        task.spawn(function()
-            local distancia = 25
-            local escondido = false
+        if Value then
+            task.spawn(function()
+                local escondido = false
+                local distancia = 25
 
-            while ativo do
-                task.wait(0.1)
+                while _G.MonsterAvoid do
+                    task.wait(0.1)
 
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                    local player = game.Players.LocalPlayer
+                    local character = player.Character
+                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-                if not hrp then
-                    continue
-                end
+                    if not hrp then
+                        continue
+                    end
 
-                local monstroPerto = false
+                    local monstroPerto = false
 
-                for _, nome in ipairs({"HeadMonster", "RobeMonster"}) do
-                    local monstro = workspace:FindFirstChild(nome)
+                    for _, nome in ipairs({"HeadMonster", "RobeMonster"}) do
+                        local monstro = workspace:FindFirstChild(nome)
 
-                    if monstro and monstro:IsA("Model") then
-                        local parte = monstro.PrimaryPart or monstro:FindFirstChildWhichIsA("BasePart")
+                        if monstro and monstro:IsA("Model") then
+                            local parte = monstro.PrimaryPart or monstro:FindFirstChildWhichIsA("BasePart")
 
-                        if parte and (parte.Position - hrp.Position).Magnitude <= distancia then
-                            monstroPerto = true
-                            break
+                            if parte and (parte.Position - hrp.Position).Magnitude <= distancia then
+                                monstroPerto = true
+                                break
+                            end
                         end
                     end
-                end
 
-                if monstroPerto and not escondido then
-                    hrp.CFrame = hrp.CFrame - Vector3.new(0, 25, 0)
-                    escondido = true
+                    if monstroPerto and not escondido then
+                        hrp.CFrame = hrp.CFrame - Vector3.new(0, 25, 0)
+                        escondido = true
 
-                elseif not monstroPerto and escondido then
-                    hrp.CFrame = hrp.CFrame + Vector3.new(0, 25, 0)
-                    escondido = false
+                    elseif not monstroPerto and escondido then
+                        hrp.CFrame = hrp.CFrame + Vector3.new(0, 25, 0)
+                        escondido = false
+                    end
                 end
-            end
-        end)
-    end
-            end
-        end,
-    })
+            end)
+        end
+    end,
+})
