@@ -39,8 +39,8 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-local HTab = Window:CreateTab("🔥 Home", nil)
-local Section = HTab:CreateSection("Home")
+local CTab = Window:CreateTab("🔥 Home", nil)
+local Section = CTab:CreateSection("Home")
 
 Rayfield:Notify({
    Title = "Loading Completo",
@@ -49,7 +49,7 @@ Rayfield:Notify({
    Image = 82803427678483,
 })
 
-local Slider = HTab:CreateSlider({
+local Slider = CTab:CreateSlider({
    Name = "Speed",
    Range = {0, 250},
    Increment = 1,
@@ -61,7 +61,7 @@ local Slider = HTab:CreateSlider({
    end,
 })
 
-local Slider = HTab:CreateSlider({
+local Slider = CTab:CreateSlider({
    Name = "Jump",
    Range = {0, 250},
    Increment = 1,
@@ -73,7 +73,7 @@ local Slider = HTab:CreateSlider({
    end,
 })
 
-local Toggle = Tab:CreateToggle({
+local Toggle = CTab:CreateToggle({
    Name = "Fly",
    CurrentValue = false,
    Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
@@ -157,7 +157,7 @@ Callback = function(Value)
    end,
 })
 
-local Toggle = HTab:CreateToggle({
+local Toggle = CTab:CreateToggle({
    Name = "Infinite Jump",
    CurrentValue = false,
    Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
@@ -185,7 +185,7 @@ local JumpConnection
     end,
 })
 
-local Toggle = HTab:CreateToggle({
+local Toggle = CTab:CreateToggle({
    Name = "Noclip",
    CurrentValue = false,
    Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
@@ -239,17 +239,17 @@ local NoClipConnection
     end,
 })
 
-local Button = HTab:CreateButton({
+local Button = CTab:CreateButton({
    Name = "Infinite Yield",
    Callback = function()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
    end,
 })
 
-local OTab = Window:CreateTab("🔋 Teleport", nil) -- Title, Image
-local Section = OTab:CreateSection("Teleport")
+local TTab = Window:CreateTab("🔋 Teleport", nil) -- Title, Image
+local Section = TTab:CreateSection("Teleport")
 
-local Button = OTab:CreateButton({
+local Button = TTab:CreateButton({
    Name = "Cart",
    Callback = function()
    local player = game.Players.LocalPlayer
@@ -266,7 +266,7 @@ else
    end,
 })
 
-local Button = OTab:CreateButton({
+local Button = TTab:CreateButton({
    Name = "Cima do Mapa",
    Callback = function()
    local player = game.Players.LocalPlayer
@@ -277,7 +277,7 @@ hrp.CFrame = hrp.CFrame + Vector3.new(0, 25, 0)
    end,
 })
 
-local Button = OTab:CreateButton({
+local Button = TTab:CreateButton({
    Name = "Baixo Do Mapa",
    Callback = function()
    local player = game.Players.LocalPlayer
@@ -287,10 +287,10 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 hrp.CFrame = hrp.CFrame + Vector3.new(0, -25, 0)
    end,
 })
-local DTab = Window:CreateTab("🐥 Misc", nil) -- Title, Image
-local Section = Tab:CreateSection("Misc")
+local MTab = Window:CreateTab("🐥 Misc", nil) -- Title, Image
+local Section = MTab:CreateSection("Misc")
 
-local Button = DTab:CreateButton({
+local Button = MTab:CreateButton({
    Name = "Teleport Todos os Items",
    Callback = function()
 local player = game.Players.LocalPlayer
@@ -316,7 +316,7 @@ else
    end,
 })
 
-local Toggle = DTab:CreateToggle({
+local Toggle = MTab:CreateToggle({
    Name = "God Mode",
    CurrentValue = false,
    Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
