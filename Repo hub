@@ -498,3 +498,22 @@ local Toggle = MTab:CreateToggle({
         end
     end,
 })
+
+local Button = TTab:CreateButton({
+   Name = "Bring Cart",
+   Callback = function()
+   local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local cart = workspace:FindFirstChild("Cart")
+
+if cart then
+    if cart:IsA("Model") then
+        cart:PivotTo(hrp.CFrame + Vector3.new(0, 0, -5))
+    elseif cart:IsA("BasePart") then
+        cart.CFrame = hrp.CFrame + Vector3.new(0, 0, -5)
+    end
+end
+   end,
+})
