@@ -42,6 +42,13 @@ local Window = Rayfield:CreateWindow({
 local HTab = Window:CreateTab("🔥 Home", nil)
 local Section = HTab:CreateSection("Home")
 
+Rayfield:Notify({
+   Title = "Loading Completo",
+   Content = "Aproveite o Hub",
+   Duration = 8.0,
+   Image = 82803427678483,
+})
+
 local Slider = HTab:CreateSlider({
    Name = "Speed",
    Range = {0, 250},
