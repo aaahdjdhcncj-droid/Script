@@ -145,84 +145,62 @@ local Toggle = CTab:CreateToggle({
     end,
 })
 
-local Toggle = CTab:CreateToggle({
-   Name = "Infinite Jump",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-local InfiniteJumpEnabled = false
-local JumpConnection
-        InfiniteJumpEnabled = Value
-
-        if InfiniteJumpEnabled then
-            JumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
-                local Character = game.Players.LocalPlayer.Character
-                if Character then
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                    if Humanoid then
-                        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                    end
-                end
-            end)
-        else
-            if JumpConnection then
-                JumpConnection:Disconnect()
-                JumpConnection = nil
-            end
+local Button = Tab:CreateButton({
+    Name = "Infinite Jump",
+    Callback = function()
+        if getgenv().InfiniteJumpLoaded then
+            return
         end
+
+        getgenv().InfiniteJumpLoaded = true
+
+        local UIS = game:GetService("UserInputService")
+        local Player = game.Players.LocalPlayer
+
+        UIS.JumpRequest:Connect(function()
+            local Character = Player.Character
+            local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+
+            if Humanoid then
+                Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
     end,
 })
 
-local Toggle = CTab:CreateToggle({
-   Name = "Noclip",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-local NoClip = false
-local NoClipConnection
+local Toggle = Tab:CreateToggle({
+    Name = "Noclip",
+    CurrentValue = false,
+    Flag = "Noclip",
 
-        NoClip = Value
+    Callback = function(Value)
+        _G.Noclip = Value
 
-        if NoClip then
-            NoClipConnection = game:GetService("RunService").Stepped:Connect(function()
-                local Character = game.Players.LocalPlayer.Character
-                if Character then
-                    for _, Part in pairs(Character:GetDescendants()) do
-                        if Part:IsA("BasePart") and Part.Name ~= "HumanoidRootPart" then
-                            -- Ignora o chão (CanCollide só desativa nas partes aéreas)
-                            Part.CanCollide = false
+        if Value then
+            task.spawn(function()
+                while _G.Noclip do
+                    task.wait()
+
+                    local Character = game.Players.LocalPlayer.Character
+                    if Character then
+                        for _, v in ipairs(Character:GetDescendants()) do
+                            if v:IsA("BasePart") then
+                                v.CanCollide = false
+                            end
                         end
                     end
+                end
 
-                    -- Mantém o chão colidindo (HumanoidRootPart controla física do personagem)
-                    local Root = Character:FindFirstChild("HumanoidRootPart")
-                    if Root then
-                        Root.CanCollide = false -- false aqui é necessário para mover, mas...
-                    end
-
-                    -- Mantém colisão com o chão via Humanoid
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                    if Humanoid then
-                        Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
-                        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+                -- Quando desligar o toggle, restaura a colisão
+                local Character = game.Players.LocalPlayer.Character
+                if Character then
+                    for _, v in ipairs(Character:GetDescendants()) do
+                        if v:IsA("BasePart") then
+                            v.CanCollide = true
+                        end
                     end
                 end
             end)
-        else
-            -- Desativa o noclip e restaura colisões
-            if NoClipConnection then
-                NoClipConnection:Disconnect()
-                NoClipConnection = nil
-            end
-
-            local Character = game.Players.LocalPlayer.Character
-            if Character then
-                for _, Part in pairs(Character:GetDescendants()) do
-                    if Part:IsA("BasePart") then
-                        Part.CanCollide = true
-                    end
-                end
-            end
         end
     end,
 })
@@ -305,8 +283,8 @@ else
    end,
 })
 
-local Toggle = MTab:CreateToggle({
-    Name = "God mode",
+local Toggle = Tab:CreateToggle({
+    Name = "God Mode",
     CurrentValue = false,
     Flag = "MonsterAvoid",
 
@@ -316,8 +294,7 @@ local Toggle = MTab:CreateToggle({
         if Value then
             task.spawn(function()
                 local escondido = false
-                local posicaoOriginal = nil
-                local distancia = 25
+                local posicaoOriginal
 
                 while _G.MonsterAvoid do
                     task.wait(0.1)
@@ -330,7 +307,7 @@ local Toggle = MTab:CreateToggle({
                         continue
                     end
 
-                    local monstroPerto = false
+                    local menorDistancia = math.huge
 
                     for _, nome in ipairs({"HeadMonster", "RobeMonster"}) do
                         local monstro = workspace:FindFirstChild(nome)
@@ -339,26 +316,25 @@ local Toggle = MTab:CreateToggle({
                             local parte = monstro.PrimaryPart or monstro:FindFirstChildWhichIsA("BasePart")
 
                             if parte then
-                                local dist = (parte.Position - hrp.Position).Magnitude
+                                local ponto = escondido and posicaoOriginal.Position or hrp.Position
+                                local dist = (parte.Position - ponto).Magnitude
 
-                                if dist <= distancia then
-                                    monstroPerto = true
-                                    break
+                                if dist < menorDistancia then
+                                    menorDistancia = dist
                                 end
                             end
                         end
                     end
 
-                    if monstroPerto and not escondido then
+                    -- Esconde quando chegar a 25 studs
+                    if not escondido and menorDistancia <= 25 then
                         posicaoOriginal = hrp.CFrame
                         hrp.CFrame = hrp.CFrame - Vector3.new(0, 25, 0)
                         escondido = true
 
-                    elseif not monstroPerto and escondido then
-                        if posicaoOriginal then
-                            hrp.CFrame = posicaoOriginal
-                        end
-
+                    -- Volta quando estiver a mais de 17 studs da posição original
+                    elseif escondido and menorDistancia > 17 then
+                        hrp.CFrame = posicaoOriginal
                         escondido = false
                         posicaoOriginal = nil
                     end
@@ -443,6 +419,49 @@ local Toggle = MTab:CreateToggle({
             Player.CameraMode = Enum.CameraMode.Classic
         else
             Player.CameraMode = Enum.CameraMode.LockFirstPerson
+        end
+    end,
+})
+local Toggle = Tab:CreateToggle({
+    Name = "Monster ESP",
+    CurrentValue = false,
+    Flag = "MonsterESP",
+
+    Callback = function(Value)
+        _G.MonsterESP = Value
+
+        if Value then
+            task.spawn(function()
+                while _G.MonsterESP do
+                    task.wait(0.5)
+
+                    for _, nome in ipairs({"HeadMonster", "RobeMonster"}) do
+                        local model = workspace:FindFirstChild(nome)
+
+                        if model and not model:FindFirstChild("MonsterESP_HL") then
+                            local hl = Instance.new("Highlight")
+                            hl.Name = "MonsterESP_HL"
+                            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            hl.FillTransparency = 0.5
+                            hl.OutlineTransparency = 0
+                            hl.Adornee = model
+                            hl.Parent = model
+                        end
+                    end
+                end
+            end)
+        else
+            for _, nome in ipairs({"HeadMonster", "RobeMonster"}) do
+                local model = workspace:FindFirstChild(nome)
+
+                if model then
+                    local hl = model:FindFirstChild("MonsterESP_HL")
+
+                    if hl then
+                        hl:Destroy()
+                    end
+                end
+            end
         end
     end,
 })
