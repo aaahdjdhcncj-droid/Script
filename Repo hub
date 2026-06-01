@@ -387,6 +387,9 @@ local Toggle = Tab:CreateToggle({
                             local hl = Instance.new("Highlight")
                             hl.Name = "ItemESP_HL"
                             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            hl.FillColor = Color3.fromRGB(0, 100, 255)
+                            hl.OutlineColor = Color3.fromRGB(0, 170, 255)
+                            hl.FillTransparency = 0.5
                             hl.Adornee = item
                             hl.Parent = item
                         end
@@ -394,12 +397,11 @@ local Toggle = Tab:CreateToggle({
                 end
             end)
         else
-            -- Remove todos os ESPs criados
             local folder = workspace:FindFirstChild("GeneratedItems")
             if folder then
-                for _, obj in ipairs(folder:GetDescendants()) do
-                    if obj:IsA("Highlight") and obj.Name == "ItemESP_HL" then
-                        obj:Destroy()
+                for _, v in ipairs(folder:GetDescendants()) do
+                    if v:IsA("Highlight") and v.Name == "ItemESP_HL" then
+                        v:Destroy()
                     end
                 end
             end
@@ -422,6 +424,7 @@ local Toggle = MTab:CreateToggle({
         end
     end,
 })
+
 local Toggle = Tab:CreateToggle({
     Name = "Monster ESP",
     CurrentValue = false,
@@ -442,8 +445,9 @@ local Toggle = Tab:CreateToggle({
                             local hl = Instance.new("Highlight")
                             hl.Name = "MonsterESP_HL"
                             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            hl.FillColor = Color3.fromRGB(255, 0, 0)
+                            hl.OutlineColor = Color3.fromRGB(255, 100, 100)
                             hl.FillTransparency = 0.5
-                            hl.OutlineTransparency = 0
                             hl.Adornee = model
                             hl.Parent = model
                         end
@@ -456,7 +460,6 @@ local Toggle = Tab:CreateToggle({
 
                 if model then
                     local hl = model:FindFirstChild("MonsterESP_HL")
-
                     if hl then
                         hl:Destroy()
                     end
