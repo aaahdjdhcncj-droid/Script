@@ -145,7 +145,7 @@ local Toggle = CTab:CreateToggle({
     end,
 })
 
-local Button = Tab:CreateButton({
+local Button = CTab:CreateButton({
     Name = "Infinite Jump",
     Callback = function()
         if getgenv().InfiniteJumpLoaded then
@@ -168,7 +168,7 @@ local Button = Tab:CreateButton({
     end,
 })
 
-local Toggle = Tab:CreateToggle({
+local Toggle = CTab:CreateToggle({
     Name = "Noclip",
     CurrentValue = false,
     Flag = "Noclip",
@@ -283,7 +283,7 @@ else
    end,
 })
 
-local Toggle = Tab:CreateToggle({
+local Toggle = MTab:CreateToggle({
     Name = "God Mode",
     CurrentValue = false,
     Flag = "MonsterAvoid",
@@ -366,7 +366,7 @@ local Button = MTab:CreateButton({
    end,
 })
 
-local Toggle = Tab:CreateToggle({
+local Toggle = MTab:CreateToggle({
     Name = "Item ESP",
     CurrentValue = false,
     Flag = "ItemESP",
@@ -425,7 +425,7 @@ local Toggle = MTab:CreateToggle({
     end,
 })
 
-local Toggle = Tab:CreateToggle({
+local Toggle = MTab:CreateToggle({
     Name = "Monster ESP",
     CurrentValue = false,
     Flag = "MonsterESP",
