@@ -469,7 +469,7 @@ local Toggle = MTab:CreateToggle({
     end,
 })
 
-local Toggle = Tab:CreateToggle({
+local Toggle = MTab:CreateToggle({
     Name = "Bring Items To Cart",
     CurrentValue = false,
     Flag = "BringItemsToCart",
