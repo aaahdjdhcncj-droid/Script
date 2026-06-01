@@ -1,0 +1,366 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "R.E.P.O Hub",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "Loading...",
+   LoadingSubtitle = "by Yoricks",
+   ShowText = "R.E.P.O", -- for mobile users to unhide Rayfield, change if you'd like
+   Theme = "Amethyst", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from emitting warnings when the script has a version mismatch with the interface.
+
+   -- ScriptID = "sid_xxxxxxxxxxxx", -- Your Script ID from developer.sirius.menu — enables analytics, managed keys, and script hosting
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = Repo, -- Create a custom folder for your hub/game
+      FileName = "Repo Hub"
+   },
+
+   Discord = {
+      Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "https://discord.gg/H6u2j3ePs", -- The Discord invite code, do not include Discord.gg/. E.g. Discord.gg/ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
+   },
+
+   KeySystem = true, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Key System",
+      Subtitle = "Get The Key",
+      Note = "Join in Our Discord Server", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique, as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Hello"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
+   }
+})
+
+local HTab = Window:CreateTab("🔥 Home", nil)
+local Section = HTab:CreateSection("Home")
+
+local Slider = HTab:CreateSlider({
+   Name = "Speed",
+   Range = {0, 250},
+   Increment = 1,
+   Suffix = "Walkspeed",
+   CurrentValue = 16,
+   Flag = "Slider1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+  game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value)
+   end,
+})
+
+local Slider = HTab:CreateSlider({
+   Name = "Jump",
+   Range = {0, 250},
+   Increment = 1,
+   Suffix = "Jumppower",
+   CurrentValue = 50,
+   Flag = "Slider1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+  game.Players.LocalPlayer.Character.Humanoid.JumpPower = (Value)
+   end,
+})
+
+local Toggle = Tab:CreateToggle({
+   Name = "Fly",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+   local FlyConnection
+local BV
+local ScreenGui
+local Vertical = 0
+
+Callback = function(Value)
+    if Value then
+        local Player = game.Players.LocalPlayer
+        local Character = Player.Character or Player.CharacterAdded:Wait()
+        local Humanoid = Character:WaitForChild("Humanoid")
+        local HRP = Character:WaitForChild("HumanoidRootPart")
+
+        ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.ResetOnSpawn = false
+        ScreenGui.Parent = Player.PlayerGui
+
+        local Up = Instance.new("TextButton")
+        Up.Size = UDim2.new(0, 80, 0, 80)
+        Up.Position = UDim2.new(1, -90, 0.6, -90)
+        Up.Text = "↑"
+        Up.Parent = ScreenGui
+
+        local Down = Instance.new("TextButton")
+        Down.Size = UDim2.new(0, 80, 0, 80)
+        Down.Position = UDim2.new(1, -90, 0.6, 0)
+        Down.Text = "↓"
+        Down.Parent = ScreenGui
+
+        Up.MouseButton1Down:Connect(function()
+            Vertical = 1
+        end)
+
+        Up.MouseButton1Up:Connect(function()
+            Vertical = 0
+        end)
+
+        Down.MouseButton1Down:Connect(function()
+            Vertical = -1
+        end)
+
+        Down.MouseButton1Up:Connect(function()
+            Vertical = 0
+        end)
+
+        BV = Instance.new("BodyVelocity")
+        BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        BV.Parent = HRP
+
+        FlyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+            if not Character.Parent then return end
+
+            BV.Velocity =
+                (Humanoid.MoveDirection * 60) +
+                Vector3.new(0, Vertical * 60, 0)
+        end)
+
+    else
+        if FlyConnection then
+            FlyConnection:Disconnect()
+            FlyConnection = nil
+        end
+
+        if BV then
+            BV:Destroy()
+            BV = nil
+        end
+
+        if ScreenGui then
+            ScreenGui:Destroy()
+            ScreenGui = nil
+        end
+
+        Vertical = 0
+    end
+            end
+   
+   end,
+})
+
+local Toggle = HTab:CreateToggle({
+   Name = "Infinite Jump",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+local InfiniteJumpEnabled = false
+local JumpConnection
+        InfiniteJumpEnabled = Value
+
+        if InfiniteJumpEnabled then
+            JumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                local Character = game.Players.LocalPlayer.Character
+                if Character then
+                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    if Humanoid then
+                        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    end
+                end
+            end)
+        else
+            if JumpConnection then
+                JumpConnection:Disconnect()
+                JumpConnection = nil
+            end
+        end
+    end,
+})
+
+local Toggle = HTab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+local NoClip = false
+local NoClipConnection
+
+        NoClip = Value
+
+        if NoClip then
+            NoClipConnection = game:GetService("RunService").Stepped:Connect(function()
+                local Character = game.Players.LocalPlayer.Character
+                if Character then
+                    for _, Part in pairs(Character:GetDescendants()) do
+                        if Part:IsA("BasePart") and Part.Name ~= "HumanoidRootPart" then
+                            -- Ignora o chão (CanCollide só desativa nas partes aéreas)
+                            Part.CanCollide = false
+                        end
+                    end
+
+                    -- Mantém o chão colidindo (HumanoidRootPart controla física do personagem)
+                    local Root = Character:FindFirstChild("HumanoidRootPart")
+                    if Root then
+                        Root.CanCollide = false -- false aqui é necessário para mover, mas...
+                    end
+
+                    -- Mantém colisão com o chão via Humanoid
+                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    if Humanoid then
+                        Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+                    end
+                end
+            end)
+        else
+            -- Desativa o noclip e restaura colisões
+            if NoClipConnection then
+                NoClipConnection:Disconnect()
+                NoClipConnection = nil
+            end
+
+            local Character = game.Players.LocalPlayer.Character
+            if Character then
+                for _, Part in pairs(Character:GetDescendants()) do
+                    if Part:IsA("BasePart") then
+                        Part.CanCollide = true
+                    end
+                end
+            end
+        end
+    end,
+})
+
+local Button = HTab:CreateButton({
+   Name = "Infinite Yield",
+   Callback = function()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+   end,
+})
+
+local OTab = Window:CreateTab("🔋 Teleport", nil) -- Title, Image
+local Section = OTab:CreateSection("Teleport")
+
+local Button = OTab:CreateButton({
+   Name = "Cart",
+   Callback = function()
+   local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local cart = workspace:FindFirstChild("Cart")
+
+if cart and cart:IsA("BasePart") then
+    hrp.CFrame = cart.CFrame + Vector3.new(0, 3, 0)
+else
+    warn("Part 'Cart' não encontrada!")
+            end
+   end,
+})
+
+local Button = OTab:CreateButton({
+   Name = "Cima do Mapa",
+   Callback = function()
+   local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+hrp.CFrame = hrp.CFrame + Vector3.new(0, 25, 0)
+   end,
+})
+
+local Button = OTab:CreateButton({
+   Name = "Baixo Do Mapa",
+   Callback = function()
+   local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+hrp.CFrame = hrp.CFrame + Vector3.new(0, -25, 0)
+   end,
+})
+local DTab = Window:CreateTab("🐥 Misc", nil) -- Title, Image
+local Section = Tab:CreateSection("Misc")
+
+local Button = DTab:CreateButton({
+   Name = "Teleport Todos os Items",
+   Callback = function()
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local folder = workspace:FindFirstChild("GeneratedItems")
+
+if folder then
+	for _, item in ipairs(folder:GetChildren()) do
+		if item:IsA("BasePart") then
+			item.CFrame = hrp.CFrame + Vector3.new(0, 5, 0)
+		elseif item:IsA("Model") then
+			local primaryPart = item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")
+			if primaryPart then
+				item:PivotTo(hrp.CFrame + Vector3.new(0, 5, 0))
+			end
+		end
+	end
+else
+	warn("Pasta 'GeneratedItems' não encontrada!")
+            end
+   end,
+})
+
+local Toggle = DTab:CreateToggle({
+   Name = "God Mode",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+   local ativo = false
+
+Callback = function(Value)
+    ativo = Value
+
+    if ativo then
+        task.spawn(function()
+            local distancia = 25
+            local escondido = false
+
+            while ativo do
+                task.wait(0.1)
+
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+                if not hrp then
+                    continue
+                end
+
+                local monstroPerto = false
+
+                for _, nome in ipairs({"HeadMonster", "RobeMonster"}) do
+                    local monstro = workspace:FindFirstChild(nome)
+
+                    if monstro and monstro:IsA("Model") then
+                        local parte = monstro.PrimaryPart or monstro:FindFirstChildWhichIsA("BasePart")
+
+                        if parte and (parte.Position - hrp.Position).Magnitude <= distancia then
+                            monstroPerto = true
+                            break
+                        end
+                    end
+                end
+
+                if monstroPerto and not escondido then
+                    hrp.CFrame = hrp.CFrame - Vector3.new(0, 25, 0)
+                    escondido = true
+
+                elseif not monstroPerto and escondido then
+                    hrp.CFrame = hrp.CFrame + Vector3.new(0, 25, 0)
+                    escondido = false
+                end
+            end
+        end)
+    end
+            end
+        end,
+    })
