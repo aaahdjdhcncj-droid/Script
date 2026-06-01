@@ -390,7 +390,7 @@ local Button = MTab:CreateButton({
    end,
 })
 
-local Toggle = MTab:CreateToggle({
+local Toggle = Tab:CreateToggle({
     Name = "Item ESP",
     CurrentValue = false,
     Flag = "ItemESP",
@@ -401,32 +401,29 @@ local Toggle = MTab:CreateToggle({
         if Value then
             task.spawn(function()
                 while _G.ItemESP do
-                    task.wait(1)
+                    task.wait(0.5)
 
                     local folder = workspace:FindFirstChild("GeneratedItems")
                     if not folder then continue end
 
                     for _, item in ipairs(folder:GetChildren()) do
-                        if not item:FindFirstChild("ItemESP") then
-                            local esp = Instance.new("Highlight")
-                            esp.Name = "ItemESP"
-                            esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                            esp.FillTransparency = 0.5
-                            esp.OutlineTransparency = 0
-                            esp.Adornee = item
-                            esp.Parent = item
+                        if not item:FindFirstChild("ItemESP_HL") then
+                            local hl = Instance.new("Highlight")
+                            hl.Name = "ItemESP_HL"
+                            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            hl.Adornee = item
+                            hl.Parent = item
                         end
                     end
                 end
             end)
         else
+            -- Remove todos os ESPs criados
             local folder = workspace:FindFirstChild("GeneratedItems")
-
             if folder then
-                for _, item in ipairs(folder:GetChildren()) do
-                    local esp = item:FindFirstChild("ItemESP")
-                    if esp then
-                        esp:Destroy()
+                for _, obj in ipairs(folder:GetDescendants()) do
+                    if obj:IsA("Highlight") and obj.Name == "ItemESP_HL" then
+                        obj:Destroy()
                     end
                 end
             end
