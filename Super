@@ -13,7 +13,7 @@ local LocalPlayer = Players.LocalPlayer
 -- ========================
 local S = {
 	AimbotEnabled = false,
-	TeamCheck     = false,
+	TeamCheck     = true,
 	WalkCheck     = true,
 	WallCheck     = true,
 	FOV           = 150,
@@ -108,7 +108,7 @@ Tabs.Aimbot:AddSlider("AimbotFOV", {
 	Default = 150, Min = 10, Max = 600, Rounding = 0,
 	Callback = function(v)
 		S.FOV = v
-		Circle.Radius = v -- agora Circle já existe
+		Circle.Radius = v
 	end
 })
 
@@ -237,12 +237,11 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 -- ========================
---    WALL CHECK (Raycast)
+--    WALL CHECK
 -- ========================
 local function HasLineOfSight(bone)
 	local origin    = Camera.CFrame.Position
-	local target    = bone.Position
-	local direction = target - origin
+	local direction = bone.Position - origin
 
 	local ignoreList = {}
 	local localChar = LocalPlayer.Character
@@ -251,9 +250,8 @@ local function HasLineOfSight(bone)
 			if v:IsA("BasePart") then table.insert(ignoreList, v) end
 		end
 	end
-	local boneChar = bone.Parent
-	if boneChar then
-		for _, v in ipairs(boneChar:GetDescendants()) do
+	if bone.Parent then
+		for _, v in ipairs(bone.Parent:GetDescendants()) do
 			if v:IsA("BasePart") then table.insert(ignoreList, v) end
 		end
 	end
@@ -274,21 +272,29 @@ local function GetTarget()
 
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p == LocalPlayer then continue end
+
+		-- Team Check
 		if S.TeamCheck and IsSameTeam(p) then continue end
 
 		local char = p.Character
 		if not char then continue end
+
 		local hum  = char:FindFirstChild("Humanoid")
 		local bone = char:FindFirstChild(S.Bone) or char:FindFirstChild("Head")
 		if not hum or not bone then continue end
 		if hum.Health <= 0 then continue end
+
+		-- Walk Check
 		if S.WalkCheck and hum.MoveDirection.Magnitude < 0.1 then continue end
 
+		-- Só alvos na frente da câmera
 		local sp = Camera:WorldToViewportPoint(bone.Position)
 		if sp.Z <= 0 then continue end
 
+		-- Wall Check
 		if S.WallCheck and not HasLineOfSight(bone) then continue end
 
+		-- Checa se está dentro do FOV
 		local dist2D = (Vector2.new(sp.X, sp.Y) - MousePos).Magnitude
 		if dist2D < BestDist then
 			BestDist = dist2D
@@ -302,24 +308,33 @@ end
 -- ========================
 --      RENDER LOOP
 -- ========================
-RunService.RenderStepped:Connect(function(dt)
+RunService.RenderStepped:Connect(function()
+	-- FOV Circle segue o mouse
 	if Circle.Visible then
 		Circle.Position = UserInputService:GetMouseLocation()
 	end
 
+	-- Aimbot
 	if S.AimbotEnabled then
 		local bone = GetTarget()
 		if bone then
-			local sp = Camera:WorldToViewportPoint(bone.Position)
-			local ray = Camera:ViewportPointToRay(sp.X, sp.Y)
-			local targetPos = ray.Origin + ray.Direction * 500
-			local currentCF = Camera.CFrame
-			local goalCF = CFrame.new(currentCF.Position, targetPos)
-			local alpha = math.clamp(dt * (30 / S.Smoothing), 0, 1)
-			Camera.CFrame = currentCF:Lerp(goalCF, alpha)
+			local MousePos = UserInputService:GetMouseLocation()
+			local sp       = Camera:WorldToViewportPoint(bone.Position)
+			local target2D = Vector2.new(sp.X, sp.Y)
+
+			-- Delta entre mouse e alvo na tela
+			local delta = target2D - MousePos
+
+			-- Suavização: quanto maior S.Smoothing, mais lento
+			local moveX = delta.X / S.Smoothing
+			local moveY = delta.Y / S.Smoothing
+
+			-- Move o mouse em direção ao alvo
+			mousemoverel(moveX, moveY)
 		end
 	end
 
+	-- Atualizar ESP por distância
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p == LocalPlayer then continue end
 		local show = ShouldShowESP(p)
