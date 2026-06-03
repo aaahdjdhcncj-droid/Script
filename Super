@@ -9,10 +9,37 @@ local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
 -- ========================
---       WINDOW
+--    SETTINGS
+-- ========================
+local S = {
+	AimbotEnabled = false,
+	TeamCheck     = true,
+	WalkCheck     = true,
+	WallCheck     = true,
+	FOV           = 150,
+	Smoothing     = 8,
+	Bone          = "Head",
+	FOVCircle     = false,
+	ESPEnabled    = false,
+	ESPTeamCheck  = true,
+	ESPMaxDist    = 1000,
+}
+
+-- ========================
+--  FOV CIRCLE (antes de tudo)
+-- ========================
+local Circle = Drawing.new("Circle")
+Circle.Visible   = false
+Circle.Thickness = 2
+Circle.Filled    = false
+Circle.Color     = Color3.fromRGB(255, 255, 255)
+Circle.Radius    = S.FOV
+
+-- ========================
+--    WINDOW
 -- ========================
 local Window = Fluent:CreateWindow({
-	Title = "Aimbot Beta",
+	Title = "Meu Hub",
 	SubTitle = "by você",
 	TabWidth = 160,
 	Size = UDim2.fromOffset(580, 460),
@@ -22,54 +49,30 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-	Player  = Window:AddTab({ Title = "Player",  Icon = "person-standing" }),
-	Aimbot  = Window:AddTab({ Title = "Aimbot",  Icon = "crosshair" }),
-	ESP     = Window:AddTab({ Title = "ESP",     Icon = "eye" }),
+	Player   = Window:AddTab({ Title = "Player",   Icon = "person-standing" }),
+	Aimbot   = Window:AddTab({ Title = "Aimbot",   Icon = "crosshair" }),
+	ESP      = Window:AddTab({ Title = "ESP",      Icon = "eye" }),
 	Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-}
-
--- ========================
---       SETTINGS
--- ========================
-local S = {
-	AimbotEnabled = false,
-	TeamCheck     = true,
-	WalkCheck     = true,
-	FOV           = 150,
-	Smoothing     = 8,
-	Bone          = "Head",
-
-	ESPEnabled    = false,
-	ESPTeamCheck  = true,
-	ESPMaxDist    = 1000,
-
-	FOVCircle     = false,
 }
 
 -- ========================
 --      PLAYER TAB
 -- ========================
 Tabs.Player:AddSlider("WalkSpeed", {
-	Title = "WalkSpeed",
-	Description = "Velocidade de caminhada",
+	Title = "WalkSpeed", Description = "Velocidade de caminhada",
 	Default = 16, Min = 16, Max = 100, Rounding = 0,
 	Callback = function(v)
 		local c = LocalPlayer.Character
-		if c and c:FindFirstChild("Humanoid") then
-			c.Humanoid.WalkSpeed = v
-		end
+		if c and c:FindFirstChild("Humanoid") then c.Humanoid.WalkSpeed = v end
 	end
 })
 
 Tabs.Player:AddSlider("JumpPower", {
-	Title = "JumpPower",
-	Description = "Força do pulo",
+	Title = "JumpPower", Description = "Força do pulo",
 	Default = 50, Min = 50, Max = 200, Rounding = 0,
 	Callback = function(v)
 		local c = LocalPlayer.Character
-		if c and c:FindFirstChild("Humanoid") then
-			c.Humanoid.JumpPower = v
-		end
+		if c and c:FindFirstChild("Humanoid") then c.Humanoid.JumpPower = v end
 	end
 })
 
@@ -77,64 +80,53 @@ Tabs.Player:AddSlider("JumpPower", {
 --      AIMBOT TAB
 -- ========================
 Tabs.Aimbot:AddToggle("AimbotEnabled", {
-	Title = "Aimbot",
-	Description = "Ativa o aimbot",
+	Title = "Aimbot", Description = "Ativa o aimbot",
 	Default = false,
 	Callback = function(v) S.AimbotEnabled = v end
 })
 
 Tabs.Aimbot:AddToggle("AimbotTeamCheck", {
-	Title = "Team Check",
-	Description = "Ignora aliados",
+	Title = "Team Check", Description = "Ignora aliados",
 	Default = true,
 	Callback = function(v) S.TeamCheck = v end
 })
 
 Tabs.Aimbot:AddToggle("AimbotWalkCheck", {
-	Title = "Walk Check",
-	Description = "Só mira em quem está se movendo",
+	Title = "Walk Check", Description = "Só mira em quem está se movendo",
 	Default = true,
 	Callback = function(v) S.WalkCheck = v end
 })
 
+Tabs.Aimbot:AddToggle("AimbotWallCheck", {
+	Title = "Wall Check", Description = "Não mira em quem está atrás de parede",
+	Default = true,
+	Callback = function(v) S.WallCheck = v end
+})
+
 Tabs.Aimbot:AddSlider("AimbotFOV", {
-	Title = "FOV",
-	Description = "Raio de detecção em pixels",
+	Title = "FOV", Description = "Raio de detecção em pixels",
 	Default = 150, Min = 10, Max = 600, Rounding = 0,
 	Callback = function(v)
 		S.FOV = v
-		Circle.Radius = v
+		Circle.Radius = v -- agora Circle já existe
 	end
 })
 
 Tabs.Aimbot:AddSlider("AimbotSmoothing", {
-	Title = "Smoothing",
-	Description = "Quanto maior, mais suave e lento",
+	Title = "Smoothing", Description = "Quanto maior, mais suave e lento",
 	Default = 8, Min = 1, Max = 30, Rounding = 0,
 	Callback = function(v) S.Smoothing = v end
 })
 
 Tabs.Aimbot:AddDropdown("AimbotBone", {
-	Title = "Osso Alvo",
-	Description = "Parte do corpo para mirar",
+	Title = "Osso Alvo", Description = "Parte do corpo para mirar",
 	Values = {"Head", "UpperTorso", "Torso", "HumanoidRootPart"},
 	Default = "Head",
 	Callback = function(v) S.Bone = v end
 })
 
--- ========================
---    FOV CIRCLE (criado antes de ser referenciado acima)
--- ========================
-local Circle = Drawing.new("Circle")
-Circle.Visible   = false
-Circle.Thickness = 2
-Circle.Filled    = false
-Circle.Color     = Color3.fromRGB(255, 255, 255)
-Circle.Radius    = S.FOV
-
-Tabs.Aimbot:AddToggle("FOVCircle", {
-	Title = "FOV Circle",
-	Description = "Mostra o círculo de FOV na tela",
+Tabs.Aimbot:AddToggle("FOVCircleToggle", {
+	Title = "FOV Circle", Description = "Mostra o círculo de FOV",
 	Default = false,
 	Callback = function(v)
 		S.FOVCircle = v
@@ -143,7 +135,7 @@ Tabs.Aimbot:AddToggle("FOVCircle", {
 })
 
 -- ========================
---       ESP TAB
+--    HIGHLIGHT ESP
 -- ========================
 local Highlights = {}
 
@@ -193,9 +185,7 @@ end
 
 local function UpdateAllESP()
 	for _, p in ipairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer then
-			ApplyHighlight(p)
-		end
+		if p ~= LocalPlayer then ApplyHighlight(p) end
 	end
 end
 
@@ -204,40 +194,32 @@ local function SetupPlayer(player)
 		task.wait(0.5)
 		ApplyHighlight(player)
 	end)
-	if player.Character then
-		ApplyHighlight(player)
-	end
+	if player.Character then ApplyHighlight(player) end
 end
 
 for _, p in ipairs(Players:GetPlayers()) do
 	if p ~= LocalPlayer then SetupPlayer(p) end
 end
-Players.PlayerAdded:Connect(function(p) SetupPlayer(p) end)
-Players.PlayerRemoving:Connect(function(p) RemoveHighlight(p) end)
+Players.PlayerAdded:Connect(SetupPlayer)
+Players.PlayerRemoving:Connect(RemoveHighlight)
 
+-- ========================
+--       ESP TAB
+-- ========================
 Tabs.ESP:AddToggle("ESPEnabled", {
-	Title = "ESP",
-	Description = "Mostra jogadores através das paredes",
+	Title = "ESP", Description = "Mostra jogadores através das paredes",
 	Default = false,
-	Callback = function(v)
-		S.ESPEnabled = v
-		UpdateAllESP()
-	end
+	Callback = function(v) S.ESPEnabled = v UpdateAllESP() end
 })
 
 Tabs.ESP:AddToggle("ESPTeamCheck", {
-	Title = "Team Check",
-	Description = "Esconde aliados do ESP",
+	Title = "Team Check", Description = "Esconde aliados",
 	Default = true,
-	Callback = function(v)
-		S.ESPTeamCheck = v
-		UpdateAllESP()
-	end
+	Callback = function(v) S.ESPTeamCheck = v UpdateAllESP() end
 })
 
 Tabs.ESP:AddSlider("ESPMaxDist", {
 	Title = "Distância Máxima",
-	Description = "Distância máxima para mostrar ESP",
 	Default = 1000, Min = 100, Max = 3000, Rounding = 0,
 	Callback = function(v) S.ESPMaxDist = v end
 })
@@ -255,7 +237,36 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 -- ========================
---    AIMBOT FUNCTIONS
+--    WALL CHECK (Raycast)
+-- ========================
+local function HasLineOfSight(bone)
+	local origin    = Camera.CFrame.Position
+	local target    = bone.Position
+	local direction = target - origin
+
+	local ignoreList = {}
+	local localChar = LocalPlayer.Character
+	if localChar then
+		for _, v in ipairs(localChar:GetDescendants()) do
+			if v:IsA("BasePart") then table.insert(ignoreList, v) end
+		end
+	end
+	local boneChar = bone.Parent
+	if boneChar then
+		for _, v in ipairs(boneChar:GetDescendants()) do
+			if v:IsA("BasePart") then table.insert(ignoreList, v) end
+		end
+	end
+
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = ignoreList
+	params.FilterType = Enum.RaycastFilterType.Exclude
+
+	return workspace:Raycast(origin, direction, params) == nil
+end
+
+-- ========================
+--    AIMBOT
 -- ========================
 local function GetTarget()
 	local MousePos = UserInputService:GetMouseLocation()
@@ -268,13 +279,15 @@ local function GetTarget()
 		local char = p.Character
 		if not char then continue end
 		local hum  = char:FindFirstChild("Humanoid")
-		local bone = char:FindFirstChild(S.Bone)
+		local bone = char:FindFirstChild(S.Bone) or char:FindFirstChild("Head")
 		if not hum or not bone then continue end
 		if hum.Health <= 0 then continue end
 		if S.WalkCheck and hum.MoveDirection.Magnitude < 0.1 then continue end
 
 		local sp = Camera:WorldToViewportPoint(bone.Position)
-		if sp.Z <= 0 then continue end -- FIX: ignora atrás da câmera
+		if sp.Z <= 0 then continue end
+
+		if S.WallCheck and not HasLineOfSight(bone) then continue end
 
 		local dist2D = (Vector2.new(sp.X, sp.Y) - MousePos).Magnitude
 		if dist2D < BestDist then
@@ -290,19 +303,16 @@ end
 --      RENDER LOOP
 -- ========================
 RunService.RenderStepped:Connect(function(dt)
-	-- FOV Circle
 	if Circle.Visible then
 		Circle.Position = UserInputService:GetMouseLocation()
 	end
 
-	-- Aimbot
 	if S.AimbotEnabled then
 		local bone = GetTarget()
 		if bone then
 			local sp = Camera:WorldToViewportPoint(bone.Position)
 			local ray = Camera:ViewportPointToRay(sp.X, sp.Y)
 			local targetPos = ray.Origin + ray.Direction * 500
-
 			local currentCF = Camera.CFrame
 			local goalCF = CFrame.new(currentCF.Position, targetPos)
 			local alpha = math.clamp(dt * (30 / S.Smoothing), 0, 1)
@@ -310,7 +320,6 @@ RunService.RenderStepped:Connect(function(dt)
 		end
 	end
 
-	-- Atualizar ESP por distância
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p == LocalPlayer then continue end
 		local show = ShouldShowESP(p)
@@ -330,10 +339,7 @@ SaveManager:LoadAutoLoad()
 Fluent:SelectTab(Tabs.Player)
 
 Window:Dialog({
-	Title = "Meu Hub",
-	Body = "Hub carregado com sucesso!",
-	Buttons = {{
-		Title = "Ok",
-		Callback = function() end
-	}}
+	Title = "Meu Hub carregado!",
+	Body = "Bem vindo! RightControl para minimizar.",
+	Buttons = {{ Title = "Ok", Callback = function() end }}
 })
