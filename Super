@@ -13,7 +13,7 @@ local LocalPlayer = Players.LocalPlayer
 -- ========================
 local S = {
 	AimbotEnabled = false,
-	TeamCheck     = true,
+	TeamCheck     = false,
 	WalkCheck     = true,
 	WallCheck     = true,
 	FOV           = 150,
