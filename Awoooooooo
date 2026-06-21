@@ -298,7 +298,7 @@ local ITab = Window:CreateTab("Items", nil) -- Title, Image
 local Section = ITab:CreateSection("Items")
 
 local Button = ITab:CreateButton({
-	Name = "Auto Get Crossbow",
+	Name = "Get Crossbow",
 	Callback = function()
 		local Player = game.Players.LocalPlayer
 		local Character = Player.Character
@@ -332,7 +332,7 @@ local Button = ITab:CreateButton({
 })
 
 local Button = ITab:CreateButton({
-	Name = "Auto Get Coin Bag",
+	Name = "Get Coin Bag",
 	Callback = function()
 		local Player = game.Players.LocalPlayer
 		local Character = Player.Character
@@ -371,114 +371,123 @@ local Section = HTab:CreateSection("Hunter")
 local Button = HTab:CreateButton({
    Name = "Show Shoot Wolf",
    Callback = function()
-   --// Shoot Wolf Button - Draggable
+   local tool = script.Parent
 local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
 local playerGui = player:WaitForChild("PlayerGui")
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ShootWolfDraggable"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
+-- ==================== CONFIGURAÇÕES ====================
+local TAG_NAME = "WolfTag"
+local COOLDOWN = 0.4
+local canShoot = true
 
--- Botão principal
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 180, 0, 60)
-button.Position = UDim2.new(0.5, -90, 0.85, -30)
-button.BackgroundColor3 = Color3.fromRGB(10, 20, 45)
-button.BackgroundTransparency = 0.8
-button.Text = "Shoot Wolf"
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.TextScaled = true
-button.Font = Enum.Font.GothamBold
-button.Parent = screenGui
+-- ==================== CRIAR BOTÃO NA TELA ====================
+local function createAutoAimButton()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AutoAimGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = playerGui
 
--- Arredondado
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
-corner.Parent = button
+    local frame = Instance.new("Frame")
+    frame.Name = "AutoAimFrame"
+    frame.Size = UDim2.new(0, 130, 0, 55)
+    frame.Position = UDim2.new(0.8, 0, 0.1, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BackgroundTransparency = 0.8
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Draggable = true
+    frame.Parent = screenGui
 
--- Borda azul
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(0, 140, 255)
-stroke.Thickness = 1.5
-stroke.Transparency = 0.5
-stroke.Parent = button
+    local button = Instance.new("TextButton")
+    button.Name = "ShootWolfButton"
+    button.Size = UDim2.new(1, 0, 1, 0)
+    button.BackgroundTransparency = 1
+    button.Text = "ShootWolf"
+    button.TextColor3 = Color3.fromRGB(0, 170, 255)
+    button.TextScaled = true
+    button.Font = Enum.Font.GothamBold
+    button.Parent = frame
 
--- Variáveis de drag
-local dragging = false
-local dragStart
-local startPos
+    button.MouseEnter:Connect(function() frame.BackgroundTransparency = 0.6 end)
+    button.MouseLeave:Connect(function() frame.BackgroundTransparency = 0.8 end)
 
-local UIS = game:GetService("UserInputService")
-
--- Arraste
-local function update(input)
-    local delta = input.Position - dragStart
-    button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    return button
 end
 
-button.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = button.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
+local autoAimButton = createAutoAimButton()
 
-button.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
+-- ==================== FUNÇÕES ====================
+local function findTarget()
+    local wolfTag = workspace:FindFirstChild(TAG_NAME, true)
+    if wolfTag then
+        return wolfTag.Parent
     end
-end)
+    return nil
+end
 
-UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        update(input)
+local function fireArrow(direction, startPos)
+    -- Pega a flecha que está dentro da Tool
+    local arrowTemplate = tool:FindFirstChild("Arrow")
+    if not arrowTemplate then
+        warn("❌ Model 'Flecha' não encontrado dentro da Tool!")
+        return
     end
-end)
 
--- Clique (só funciona se não estiver arrastando)
-button.MouseButton1Click:Connect(function()
-    if dragging then return end
+    local arrow = arrowTemplate:Clone()
+    arrow.Parent = workspace
     
-    local wolfModel = workspace:FindFirstChild("WolfTag")
-    if not wolfModel then
-        warn("❌ Model 'Wolftag' não encontrado!")
+    -- Posiciona a flecha corretamente
+    arrow:PivotTo(CFrame.new(startPos) * CFrame.lookAt(Vector3.new(0,0,0), direction))
+
+    -- Física
+    local bv = Instance.new("BodyVelocity")
+    bv.Name = "ArrowVelocity"
+    bv.MaxForce = Vector3.new(4000, 4000, 4000)
+    bv.Velocity = direction * 120   -- Ajuste a velocidade aqui
+    bv.Parent = arrow
+
+    -- Limpeza automática
+    game.Debris:AddItem(arrow, 6)
+end
+
+local function shootAtTarget()
+    if not canShoot then return end
+    canShoot = false
+
+    local target = findTarget()
+    if not target then
+        print("❌ WolfTag não encontrado!")
+        canShoot = true
         return
     end
 
-    local rootPart = wolfModel:FindFirstChild("HumanoidRootPart") or wolfModel:FindFirstChildWhichIsA("BasePart")
-    if not rootPart then
-        warn("❌ Não encontrou parte principal no modelo!")
-        return
-    end
+    local wolfTag = target:FindFirstChild(TAG_NAME)
+    local targetPos = wolfTag.Position
 
-    local camera = workspace.CurrentCamera
-    local targetPos = rootPart.Position
+    local handle = tool:FindFirstChild("Handle") or tool.PrimaryPart
+    if not handle then return end
 
-    -- Mira a câmera no meio do lobo
-    local offset = Vector3.new(0, 4, 10)
-    camera.CFrame = CFrame.lookAt(targetPos + offset, targetPos)
+    local startPos = handle.Position
+    local direction = (targetPos - startPos).Unit
 
-    task.wait(0.12)
+    fireArrow(direction, startPos)
 
-    -- Simula tiro no meio da tela
-    local vim = game:GetService("VirtualInputManager")
-    local centerX = camera.ViewportSize.X / 2
-    local centerY = camera.ViewportSize.Y / 2
+    task.Wait(COOLDOWN)
+    canShoot = true
+end
 
-    vim:SendMouseButtonEvent(centerX, centerY, 0, true, game, 1)
-    task.wait(0.06)
-    vim:SendMouseButtonEvent(centerX, centerY, 0, false, game, 1)
+-- ==================== CONEXÕES ====================
+autoAimButton.MouseButton1Click:Connect(shootAtTarget)
+
+tool.Activated:Connect(function()
+    local handle = tool:FindFirstChild("Handle") or tool.PrimaryPart
+    if not handle then return end
+    local direction = (mouse.Hit.Position - handle.Position).Unit
+    fireArrow(direction, handle.Position)
 end)
 
-print("✅ Botão Shoot Wolf Draggable carregado!")
+print("✅ Auto Aim com Botão ShootWolf carregado! (Flecha dentro da Tool)"))
    end,
 })
 
