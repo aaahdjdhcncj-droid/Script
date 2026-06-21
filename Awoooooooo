@@ -690,4 +690,9 @@ end)
 			if Player.Character then
 				local EquippedTool = Player.Character:FindFirstChild("TP Tool")
 				if EquippedTool then
-
+                 EquippedTool:Destroy()
+				end
+			end
+		end
+	end,
+})
