@@ -50,9 +50,6 @@ local VTab = Window:CreateTab("Visual", nil) -- Title, Image
 local Section = VTab:CreateSection("Visual")
 
 local Toggle = VTab:CreateToggle({
-local Connection
-
-local Toggle = VTab:CreateToggle({
 	Name = "Wolf ESP",
 	CurrentValue = false,
 	Flag = "WolfESPAuto",
