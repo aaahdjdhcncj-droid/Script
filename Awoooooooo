@@ -494,133 +494,162 @@ print("✅ Auto Aim com Botão ShootWolf carregado! (Flecha dentro da Tool)"))
 local Button = HTab:CreateButton({
    Name = "Show Tp Shoot",
    Callback = function()
-   --// Tp Shoot Button - Draggable + Teleporte + Volta automática
+   local tool = script.Parent
 local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
 local playerGui = player:WaitForChild("PlayerGui")
+local humanoid = nil
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TpShootButton"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
+-- ==================== CONFIGURAÇÕES ====================
+local TAG_NAME = "WolfTag"
+local COOLDOWN = 0.5
+local canShoot = true
+local TELEPORT_DISTANCE = 8  -- Distância atrás do alvo (ajuste se quiser)
 
--- Botão pequeno
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 140, 0, 50)
-button.Position = UDim2.new(0.5, -70, 0.75, -25)
-button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-button.BackgroundTransparency = 0.8
-button.Text = "Tp Shoot"
-button.TextColor3 = Color3.fromRGB(180, 0, 255)   -- Roxo
-button.TextScaled = true
-button.Font = Enum.Font.GothamBold
-button.Parent = screenGui
+-- ==================== CRIAR BOTÃO ====================
+local function createAutoAimButton()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AutoAimGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = playerGui
 
--- Arredondado
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 10)
-corner.Parent = button
+    local frame = Instance.new("Frame")
+    frame.Name = "AutoAimFrame"
+    frame.Size = UDim2.new(0, 130, 0, 55)
+    frame.Position = UDim2.new(0.8, 0, 0.1, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BackgroundTransparency = 0.8
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Draggable = true
+    frame.Parent = screenGui
 
--- Borda roxa
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(180, 0, 255)
-stroke.Thickness = 1.5
-stroke.Transparency = 0.6
-stroke.Parent = button
+    local button = Instance.new("TextButton")
+    button.Name = "ShootWolfButton"
+    button.Size = UDim2.new(1, 0, 1, 0)
+    button.BackgroundTransparency = 1
+    button.Text = "Tp Shoot"
+    button.TextColor3 = Color3.fromRGB(180, 0, 255)  -- Roxo
+    button.TextScaled = true
+    button.Font = Enum.Font.GothamBold
+    button.Parent = frame
 
--- Variáveis de drag
-local dragging = false
-local dragStart
-local startPos
+    button.MouseEnter:Connect(function() frame.BackgroundTransparency = 0.6 end)
+    button.MouseLeave:Connect(function() frame.BackgroundTransparency = 0.8 end)
 
-local UIS = game:GetService("UserInputService")
-
--- Arraste
-local function update(input)
-    local delta = input.Position - dragStart
-    button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    return button
 end
 
-button.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = button.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
+local autoAimButton = createAutoAimButton()
 
-button.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
+-- ==================== FUNÇÕES ====================
+local function getHumanoid()
+    local character = player.Character or player.CharacterAdded:Wait()
+    humanoid = character:WaitForChild("Humanoid")
+    return humanoid
+end
 
-UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        update(input)
+local function findTarget()
+    local wolfTag = workspace:FindFirstChild(TAG_NAME, true)
+    if wolfTag then
+        return wolfTag.Parent
     end
-end)
+    return nil
+end
 
--- Clique
-button.MouseButton1Click:Connect(function()
-    if dragging then return end
-    
-    local wolfModel = workspace:FindFirstChild("WolfTag")
-    if not wolfModel then
-        warn("❌ Model 'Wolftag' não encontrado!")
-        return
-    end
+local function teleportBehindTarget(target)
+    local wolfTag = target:FindFirstChild(TAG_NAME)
+    if not wolfTag then return false end
 
-    local rootPart = wolfModel:FindFirstChild("HumanoidRootPart") or wolfModel:FindFirstChildWhichIsA("BasePart")
-    if not rootPart then
-        warn("❌ Não encontrou parte principal no modelo!")
-        return
-    end
+    local targetCFrame = wolfTag.CFrame
+    -- Calcula posição atrás do alvo
+    local behindOffset = targetCFrame.LookVector * -TELEPORT_DISTANCE
+    local behindPosition = targetCFrame.Position + behindOffset + Vector3.new(0, 3, 0) -- um pouco acima
 
     local character = player.Character
-    if not character then return end
-    local hrp = character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-
-    -- Salva posição original
-    local originalCFrame = hrp.CFrame
-
-    -- === TELEPORTE PARA TRÁS DO LOBO ===
-    local teleportCFrame = rootPart.CFrame * CFrame.new(0, 3, 8)  -- Atrás e um pouco acima
-    hrp.CFrame = teleportCFrame
-
-    task.wait(0.15)
-
-    -- === MIRA A CÂMERA ===
-    local camera = workspace.CurrentCamera
-    local targetPos = rootPart.Position
-    local camOffset = Vector3.new(0, 4, 12)
-    camera.CFrame = CFrame.lookAt(targetPos + camOffset, targetPos)
-
-    task.wait(0.12)
-
-    -- === SIMULA TIRO ===
-    local vim = game:GetService("VirtualInputManager")
-    local centerX = camera.ViewportSize.X / 2
-    local centerY = camera.ViewportSize.Y / 2
-
-    vim:SendMouseButtonEvent(centerX, centerY, 0, true, game, 1)
-    task.wait(0.06)
-    vim:SendMouseButtonEvent(centerX, centerY, 0, false, game, 1)
-
-    -- === VOLTA PARA POSIÇÃO ORIGINAL DEPOIS DE 0.8 SEGUNDOS ===
-    task.wait(0.8)
-    if hrp and hrp.Parent then
-        hrp.CFrame = originalCFrame
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = CFrame.new(behindPosition) * CFrame.lookAt(behindPosition, targetCFrame.Position)
+        return true
     end
+    return false
+end
+
+local function fireArrow(direction, startPos)
+    local arrowTemplate = tool:FindFirstChild("Arrow")
+    if not arrowTemplate then
+        warn("❌ Model 'Flecha' não encontrado dentro da Tool!")
+        return
+    end
+
+    local arrow = arrowTemplate:Clone()
+    arrow.Parent = workspace
+    arrow:PivotTo(CFrame.new(startPos) * CFrame.lookAt(Vector3.new(0,0,0), direction))
+
+    local bv = Instance.new("BodyVelocity")
+    bv.MaxForce = Vector3.new(4000, 4000, 4000)
+    bv.Velocity = direction * 120
+    bv.Parent = arrow
+
+    game.Debris:AddItem(arrow, 6)
+end
+
+local function shootAtTarget()
+    if not canShoot then return end
+    canShoot = false
+
+    -- Equipa a Tool
+    local hum = getHumanoid()
+    if tool.Parent ~= hum.Parent then
+        hum:EquipTool(tool)
+        task.Wait(0.2)
+    end
+
+    local target = findTarget()
+    if not target then
+        print("❌ WolfTag não encontrado!")
+        canShoot = true
+        return
+    end
+
+    -- Teleporta para trás do alvo
+    local teleported = teleportBehindTarget(target)
+    if not teleported then
+        warn("Falha ao teleportar!")
+    end
+
+    task.Wait(0.15) -- pequeno delay após teleport
+
+    -- Atira
+    local wolfTag = target:FindFirstChild(TAG_NAME)
+    local targetPos = wolfTag.Position
+
+    local handle = tool:FindFirstChild("Handle") or tool.PrimaryPart
+    if not handle then 
+        canShoot = true
+        return 
+    end
+
+    local startPos = handle.Position
+    local direction = (targetPos - startPos).Unit
+
+    fireArrow(direction, startPos)
+
+    task.Wait(COOLDOWN)
+    canShoot = true
+end
+
+-- ==================== CONEXÕES ====================
+autoAimButton.MouseButton1Click:Connect(shootAtTarget)
+
+-- Tiro normal com clique do mouse
+tool.Activated:Connect(function()
+    local handle = tool:FindFirstChild("Handle") or tool.PrimaryPart
+    if not handle then return end
+    local direction = (mouse.Hit.Position - handle.Position).Unit
+    fireArrow(direction, handle.Position)
 end)
 
-print("✅ Botão Tp Shoot (com volta automática) carregado!")
+print("✅ Script Teleport + ShootWolf (Roxo) carregado!")
                 end,
             })
 local WTab = Window:CreateTab("Wolf", nil) -- Title, Image
