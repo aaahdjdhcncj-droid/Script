@@ -390,7 +390,7 @@ end)
 button.MouseButton1Click:Connect(function()
     if dragging then return end
     
-    local wolfModel = workspace:FindFirstChild("Wolftag")
+    local wolfModel = workspace:FindFirstChild("WolfTag")
     if not wolfModel then
         warn("❌ Model 'Wolftag' não encontrado!")
         return
@@ -504,7 +504,7 @@ end)
 button.MouseButton1Click:Connect(function()
     if dragging then return end
     
-    local wolfModel = workspace:FindFirstChild("Wolftag")
+    local wolfModel = workspace:FindFirstChild("WolfTag")
     if not wolfModel then
         warn("❌ Model 'Wolftag' não encontrado!")
         return
