@@ -50,101 +50,147 @@ local VTab = Window:CreateTab("Visual", nil) -- Title, Image
 local Section = VTab:CreateSection("Visual")
 
 local Toggle = VTab:CreateToggle({
+local Connection
+
+local Toggle = VTab:CreateToggle({
 	Name = "Wolf ESP",
 	CurrentValue = false,
-	Flag = "WolfESP",
+	Flag = "WolfESPAuto",
 
 	Callback = function(Value)
-		if Value then
-			for _, model in ipairs(workspace:GetChildren()) do
-				if model:IsA("Model") and model:FindFirstChild("WolfTag") then
-					if not model:FindFirstChild("WolfESP") then
-						local highlight = Instance.new("Highlight")
-						highlight.Name = "WolfESP"
-						highlight.Adornee = model
-						highlight.FillTransparency = 1
-						highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-						highlight.OutlineTransparency = 0
-						highlight.Parent = model
-					end
+		local function AddESP(model)
+			if model:IsA("Model") and model:FindFirstChild("WolfTag") then
+				if not model:FindFirstChild("WolfESP") then
+					local Highlight = Instance.new("Highlight")
+					Highlight.Name = "WolfESP"
+					Highlight.Adornee = model
+					Highlight.FillTransparency = 1
+					Highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+					Highlight.OutlineTransparency = 0
+					Highlight.Parent = model
 				end
 			end
-		else
+		end
+
+		if Value then
+			-- Models que já existem
 			for _, model in ipairs(workspace:GetChildren()) do
-				if model:IsA("Model") then
-					local highlight = model:FindFirstChild("WolfESP")
-					if highlight then
-						highlight:Destroy()
-					end
+				AddESP(model)
+			end
+
+			-- Models que aparecerem depois
+			Connection = workspace.ChildAdded:Connect(function(child)
+				AddESP(child)
+			end)
+		else
+			if Connection then
+				Connection:Disconnect()
+				Connection = nil
+			end
+
+			-- Remove todos os ESPs
+			for _, obj in ipairs(workspace:GetDescendants()) do
+				if obj.Name == "WolfESP" and obj:IsA("Highlight") then
+					obj:Destroy()
 				end
 			end
 		end
 	end,
 })
+
+local Connection
 
 local Toggle = VTab:CreateToggle({
 	Name = "Hunter ESP",
 	CurrentValue = false,
-	Flag = "HunterESP",
+	Flag = "HunterESPAuto",
 
 	Callback = function(Value)
-		if Value then
-			for _, model in ipairs(workspace:GetChildren()) do
-				if model:IsA("Model") and model:FindFirstChild("HunterTag") then
-					if not model:FindFirstChild("HunterESP") then
-						local highlight = Instance.new("Highlight")
-						highlight.Name = "HunterESP"
-						highlight.Adornee = model
-						highlight.FillTransparency = 1
-						highlight.OutlineColor = Color3.fromRGB(0, 0, 255)
-						highlight.OutlineTransparency = 0
-						highlight.Parent = model
-					end
+		local function AddESP(model)
+			if model:IsA("Model") and model:FindFirstChild("HunterTag") then
+				if not model:FindFirstChild("HunterESP") then
+					local Highlight = Instance.new("Highlight")
+					Highlight.Name = "HunterESP"
+					Highlight.Adornee = model
+					Highlight.FillTransparency = 1
+					Highlight.OutlineColor = Color3.fromRGB(0, 0, 255)
+					Highlight.OutlineTransparency = 0
+					Highlight.Parent = model
 				end
 			end
-		else
+		end
+
+		if Value then
+			-- Models que já existem
 			for _, model in ipairs(workspace:GetChildren()) do
-				if model:IsA("Model") then
-					local highlight = model:FindFirstChild("HunterESP")
-					if highlight then
-						highlight:Destroy()
-					end
+				AddESP(model)
+			end
+
+			-- Models que aparecerem depois
+			Connection = workspace.ChildAdded:Connect(function(child)
+				AddESP(child)
+			end)
+		else
+			if Connection then
+				Connection:Disconnect()
+				Connection = nil
+			end
+
+			-- Remove todos os ESPs
+			for _, obj in ipairs(workspace:GetDescendants()) do
+				if obj.Name == "HunterESP" and obj:IsA("Highlight") then
+					obj:Destroy()
 				end
 			end
 		end
 	end,
 })
 
+local Connection
+
 local Toggle = VTab:CreateToggle({
 	Name = "Inocent ESP",
 	CurrentValue = false,
-	Flag = "InocentESP",
+	Flag = "GreenESPAuto",
 
 	Callback = function(Value)
-		if Value then
-			for _, model in ipairs(workspace:GetChildren()) do
-				if model:IsA("Model")
-					and not model:FindFirstChild("WolfTag")
-					and not model:FindFirstChild("HunterTag") then
+		local function AddESP(model)
+			if model:IsA("Model")
+				and not model:FindFirstChild("WolfTag")
+				and not model:FindFirstChild("HunterTag") then
 
-					if not model:FindFirstChild("GreenESP") then
-						local highlight = Instance.new("Highlight")
-						highlight.Name = "GreenESP"
-						highlight.Adornee = model
-						highlight.FillTransparency = 1
-						highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
-						highlight.OutlineTransparency = 0
-						highlight.Parent = model
-					end
+				if not model:FindFirstChild("GreenESP") then
+					local Highlight = Instance.new("Highlight")
+					Highlight.Name = "GreenESP"
+					Highlight.Adornee = model
+					Highlight.FillTransparency = 1
+					Highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+					Highlight.OutlineTransparency = 0
+					Highlight.Parent = model
 				end
 			end
-		else
+		end
+
+		if Value then
+			-- Models que já existem
 			for _, model in ipairs(workspace:GetChildren()) do
-				if model:IsA("Model") then
-					local highlight = model:FindFirstChild("GreenESP")
-					if highlight then
-						highlight:Destroy()
-					end
+				AddESP(model)
+			end
+
+			-- Models que aparecerem depois
+			Connection = workspace.ChildAdded:Connect(function(child)
+				AddESP(child)
+			end)
+		else
+			if Connection then
+				Connection:Disconnect()
+				Connection = nil
+			end
+
+			-- Remove todos os ESPs verdes
+			for _, obj in ipairs(workspace:GetDescendants()) do
+				if obj.Name == "GreenESP" and obj:IsA("Highlight") then
+					obj:Destroy()
 				end
 			end
 		end
@@ -254,57 +300,71 @@ local Toggle = VTab:CreateToggle({
 local ITab = Window:CreateTab("Items", nil) -- Title, Image
 local Section = ITab:CreateSection("Items")
 
-local Toggle = ITab:CreateToggle({
-	Name = "Auto Get Crossbow",
-	CurrentValue = false,
-	Flag = "GetCrossbow",
+local Button = ITab:CreateButton({
+	Name = "Get Crossbow",
+	Callback = function()
+		local Player = game.Players.LocalPlayer
+		local Character = Player.Character
+		local Root = Character and Character:FindFirstChild("HumanoidRootPart")
 
-	Callback = function(Value)
-		if Value then
-			local Player = game:GetService("Players").LocalPlayer
-			local Character = Player.Character
-			local Root = Character and Character:FindFirstChild("HumanoidRootPart")
-			local EffectsBin = workspace:FindFirstChild("EffectsBin")
+		if not Root then
+			return
+		end
 
-			if Root and EffectsBin then
-				for _, Obj in ipairs(EffectsBin:GetChildren()) do
-					if Obj.Name == "Handle" and Obj:IsA("BasePart") then
-						Obj.CFrame = Root.CFrame
-					end
-				end
+		local OldCFrame = Root.CFrame
+
+		local EffectsBin = workspace:FindFirstChild("EffectsBin")
+		if not EffectsBin then
+			return
+		end
+
+		for _, obj in ipairs(EffectsBin:GetChildren()) do
+			if obj.Name == "Handle" and obj:IsA("BasePart") then
+				-- Vai até a Crossbow
+				Root.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+
+				-- Espera pegar o item
+				task.wait(0.25)
+
+				-- Volta para a posição original
+				Root.CFrame = OldCFrame
+				break
 			end
-
-			Toggle:Set(false)
 		end
 	end,
 })
 
-local Toggle = ITab:CreateToggle({
-	Name = "Auto Get Coin Bag",
-	CurrentValue = false,
-	Flag = "GetCoinBag",
+local Button = ITab:CreateButton({
+	Name = "Get Coin Bag",
+	Callback = function()
+		local Player = game.Players.LocalPlayer
+		local Character = Player.Character
+		local Root = Character and Character:FindFirstChild("HumanoidRootPart")
 
-	Callback = function(Value)
-		getgenv().GetCoinBag = Value
+		if not Root then
+			return
+		end
 
-		task.spawn(function()
-			while getgenv().GetCoinBag do
-				local Player = game.Players.LocalPlayer
-				local Character = Player.Character
-				local Root = Character and Character:FindFirstChild("HumanoidRootPart")
-				local EffectsBin = workspace:FindFirstChild("EffectsBin")
+		local OldCFrame = Root.CFrame
 
-				if Root and EffectsBin then
-					for _, obj in ipairs(EffectsBin:GetChildren()) do
-						if obj.Name == "CollectableItem" and obj:IsA("BasePart") then
-							obj.CFrame = Root.CFrame
-						end
-					end
-				end
+		local EffectsBin = workspace:FindFirstChild("EffectsBin")
+		if not EffectsBin then
+			return
+		end
 
-				task.wait(0.1)
+		for _, obj in ipairs(EffectsBin:GetChildren()) do
+			if obj.Name == "CollectableItem" and obj:IsA("BasePart") then
+				-- Vai até a Coin Bag
+				Root.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+
+				-- Espera pegar o item
+				task.wait(0.25)
+
+				-- Volta para a posição original
+				Root.CFrame = OldCFrame
+				break
 			end
-		end)
+		end
 	end,
 })
 
