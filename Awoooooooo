@@ -1,0 +1,693 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "AWOO Hub",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "Loading...",
+   LoadingSubtitle = "by Yoricks",
+   ShowText = "AWOO", -- for mobile users to unhide Rayfield, change if you'd like
+   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from emitting warnings when the script has a version mismatch with the interface.
+
+   -- ScriptID = "sid_xxxxxxxxxxxx", -- Your Script ID from developer.sirius.menu — enables analytics, managed keys, and script hosting
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Awoo Hub"
+   },
+
+   Discord = {
+      Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "EFgvSDbtE", -- The Discord invite code, do not include Discord.gg/. E.g. Discord.gg/ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
+   },
+
+   KeySystem = true, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "KeySystem",
+      Subtitle = "Get A Key!",
+      Note = "Key in Discord Server!", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique, as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Awoooooooooooooooooooooooooooooooooooooooooooooooo"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
+   }
+})
+
+Rayfield:Notify({
+   Title = "Loading Sucess",
+   Content = "Have fun!",
+   Duration = 7,
+   Image = 56369540,
+})
+
+local VTab = Window:CreateTab("Visual", nil) -- Title, Image
+local Section = VTab:CreateSection("Visual")
+
+local Toggle = VTab:CreateToggle({
+	Name = "Wolf ESP",
+	CurrentValue = false,
+	Flag = "WolfESP",
+
+	Callback = function(Value)
+		if Value then
+			for _, model in ipairs(workspace:GetChildren()) do
+				if model:IsA("Model") and model:FindFirstChild("WolfTag") then
+					if not model:FindFirstChild("WolfESP") then
+						local highlight = Instance.new("Highlight")
+						highlight.Name = "WolfESP"
+						highlight.Adornee = model
+						highlight.FillTransparency = 1
+						highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+						highlight.OutlineTransparency = 0
+						highlight.Parent = model
+					end
+				end
+			end
+		else
+			for _, model in ipairs(workspace:GetChildren()) do
+				if model:IsA("Model") then
+					local highlight = model:FindFirstChild("WolfESP")
+					if highlight then
+						highlight:Destroy()
+					end
+				end
+			end
+		end
+	end,
+})
+
+local Toggle = VTab:CreateToggle({
+	Name = "Hunter ESP",
+	CurrentValue = false,
+	Flag = "HunterESP",
+
+	Callback = function(Value)
+		if Value then
+			for _, model in ipairs(workspace:GetChildren()) do
+				if model:IsA("Model") and model:FindFirstChild("HunterTag") then
+					if not model:FindFirstChild("HunterESP") then
+						local highlight = Instance.new("Highlight")
+						highlight.Name = "HunterESP"
+						highlight.Adornee = model
+						highlight.FillTransparency = 1
+						highlight.OutlineColor = Color3.fromRGB(0, 0, 255)
+						highlight.OutlineTransparency = 0
+						highlight.Parent = model
+					end
+				end
+			end
+		else
+			for _, model in ipairs(workspace:GetChildren()) do
+				if model:IsA("Model") then
+					local highlight = model:FindFirstChild("HunterESP")
+					if highlight then
+						highlight:Destroy()
+					end
+				end
+			end
+		end
+	end,
+})
+
+local Toggle = VTab:CreateToggle({
+	Name = "Inocent ESP",
+	CurrentValue = false,
+	Flag = "InocentESP",
+
+	Callback = function(Value)
+		if Value then
+			for _, model in ipairs(workspace:GetChildren()) do
+				if model:IsA("Model")
+					and not model:FindFirstChild("WolfTag")
+					and not model:FindFirstChild("HunterTag") then
+
+					if not model:FindFirstChild("GreenESP") then
+						local highlight = Instance.new("Highlight")
+						highlight.Name = "GreenESP"
+						highlight.Adornee = model
+						highlight.FillTransparency = 1
+						highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+						highlight.OutlineTransparency = 0
+						highlight.Parent = model
+					end
+				end
+			end
+		else
+			for _, model in ipairs(workspace:GetChildren()) do
+				if model:IsA("Model") then
+					local highlight = model:FindFirstChild("GreenESP")
+					if highlight then
+						highlight:Destroy()
+					end
+				end
+			end
+		end
+	end,
+})
+local Section = VTab:CreateSection("Items ESP")
+
+local Connection
+local Toggle = VTab:CreateToggle({
+	Name = "Crossbow ESP",
+	CurrentValue = false,
+	Flag = "CrossbowESP",
+
+	Callback = function(Value)
+		local EffectsBin = workspace:FindFirstChild("EffectsBin")
+		if not EffectsBin then return end
+
+		if Value then
+			local function AddESP(obj)
+				if obj.Name == "Handle" and obj:IsA("BasePart") then
+					if not obj:FindFirstChild("CrossbowText") then
+						local Billboard = Instance.new("BillboardGui")
+						Billboard.Name = "CrossbowText"
+						Billboard.Size = UDim2.new(0, 150, 0, 50)
+						Billboard.StudsOffset = Vector3.new(0, 3, 0)
+						Billboard.AlwaysOnTop = true
+						Billboard.Parent = obj
+
+						local Text = Instance.new("TextLabel")
+						Text.Size = UDim2.new(1, 0, 1, 0)
+						Text.BackgroundTransparency = 1
+						Text.Text = "Crossbow"
+						Text.TextColor3 = Color3.fromRGB(255, 255, 0)
+						Text.TextStrokeTransparency = 0
+						Text.TextScaled = true
+						Text.Font = Enum.Font.SourceSansBold
+						Text.Parent = Billboard
+					end
+				end
+			end
+
+			for _, obj in ipairs(EffectsBin:GetChildren()) do
+				AddESP(obj)
+			end
+
+			Connection = EffectsBin.ChildAdded:Connect(AddESP)
+
+		else
+			if Connection then
+				Connection:Disconnect()
+				Connection = nil
+			end
+
+			for _, obj in ipairs(EffectsBin:GetChildren()) do
+				local Gui = obj:FindFirstChild("CrossbowText")
+				if Gui then
+					Gui:Destroy()
+				end
+			end
+		end
+	end,
+})
+
+
+local Toggle = VTab:CreateToggle({
+	Name = "Coin Bag ESP",
+	CurrentValue = false,
+	Flag = "CoinBagESP",
+
+	Callback = function(Value)
+		local effectsBin = workspace:FindFirstChild("EffectsBin")
+		if not effectsBin then return end
+
+		if Value then
+			for _, obj in ipairs(effectsBin:GetChildren()) do
+				if obj.Name == "CollectableItem" and obj:IsA("BasePart") then
+					if not obj:FindFirstChild("CoinBagText") then
+						local billboard = Instance.new("BillboardGui")
+						billboard.Name = "CoinBagText"
+						billboard.Size = UDim2.new(0, 150, 0, 50)
+						billboard.StudsOffset = Vector3.new(0, 3, 0)
+						billboard.AlwaysOnTop = true
+						billboard.Parent = obj
+
+						local text = Instance.new("TextLabel")
+						text.Size = UDim2.new(1, 0, 1, 0)
+						text.BackgroundTransparency = 1
+						text.Text = "Coin Bag"
+						text.TextColor3 = Color3.fromRGB(255, 255, 0)
+						text.TextStrokeTransparency = 0
+						text.TextScaled = true
+						text.Parent = billboard
+					end
+				end
+			end
+		else
+			for _, obj in ipairs(effectsBin:GetChildren()) do
+				local gui = obj:FindFirstChild("CoinBagText")
+				if gui then
+					gui:Destroy()
+				end
+			end
+		end
+	end,
+})
+
+local ITab = Window:CreateTab("Items", nil) -- Title, Image
+local Section = ITab:CreateSection("Items")
+
+local Toggle = ITab:CreateToggle({
+	Name = "Auto Get Crossbow",
+	CurrentValue = false,
+	Flag = "GetCrossbow",
+
+	Callback = function(Value)
+		if Value then
+			local Player = game:GetService("Players").LocalPlayer
+			local Character = Player.Character
+			local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+			local EffectsBin = workspace:FindFirstChild("EffectsBin")
+
+			if Root and EffectsBin then
+				for _, Obj in ipairs(EffectsBin:GetChildren()) do
+					if Obj.Name == "Handle" and Obj:IsA("BasePart") then
+						Obj.CFrame = Root.CFrame
+					end
+				end
+			end
+
+			Toggle:Set(false)
+		end
+	end,
+})
+
+local Toggle = ITab:CreateToggle({
+	Name = "Auto Get Coin Bag",
+	CurrentValue = false,
+	Flag = "GetCoinBag",
+
+	Callback = function(Value)
+		getgenv().GetCoinBag = Value
+
+		task.spawn(function()
+			while getgenv().GetCoinBag do
+				local Player = game.Players.LocalPlayer
+				local Character = Player.Character
+				local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+				local EffectsBin = workspace:FindFirstChild("EffectsBin")
+
+				if Root and EffectsBin then
+					for _, obj in ipairs(EffectsBin:GetChildren()) do
+						if obj.Name == "CollectableItem" and obj:IsA("BasePart") then
+							obj.CFrame = Root.CFrame
+						end
+					end
+				end
+
+				task.wait(0.1)
+			end
+		end)
+	end,
+})
+
+local HTab = Window:CreateTab("Hunter", nil) -- Title, Image
+local Section = HTab:CreateSection("Hunter")
+
+local Button = HTab:CreateButton({
+   Name = "Show Shoot Wolf",
+   Callback = function()
+   --// Shoot Wolf Button - Draggable
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ShootWolfDraggable"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Botão principal
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 180, 0, 60)
+button.Position = UDim2.new(0.5, -90, 0.85, -30)
+button.BackgroundColor3 = Color3.fromRGB(10, 20, 45)
+button.BackgroundTransparency = 0.8
+button.Text = "Shoot Wolf"
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.TextScaled = true
+button.Font = Enum.Font.GothamBold
+button.Parent = screenGui
+
+-- Arredondado
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = button
+
+-- Borda azul
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(0, 140, 255)
+stroke.Thickness = 1.5
+stroke.Transparency = 0.5
+stroke.Parent = button
+
+-- Variáveis de drag
+local dragging = false
+local dragStart
+local startPos
+
+local UIS = game:GetService("UserInputService")
+
+-- Arraste
+local function update(input)
+    local delta = input.Position - dragStart
+    button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+button.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = button.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+button.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        update(input)
+    end
+end)
+
+-- Clique (só funciona se não estiver arrastando)
+button.MouseButton1Click:Connect(function()
+    if dragging then return end
+    
+    local wolfModel = workspace:FindFirstChild("Wolftag")
+    if not wolfModel then
+        warn("❌ Model 'Wolftag' não encontrado!")
+        return
+    end
+
+    local rootPart = wolfModel:FindFirstChild("HumanoidRootPart") or wolfModel:FindFirstChildWhichIsA("BasePart")
+    if not rootPart then
+        warn("❌ Não encontrou parte principal no modelo!")
+        return
+    end
+
+    local camera = workspace.CurrentCamera
+    local targetPos = rootPart.Position
+
+    -- Mira a câmera no meio do lobo
+    local offset = Vector3.new(0, 4, 10)
+    camera.CFrame = CFrame.lookAt(targetPos + offset, targetPos)
+
+    task.wait(0.12)
+
+    -- Simula tiro no meio da tela
+    local vim = game:GetService("VirtualInputManager")
+    local centerX = camera.ViewportSize.X / 2
+    local centerY = camera.ViewportSize.Y / 2
+
+    vim:SendMouseButtonEvent(centerX, centerY, 0, true, game, 1)
+    task.wait(0.06)
+    vim:SendMouseButtonEvent(centerX, centerY, 0, false, game, 1)
+end)
+
+print("✅ Botão Shoot Wolf Draggable carregado!")
+   end,
+})
+
+local Button = HTab:CreateButton({
+   Name = "Show Tp Shoot",
+   Callback = function()
+   --// Tp Shoot Button - Draggable + Teleporte + Volta automática
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TpShootButton"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Botão pequeno
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 140, 0, 50)
+button.Position = UDim2.new(0.5, -70, 0.75, -25)
+button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+button.BackgroundTransparency = 0.8
+button.Text = "Tp Shoot"
+button.TextColor3 = Color3.fromRGB(180, 0, 255)   -- Roxo
+button.TextScaled = true
+button.Font = Enum.Font.GothamBold
+button.Parent = screenGui
+
+-- Arredondado
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = button
+
+-- Borda roxa
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(180, 0, 255)
+stroke.Thickness = 1.5
+stroke.Transparency = 0.6
+stroke.Parent = button
+
+-- Variáveis de drag
+local dragging = false
+local dragStart
+local startPos
+
+local UIS = game:GetService("UserInputService")
+
+-- Arraste
+local function update(input)
+    local delta = input.Position - dragStart
+    button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+button.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = button.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+button.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        update(input)
+    end
+end)
+
+-- Clique
+button.MouseButton1Click:Connect(function()
+    if dragging then return end
+    
+    local wolfModel = workspace:FindFirstChild("Wolftag")
+    if not wolfModel then
+        warn("❌ Model 'Wolftag' não encontrado!")
+        return
+    end
+
+    local rootPart = wolfModel:FindFirstChild("HumanoidRootPart") or wolfModel:FindFirstChildWhichIsA("BasePart")
+    if not rootPart then
+        warn("❌ Não encontrou parte principal no modelo!")
+        return
+    end
+
+    local character = player.Character
+    if not character then return end
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    -- Salva posição original
+    local originalCFrame = hrp.CFrame
+
+    -- === TELEPORTE PARA TRÁS DO LOBO ===
+    local teleportCFrame = rootPart.CFrame * CFrame.new(0, 3, 8)  -- Atrás e um pouco acima
+    hrp.CFrame = teleportCFrame
+
+    task.wait(0.15)
+
+    -- === MIRA A CÂMERA ===
+    local camera = workspace.CurrentCamera
+    local targetPos = rootPart.Position
+    local camOffset = Vector3.new(0, 4, 12)
+    camera.CFrame = CFrame.lookAt(targetPos + camOffset, targetPos)
+
+    task.wait(0.12)
+
+    -- === SIMULA TIRO ===
+    local vim = game:GetService("VirtualInputManager")
+    local centerX = camera.ViewportSize.X / 2
+    local centerY = camera.ViewportSize.Y / 2
+
+    vim:SendMouseButtonEvent(centerX, centerY, 0, true, game, 1)
+    task.wait(0.06)
+    vim:SendMouseButtonEvent(centerX, centerY, 0, false, game, 1)
+
+    -- === VOLTA PARA POSIÇÃO ORIGINAL DEPOIS DE 0.8 SEGUNDOS ===
+    task.wait(0.8)
+    if hrp and hrp.Parent then
+        hrp.CFrame = originalCFrame
+    end
+end)
+
+print("✅ Botão Tp Shoot (com volta automática) carregado!")
+                end,
+            })
+local WTab = Window:CreateTab("Wolf", nil) -- Title, Image
+local Section = WTab:CreateSection("Wolf")
+
+local Button = WTab:CreateButton({
+	Name = "Kill All",
+	Callback = function()
+		local Player = game.Players.LocalPlayer
+		local Character = Player.Character or Player.CharacterAdded:Wait()
+		local Root = Character:WaitForChild("HumanoidRootPart")
+
+		for _, obj in ipairs(workspace:GetChildren()) do
+			if obj:IsA("Model") then
+				local part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+
+				if part then
+					Root.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+					task.wait(0.5)
+				end
+			end
+		end
+	end,
+})
+
+local CTab = Window:CreateTab("Player", nil) -- Title, Image
+local Section = CTab:CreateSection("Player")
+
+local Slider = CTab:CreateSlider({
+	Name = "Speed",
+	Range = {16, 100},
+	Increment = 1,
+	Suffix = "WalkSpeed",
+	CurrentValue = 16,
+	Flag = "SpeedSlider",
+
+	Callback = function(Value)
+		local Player = game.Players.LocalPlayer
+		local Character = Player.Character
+
+		if Character and Character:FindFirstChild("Humanoid") then
+			Character.Humanoid.WalkSpeed = Value
+		end
+	end,
+})
+
+local OriginalBrightness = game:GetService("Lighting").Brightness
+local OriginalClockTime = game:GetService("Lighting").ClockTime
+local OriginalFogEnd = game:GetService("Lighting").FogEnd
+
+local Toggle = CTab:CreateToggle({
+	Name = "FullBright",
+	CurrentValue = false,
+	Flag = "FullBright",
+
+	Callback = function(Value)
+		local Lighting = game:GetService("Lighting")
+
+		if Value then
+			Lighting.Brightness = 10
+			Lighting.ClockTime = 14
+			Lighting.FogEnd = 100000
+			Lighting.GlobalShadows = false
+		else
+			Lighting.Brightness = OriginalBrightness
+			Lighting.ClockTime = OriginalClockTime
+			Lighting.FogEnd = OriginalFogEnd
+			Lighting.GlobalShadows = true
+		end
+	end,
+})
+
+local Lighting = game:GetService("Lighting")
+local OOriginalFogEnd = Lighting.FogEnd
+local OOriginalFogStart = Lighting.FogStart
+
+local Toggle = CTab:CreateToggle({
+	Name = "No Fog",
+	CurrentValue = false,
+	Flag = "NoFog",
+
+	Callback = function(Value)
+		if Value then
+			Lighting.FogStart = 0
+			Lighting.FogEnd = 1000000
+		else
+			Lighting.FogStart = OOriginalFogStart
+			Lighting.FogEnd = OOriginalFogEnd
+		end
+	end,
+})
+
+local Toggle = CTab:CreateToggle({
+	Name = "TP Tool",
+	CurrentValue = false,
+	Flag = "TPTool",
+
+	Callback = function(Value)
+		local Player = game.Players.LocalPlayer
+		local Backpack = Player:WaitForChild("Backpack")
+
+		if Value then
+			if not Backpack:FindFirstChild("TP Tool") then
+				local Tool = Instance.new("Tool")
+				Tool.Name = "TP Tool"
+				Tool.RequiresHandle = false
+
+				local LocalScript = Instance.new("LocalScript")
+				LocalScript.Source = [[
+local Tool = script.Parent
+local Player = game.Players.LocalPlayer
+local Mouse = Player:GetMouse()
+
+Tool.Activated:Connect(function()
+	local Character = Player.Character
+	if not Character then return end
+
+	local Root = Character:FindFirstChild("HumanoidRootPart")
+	if not Root then return end
+
+	Root.CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
+end)
+]]
+				LocalScript.Parent = Tool
+				Tool.Parent = Backpack
+			end
+		else
+			local Tool = Backpack:FindFirstChild("TP Tool")
+			if Tool then
+				Tool:Destroy()
+			end
+
+			if Player.Character then
+				local EquippedTool = Player.Character:FindFirstChild("TP Tool")
+				if EquippedTool then
+
