@@ -318,10 +318,10 @@ local Button = ITab:CreateButton({
 		for _, obj in ipairs(EffectsBin:GetChildren()) do
 			if obj.Name == "Handle" and obj:IsA("BasePart") then
 				-- Vai até a Crossbow
-				Root.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+				Root.CFrame = obj.CFrame + Vector3.new(0, 1, 0)
 
 				-- Espera pegar o item
-				task.wait(0.25)
+				task.wait(0.30)
 
 				-- Volta para a posição original
 				Root.CFrame = OldCFrame
@@ -352,10 +352,10 @@ local Button = ITab:CreateButton({
 		for _, obj in ipairs(EffectsBin:GetChildren()) do
 			if obj.Name == "CollectableItem" and obj:IsA("BasePart") then
 				-- Vai até a Coin Bag
-				Root.CFrame = obj.CFrame + Vector3.new(0, 3, 0)
+				Root.CFrame = obj.CFrame + Vector3.new(0, 1, 0)
 
 				-- Espera pegar o item
-				task.wait(0.25)
+				task.wait(0.30)
 
 				-- Volta para a posição original
 				Root.CFrame = OldCFrame
