@@ -301,7 +301,7 @@ local ITab = Window:CreateTab("Items", nil) -- Title, Image
 local Section = ITab:CreateSection("Items")
 
 local Button = ITab:CreateButton({
-	Name = "Get Crossbow",
+	Name = "Auto Get Crossbow",
 	Callback = function()
 		local Player = game.Players.LocalPlayer
 		local Character = Player.Character
@@ -335,7 +335,7 @@ local Button = ITab:CreateButton({
 })
 
 local Button = ITab:CreateButton({
-	Name = "Get Coin Bag",
+	Name = "Auto Get Coin Bag",
 	Callback = function()
 		local Player = game.Players.LocalPlayer
 		local Character = Player.Character
