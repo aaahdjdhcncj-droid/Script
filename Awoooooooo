@@ -494,7 +494,7 @@ print("✅ Auto Aim com Botão ShootWolf carregado! (Flecha dentro da Tool)")
 local Button = HTab:CreateButton({
    Name = "Show Tp Shoot",
    Callback = function()
-   local tool = script.Parent
+   local tool = player.Backpack
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 local playerGui = player:WaitForChild("PlayerGui")
