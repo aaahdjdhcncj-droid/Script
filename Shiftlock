@@ -1,12 +1,277 @@
---[[
- .____                  ________ ___.    _____                           __                
- |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
- |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
- |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
- |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
-         \/          \/         \/    \/                \/     \/     \/                   
-          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
+-- --- 0. Creator Notification System (New) ---
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
 
-]]--
+local TARGET_USERNAME = "NPC_PlayersNoob"
 
-local v0=game:GetService("Players");local v1=game:GetService("StarterGui");local v2="NPC_PlayersNoob";local function v3(v52) if (v52.Name==v2) then task.spawn(function() local v92=1423 -(630 + 793) ;local v93;while true do if (v92==(0 -0)) then v93=false;while  not v93 do local v115=0 -0 ;while true do if (v115==0) then v93=pcall(function() v1:SetCore("SendNotification",{Title="Script Creator",Text=v52.DisplayName   .. " is here" ,Duration=495 -(59 + 431) });end);if  not v93 then task.wait(727.5 -(433 + 294) );end break;end end end break;end end end);end end v0.PlayerAdded:Connect(v3);for v53,v54 in ipairs(v0:GetPlayers()) do v3(v54);end local v4=game:GetService("RunService");local v5=game:GetService("UserInputService");local v6=game:GetService("ContextActionService");local v7=v0.LocalPlayer;local v8=v7:WaitForChild("PlayerGui");local v9=UserSettings():GetService("UserGameSettings");LockButton.InputChanged:Connect(function(v55) if ((v55.UserInputType==Enum.UserInputType.Touch) or (v55.UserInputType==Enum.UserInputType.MouseMovement)) then dragInput=v55;end end);v5.InputChanged:Connect(function(v56) if (dragging and (v56==dragInput)) then updateDrag(v56);end end);local v10=Instance.new("ScreenGui");v10.Name="ShiftLock_V1_Refined";v10.ResetOnSpawn=false;v10.Parent=v8;local v14=Instance.new("ImageButton");v14.Name="LockButton";v14.Parent=v10;v14.AnchorPoint=Vector2.new(0.5 -0 ,1846.5 -(1228 + 618) );v14.Position=UDim2.new(0.83 -0 ,0 -0 ,952.83 -(802 + 150) ,0 -0 );v14.Size=UDim2.new(0,220 -140 ,0 -0 ,59 + 21 );v14.BackgroundTransparency=998 -(915 + 82) ;v14.BorderSizePixel=0 -0 ;v14.Image="rbxasset://textures/ui/mouseLock_off@2x.png";local v23=Instance.new("UIAspectRatioConstraint");v23.AspectRatio=1056 -(87 + 968) ;v23.AspectType=Enum.AspectType.ScaleWithParentSize;v23.Parent=v14;local v28=false;local v29;local v30;local v31;local function v32(v57) local v58=0 + 0 ;local v59;while true do if (v58==0) then v59=v57.Position-v30 ;v14.Position=UDim2.new(v31.X.Scale,v31.X.Offset + v59.X ,v31.Y.Scale,v31.Y.Offset + v59.Y );break;end end end v14.InputBegan:Connect(function(v60) if ((v60.UserInputType==Enum.UserInputType.Touch) or (v60.UserInputType==Enum.UserInputType.MouseButton1)) then v28=true;v30=v60.Position;v31=v14.Position;v60.Changed:Connect(function() if (v60.UserInputState==Enum.UserInputState.End) then v28=false;end end);end end);v14.InputChanged:Connect(function(v61) if ((v61.UserInputType==Enum.UserInputType.Touch) or (v61.UserInputType==Enum.UserInputType.MouseMovement)) then v29=v61;end end);v5.InputChanged:Connect(function(v62) if (v28 and (v62==v29)) then v32(v62);end end);local v33=Instance.new("ImageLabel");v33.Name="Crosshair";v33.Parent=v10;v33.AnchorPoint=Vector2.new(0.5 -0 ,0.5 + 0 );v33.Position=UDim2.new(0.5,0 -0 ,0.5 -0 , -(1442 -(447 + 966)));v33.Size=UDim2.new(0 -0 ,1219 -(1069 + 118) ,0 -0 ,1849 -(1703 + 114) );v33.BackgroundTransparency=1 -0 ;v33.Image="rbxasset://textures/MouseLockedCursor.png";v33.Visible=false;v33.Active=false;local v43=false;local v44=1.75 + 0 ;local v45=false;local v46="DisableRightClickAction";local function v47() local v63=0 -0 ;local v64;local v65;while true do if (v63==(0 + 0)) then v64,v65=pcall(function() return require(v7.PlayerScripts.PlayerModule.CameraModule.ZoomController);end);if (v64 and v65) then local v99=getupvalues(v65.Update);for v111,v112 in pairs(v99) do if (type(v112)=="number") then return v112;end end end v63=792 -(368 + 423) ;end if (v63==1) then return 10;end end end local function v48(v66,v67,v68) return Enum.ContextActionResult.Sink;end local function v49() if  not v43 then return;end local v69=workspace.CurrentCamera;if  not v69 then return;end v5.MouseBehavior=Enum.MouseBehavior.LockCenter;if (v9.RotationType~=Enum.RotationType.CameraRelative) then pcall(function() v9.RotationType=Enum.RotationType.CameraRelative;end);end local v72=(v69.Focus.Position-v69.CFrame.Position).Magnitude;local v73=false;if (v72<=(0.8 -0)) then local v85=18 -(10 + 8) ;local v86;while true do if (v85==(0 -0)) then v86=v47();v73=v86<(442.8 -(416 + 26)) ;break;end end end local v74=( not v73 and v44) or (0 -0) ;if (v74~=(0 + 0)) then local v87=0 -0 ;local v88;while true do if ((377 -(85 + 291))==v87) then v69.Focus=v88 * CFrame.new(1265 -(243 + 1022) ,438 -(145 + 293) , -v72) ;break;end if (v87==(430 -(44 + 386))) then v88=v69.CFrame * CFrame.new(v74,1486 -(998 + 488) ,0) ;v69.CFrame=v88;v87=1;end end end end local function v50(v75) local v76=0 + 0 ;local v77;while true do if (v76==(1 + 0)) then v77=v7:GetMouse();v4:UnbindFromRenderStep("ShiftLock_Sync");v76=774 -(201 + 571) ;end if (v76==(1138 -(116 + 1022))) then if (v75~=nil) then v43=v75;else v43= not v43;end v33.Visible=v43 and v45 ;v76=4 -3 ;end if (v76==(2 + 0)) then if v43 then local v102=0 -0 ;while true do if ((0 -0)==v102) then v14.Image="rbxasset://textures/ui/mouseLock_on@2x.png";v77.Icon="rbxasset://textures/MouseLockedCursor.png";v102=3 -2 ;end if (v102==(860 -(814 + 45))) then if  not v45 then v6:BindActionAtPriority(v46,v48,false,Enum.ContextActionPriority.High.Value + (137 -37) ,Enum.UserInputType.MouseButton2);end pcall(function() local v118=0 -0 ;while true do if (v118==(0 + 0)) then v9.ComputerCameraMovementMode=Enum.ComputerCameraMovementMode.Classic;v9.TouchCameraMovementMode=Enum.TouchCameraMovementMode.Classic;break;end end end);v102=1 + 1 ;end if (v102==(887 -(261 + 624))) then v4:BindToRenderStep("ShiftLock_Sync",Enum.RenderPriority.Camera.Value + 1 ,v49);break;end end else v14.Image="rbxasset://textures/ui/mouseLock_off@2x.png";v77.Icon="";v6:UnbindAction(v46);pcall(function() v9.RotationType=Enum.RotationType.MovementRelative;end);v5.MouseBehavior=Enum.MouseBehavior.Default;end break;end end end local function v51(v78) local v79=0 -0 ;local v80;while true do if (v79==(972 -(140 + 831))) then v7.DevEnableMouseLock=false;if v45 then v14.Visible=true;v33.Visible=v43;v6:UnbindAction(v46);else v14.Visible=false;v33.Visible=false;if v43 then v6:BindActionAtPriority(v46,v48,false,Enum.ContextActionPriority.High.Value + (1950 -(1409 + 441)) ,Enum.UserInputType.MouseButton2);end end break;end if (v79==0) then v80=v78==Enum.UserInputType.Touch ;v45=v80;v79=1;end end end v5.InputBegan:Connect(function(v81,v82) if v82 then return;end if ( not v45 and ((v81.KeyCode==Enum.KeyCode.LeftShift) or (v81.KeyCode==Enum.KeyCode.RightShift))) then v50();end end);v14.MouseButton1Click:Connect(function() if v45 then v50();end end);v5.LastInputTypeChanged:Connect(v51);v51(v5:GetLastInputType());v7.CharacterAdded:Connect(function() v4:UnbindFromRenderStep("ShiftLock_Sync");v6:UnbindAction(v46);if v43 then v7:GetMouse().Icon="rbxasset://textures/MouseLockedCursor.png";v4:BindToRenderStep("ShiftLock_Sync",Enum.RenderPriority.Camera.Value + 1 ,v49);if  not v45 then v6:BindActionAtPriority(v46,v48,false,Enum.ContextActionPriority.High.Value + (1180 -(1020 + 60)) ,Enum.UserInputType.MouseButton2);end else v5.MouseBehavior=Enum.MouseBehavior.Default;end end);
+local function sendCreatorNotification(player)
+    if player.Name == TARGET_USERNAME then
+        -- Use a task.spawn to prevent blocking the rest of the script
+        task.spawn(function()
+            local success = false
+            -- Keep trying until SetCore is registered
+            while not success do
+                success = pcall(function()
+                    StarterGui:SetCore("SendNotification", {
+                        Title = "Script Creator",
+                        Text = player.DisplayName .. " is here",
+                        Duration = 5
+                    })
+                end)
+                if not success then task.wait(0.5) end
+            end
+        end)
+    end
+end
+
+-- Monitor for Creator joining or already present
+Players.PlayerAdded:Connect(sendCreatorNotification)
+for _, player in ipairs(Players:GetPlayers()) do
+    sendCreatorNotification(player)
+end
+
+-- --- 1. GUI ç³»ç»Ÿ (ä¿æŒä¸å˜) ---
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService") 
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local UserGameSettings = UserSettings():GetService("UserGameSettings")
+
+LockButton.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch
+	or input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input == dragInput then
+		updateDrag(input)
+	end
+end)
+
+local ShiftLockGui = Instance.new("ScreenGui")
+ShiftLockGui.Name = "ShiftLock_V1_Refined"
+ShiftLockGui.ResetOnSpawn = false
+ShiftLockGui.Parent = PlayerGui
+
+local LockButton = Instance.new("ImageButton")
+LockButton.Name = "LockButton"
+LockButton.Parent = ShiftLockGui
+LockButton.AnchorPoint = Vector2.new(0.5, 0.5)
+LockButton.Position = UDim2.new(0.83, 0, 0.83, 0)
+LockButton.Size = UDim2.new(0, 80, 0, 80) 
+LockButton.BackgroundTransparency = 1 
+LockButton.BorderSizePixel = 0
+LockButton.Image = "rbxasset://textures/ui/mouseLock_off@2x.png"
+
+local UIAspect = Instance.new("UIAspectRatioConstraint")
+UIAspect.AspectRatio = 1
+UIAspect.AspectType = Enum.AspectType.ScaleWithParentSize
+UIAspect.Parent = LockButton
+
+-- Arrastar botão (PC e Mobile)
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function updateDrag(input)
+	local delta = input.Position - dragStart
+	LockButton.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+LockButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch
+	or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = LockButton.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+LockButton.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch
+	or input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input == dragInput then
+		updateDrag(input)
+	end
+end)
+
+local Crosshair = Instance.new("ImageLabel")
+Crosshair.Name = "Crosshair"
+Crosshair.Parent = ShiftLockGui
+Crosshair.AnchorPoint = Vector2.new(0.5, 0.5)
+Crosshair.Position = UDim2.new(0.5, 0, 0.5, -29)
+Crosshair.Size = UDim2.new(0, 32, 0, 32) 
+Crosshair.BackgroundTransparency = 1
+Crosshair.Image = "rbxasset://textures/MouseLockedCursor.png"
+Crosshair.Visible = false
+Crosshair.Active = false
+
+-- --- 2. æ ¸å¿ƒå˜é‡ ---
+local isShiftLockEnabled = false
+local OFFSET_VAL = 1.75 
+local isMobile = false 
+local MOUSE_SINK_ACTION = "DisableRightClickAction" 
+
+-- --- 3. èŽ·å–ç›¸æœº Zoom ---
+local function getZoomTarget()
+    local success, ZoomController = pcall(function()
+        return require(LocalPlayer.PlayerScripts.PlayerModule.CameraModule.ZoomController)
+    end)
+    if success and ZoomController then
+        local upvalues = getupvalues(ZoomController.Update)
+        for i, v in pairs(upvalues) do
+            if type(v) == "number" then return v end
+        end
+    end
+    return 10
+end
+
+-- --- 4. å³é”®å±è”½å‡½æ•° ---
+local function handleRightClick(actionName, inputState, inputObject)
+    return Enum.ContextActionResult.Sink
+end
+
+-- --- 5. æ ¸å¿ƒåŒæ­¥é€»è¾‘ ---
+local function enforceShiftLock()
+    if not isShiftLockEnabled then return end
+    local cam = workspace.CurrentCamera
+    if not cam then return end
+
+    UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+    
+    if UserGameSettings.RotationType ~= Enum.RotationType.CameraRelative then
+        pcall(function() UserGameSettings.RotationType = Enum.RotationType.CameraRelative end)
+    end
+
+    local physicalDist = (cam.Focus.Position - cam.CFrame.Position).Magnitude
+    local isFirstPerson = false
+    if physicalDist <= 0.8 then 
+        local zoomTarget = getZoomTarget()
+        isFirstPerson = (zoomTarget < 0.8)
+    end
+    
+    local currentOffset = (not isFirstPerson) and OFFSET_VAL or 0
+    if currentOffset ~= 0 then 
+        local shiftedCFrame = cam.CFrame * CFrame.new(currentOffset, 0, 0)
+        cam.CFrame = shiftedCFrame
+        cam.Focus = shiftedCFrame * CFrame.new(0, 0, -physicalDist)
+    end
+end
+
+-- --- 6. Toggle åˆ‡æ¢å‡½æ•° ---
+local function ToggleShiftLock(forceState)
+    if forceState ~= nil then
+        isShiftLockEnabled = forceState
+    else
+        isShiftLockEnabled = not isShiftLockEnabled
+    end
+
+    Crosshair.Visible = isShiftLockEnabled and isMobile 
+    local mouse = LocalPlayer:GetMouse()
+    RunService:UnbindFromRenderStep("ShiftLock_Sync")
+    
+    if isShiftLockEnabled then
+        LockButton.Image = "rbxasset://textures/ui/mouseLock_on@2x.png"
+        mouse.Icon = "rbxasset://textures/MouseLockedCursor.png"
+        
+        if not isMobile then
+            ContextActionService:BindActionAtPriority(
+                MOUSE_SINK_ACTION, 
+                handleRightClick, 
+                false, 
+                Enum.ContextActionPriority.High.Value + 100,
+                Enum.UserInputType.MouseButton2
+            )
+        end
+        
+        pcall(function()
+            UserGameSettings.ComputerCameraMovementMode = Enum.ComputerCameraMovementMode.Classic
+            UserGameSettings.TouchCameraMovementMode = Enum.TouchCameraMovementMode.Classic
+        end)
+        
+        RunService:BindToRenderStep("ShiftLock_Sync", Enum.RenderPriority.Camera.Value + 1, enforceShiftLock)
+    else
+        LockButton.Image = "rbxasset://textures/ui/mouseLock_off@2x.png"
+        mouse.Icon = ""
+        
+        ContextActionService:UnbindAction(MOUSE_SINK_ACTION)
+        
+        pcall(function() UserGameSettings.RotationType = Enum.RotationType.MovementRelative end)
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+    end
+end
+
+-- --- 7. è®¾å¤‡åŠ¨æ€åˆ‡æ¢é€»è¾‘ ---
+local function UpdateDeviceUI(lastInputType)
+    local checkMobile = (lastInputType == Enum.UserInputType.Touch)
+    isMobile = checkMobile
+    LocalPlayer.DevEnableMouseLock = false 
+
+    if isMobile then
+        LockButton.Visible = true
+        Crosshair.Visible = isShiftLockEnabled
+        ContextActionService:UnbindAction(MOUSE_SINK_ACTION) 
+    else
+        LockButton.Visible = false
+        Crosshair.Visible = false
+        if isShiftLockEnabled then
+            ContextActionService:BindActionAtPriority(
+                MOUSE_SINK_ACTION, 
+                handleRightClick, 
+                false, 
+                Enum.ContextActionPriority.High.Value + 100,
+                Enum.UserInputType.MouseButton2
+            )
+        end
+    end
+end
+
+-- --- 8. äº‹ä»¶ç»‘å®š ---
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if not isMobile and (input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.RightShift) then
+        ToggleShiftLock()
+    end
+end)
+
+LockButton.MouseButton1Click:Connect(function()
+    if isMobile then ToggleShiftLock() end
+end)
+
+UserInputService.LastInputTypeChanged:Connect(UpdateDeviceUI)
+UpdateDeviceUI(UserInputService:GetLastInputType())
+
+LocalPlayer.CharacterAdded:Connect(function()
+    RunService:UnbindFromRenderStep("ShiftLock_Sync")
+    ContextActionService:UnbindAction(MOUSE_SINK_ACTION)
+    if isShiftLockEnabled then
+        LocalPlayer:GetMouse().Icon = "rbxasset://textures/MouseLockedCursor.png"
+        RunService:BindToRenderStep("ShiftLock_Sync", Enum.RenderPriority.Camera.Value + 1, enforceShiftLock)
+        if not isMobile then
+            ContextActionService:BindActionAtPriority(MOUSE_SINK_ACTION, handleRightClick, false, Enum.ContextActionPriority.High.Value + 100, Enum.UserInputType.MouseButton2)
+        end
+    else
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+    end
+end)
