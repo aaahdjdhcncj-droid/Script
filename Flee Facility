@@ -2,7 +2,7 @@
 	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
 ]]
 loadstring(game:HttpGet("https://raw.githubusercontent.com/timmyVeryCrazy/FleeTheFacilityCheat/refs/heads/main/FleeTheFacilityCheatScript"))()
-task.wait(5)
+task.wait(3)
 
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/aaahdjdhcncj-droid/Script-aleat-rios/refs/heads/main/susto"))()
