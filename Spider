@@ -459,6 +459,44 @@ TabS:MakeToggle({
     end,
 })
 
+TabS:MakeToggle({
+    Name = "Enable Jump Button",
+    Default = false,
+
+    Callback = function(state)
+        local ContextActionService = game:GetService("ContextActionService")
+
+        local function JumpAction(actionName, inputState)
+            if inputState == Enum.UserInputState.Begin then
+                local player = game:GetService("Players").LocalPlayer
+                local character = player.Character
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+                if humanoid then
+                    humanoid.Jump = true
+                end
+            end
+        end
+
+        if state then
+            ContextActionService:BindAction(
+                "MobileJump",
+                JumpAction,
+                true,
+                Enum.KeyCode.Space
+            )
+
+            ContextActionService:SetTitle("MobileJump", "Jump")
+            ContextActionService:SetPosition(
+                "MobileJump",
+                UDim2.new(1, -100, 1, -150)
+            )
+        else
+            ContextActionService:UnbindAction("MobileJump")
+        end
+    end,
+})
+
 local TabG = Win:MakeTab({
     Name = "🥀 Give Items 🥀",
     Icon = "rbxassetid://10239810225",
