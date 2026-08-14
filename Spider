@@ -598,22 +598,20 @@ TabO:MakeSection("Setting")
 TabO:MakeButton({
 	Name = "Fechar Hub",
 	Callback = function()
-		NexusUI:MakeDialog({
+NexusUI:MakeDialog({
     Title = "Tem certeza?",
-    Text = "Isso vai fechar o Hub.",
+    Text = "⚠️ Isso vai te kickar do jogo!!.",
 
     Buttons = {
         {
-            Text = "Confirmar",
+            Text = "✅ Confirmar",
             Callback = function()
-                if Win then
-                    Win:Destroy()
-                end
+                game:GetService("Players").LocalPlayer:Kick("Você fechou o Hub 😔😔")
             end
         },
 
         {
-            Text = "Cancelar",
+            Text = "❌ Cancelar",
             Callback = function()
                 -- Não faz nada
             end
