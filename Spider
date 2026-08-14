@@ -157,41 +157,50 @@ local TabE = Win:MakeTab({
 TabE:MakeSection("Esp")
 
 TabE:MakeToggle({
-	Name = "Itens ESP",
-	Default = false,
-	Callback = function(state)
-		local itens = workspace:FindFirstChild("Itens")
-		if not itens then return end
+    Name = "Items ESP",
+    Default = false,
 
-		for _, item in ipairs(itens:GetChildren()) do
-			if item:IsA("Model") then
-				local highlight = item:FindFirstChild("ItemHighlight")
+    Callback = function(state)
+        local Items = workspace:FindFirstChild("Items")
 
-				if state then
-					local handle = item:FindFirstChild("Handle", true)
+        if not Items then
+            return
+        end
 
-					if not highlight then
-						highlight = Instance.new("Highlight")
-						highlight.Name = "ItemHighlight"
-						highlight.Parent = item
-					end
+        if state then
+            for _, model in ipairs(Items:GetChildren()) do
+                if model:IsA("Model") then
+                    local handle = model:FindFirstChild("Handle", true)
 
-					highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-					highlight.FillTransparency = 0.5
-					highlight.OutlineTransparency = 0
+                    if handle and handle:IsA("BasePart") then
+                        local highlight = model:FindFirstChild("ItemsESP")
 
-					if handle and handle:IsA("BasePart") then
-						highlight.FillColor = handle.Color
-						highlight.OutlineColor = handle.Color
-					end
-				else
-					if highlight then
-						highlight:Destroy()
-					end
-				end
-			end
-		end
-	end,
+                        if not highlight then
+                            highlight = Instance.new("Highlight")
+                            highlight.Name = "ItemsESP"
+                            highlight.Parent = model
+                        end
+
+                        highlight.FillColor = handle.Color
+                        highlight.OutlineColor = handle.Color
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineTransparency = 0
+                    end
+                end
+            end
+        else
+            -- Remove os Highlights quando desligar
+            for _, model in ipairs(Items:GetChildren()) do
+                if model:IsA("Model") then
+                    local highlight = model:FindFirstChild("ItemsESP")
+
+                    if highlight then
+                        highlight:Destroy()
+                    end
+                end
+            end
+        end
+    end,
 })
 
 TabE:MakeToggle({
