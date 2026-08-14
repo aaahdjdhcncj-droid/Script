@@ -358,17 +358,21 @@ TabS:MakeToggle({
             return
         end
 
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+        local player = Players.LocalPlayer
+        local Event = ReplicatedStorage.modules.up.Network.RemoteEvent
+
         task.spawn(function()
             while state do
-                local player = game:GetService("Players").LocalPlayer
                 local character = player.Character
 
                 if character then
-                    -- Verifica se o Bug Spray está equipado
                     local bugSpray = character:FindFirstChild("Bug Spray")
 
-                    if bugSpray then
-                        -- Procura o personagem/modelo com IsSpiderCharacter
+                    if bugSpray and bugSpray:IsA("Tool") then
+
                         local target
 
                         for _, obj in ipairs(workspace:GetDescendants()) do
@@ -382,25 +386,35 @@ TabS:MakeToggle({
                         end
 
                         if target then
-                            local targetPart
+                            local position
 
                             if target:IsA("Model") then
-                                targetPart =
+                                local root =
                                     target:FindFirstChild("HumanoidRootPart")
                                     or target.PrimaryPart
+
+                                if root then
+                                    position = root.Position
+                                end
+
                             elseif target:IsA("BasePart") then
-                                targetPart = target
+                                position = target.Position
                             end
 
-                            if targetPart then
-                                local Event = game:GetService("ReplicatedStorage")
-                                    .modules.up.Network.RemoteEvent
-
+                            if position then
                                 Event:FireServer(
                                     "AttemptUseBugSpray",
-                                    285,
-                                    targetPart.Position
+                                    533,
+                                    position
                                 )
+
+                                -- Espera a Tool ser retirada/trocada
+                                repeat
+                                    task.wait(0.1)
+                                    character = player.Character
+                                until not state
+                                    or not character
+                                    or not character:FindFirstChild("Bug Spray")
                             end
                         end
                     end
@@ -430,7 +444,7 @@ TabS:MakeToggle({
                 local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 
                 if humanoid and humanoid.WalkSpeed < 16 then
-                    humanoid.WalkSpeed = 32
+                    humanoid.WalkSpeed = 22
 
                     task.wait(3)
 
