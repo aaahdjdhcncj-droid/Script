@@ -442,6 +442,13 @@ local TabG = Win:MakeTab({
 })
 TabG:MakeSection("Give Items")
 
+TabG:MakeButton({
+	Name = "Items Give And Auto Grab",
+	Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Johndoe305/Spider958/refs/heads/main/Spider.lua", true))()
+	end,
+})
+
 local TabP = Win:MakeTab({
     Name = "🪐 Teleport 🪐",
     Icon = "rbxassetid://722466216",
