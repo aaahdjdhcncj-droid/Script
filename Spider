@@ -1,0 +1,963 @@
+local NexusUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anonimo-666777/Lazarios-ui-library/main/CoreLib.lua"))()
+
+local Win = NexusUI:MakeWindow({
+    Title = "🕷️ Spider",
+    SubTitle = "v0.1", 
+    Theme = "Dark",
+    RGBBorder = true,
+    LogoId    = "rbxassetid://5262378501", 
+})
+Win:Notify({
+	Title = "Carregado!",
+	Content = "Hub iniciado com sucesso.",
+	Duration = 4,
+	Type = "Success",
+})
+Win:SetOpacity(0)
+Win:SetSize(480)
+
+local TabM = Win:MakeTab({
+    Name = "👻 Main 👻",
+    Icon = "rbxassetid://5897304302",
+})
+TabM:MakeSection("Main")
+
+TabM:MakeSlider({
+	Name = "Speed",
+	Min = 0,
+	Max = 500,
+	Default = 16,
+	Suffix = " sp",
+	Callback = function(value)
+		Players.LocalPlayer.Character.Humanoid.WalkSpeed = (value)
+	end,
+})
+
+TabM:MakeSlider({
+	Name = "JumpPower",
+	Min = 0,
+	Max = 500,
+	Default = 50,
+	Suffix = " sp",
+	Callback = function(value)
+		Players.LocalPlayer.Character.Humanoid.JumpPower = (value)
+	end,
+})
+
+TabM:MakeToggle({
+	Name = "Infinite Jump",
+	Default = false,
+	Callback = function(state)
+		local UserInputService = game:GetService("UserInputService")
+
+		if state then
+			_G.InfiniteJump = true
+
+			_G.InfiniteJumpConnection = UserInputService.JumpRequest:Connect(function()
+				if _G.InfiniteJump then
+					local character = game.Players.LocalPlayer.Character
+					local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+					if humanoid then
+						humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+					end
+				end
+			end)
+		else
+			_G.InfiniteJump = false
+
+			if _G.InfiniteJumpConnection then
+				_G.InfiniteJumpConnection:Disconnect()
+				_G.InfiniteJumpConnection = nil
+			end
+		end
+	end,
+})
+
+TabM:MakeToggle({
+	Name = "Noclip",
+	Default = false,
+	Callback = function(state)
+		local Players = game:GetService("Players")
+		local RunService = game:GetService("RunService")
+
+		local player = Players.LocalPlayer
+
+		if state then
+			_G.Noclip = true
+
+			_G.NoclipConnection = RunService.Stepped:Connect(function()
+				if not _G.Noclip then return end
+
+				local character = player.Character
+				if not character then return end
+
+				local humanoid = character:FindFirstChildOfClass("Humanoid")
+				local root = character:FindFirstChild("HumanoidRootPart")
+
+				if not humanoid or not root then return end
+
+				-- Remove colisão das partes para atravessar paredes
+				for _, part in ipairs(character:GetDescendants()) do
+					if part:IsA("BasePart") then
+						part.CanCollide = false
+					end
+				end
+
+				-- Detecta o chão abaixo do jogador
+				local params = RaycastParams.new()
+				params.FilterType = Enum.RaycastFilterType.Exclude
+				params.FilterDescendantsInstances = {character}
+
+				local result = workspace:Raycast(
+					root.Position,
+					Vector3.new(0, -6, 0),
+					params
+				)
+
+				-- Mantém o jogador sobre o chão
+				if result and root.AssemblyLinearVelocity.Y < 0 then
+					local floorY = result.Position.Y
+					local bottom = root.Position.Y - 3
+
+					if bottom < floorY then
+						root.CFrame = CFrame.new(
+							root.Position.X,
+							floorY + 3,
+							root.Position.Z
+						) * (root.CFrame - root.CFrame.Position)
+					end
+				end
+			end)
+		else
+			_G.Noclip = false
+
+			if _G.NoclipConnection then
+				_G.NoclipConnection:Disconnect()
+				_G.NoclipConnection = nil
+			end
+
+			-- Restaura colisão
+			local character = player.Character
+			if character then
+				for _, part in ipairs(character:GetDescendants()) do
+					if part:IsA("BasePart") then
+						part.CanCollide = true
+					end
+				end
+			end
+		end
+	end,
+})
+
+local TabE = Win:MakeTab({
+    Name = "👁️ ESP 👁️",
+    Icon = "rbxassetid://6457722345",
+})
+TabE:MakeSection("Esp")
+
+TabE:MakeToggle({
+	Name = "Itens ESP",
+	Default = false,
+	Callback = function(state)
+		local itens = workspace:FindFirstChild("Itens")
+		if not itens then return end
+
+		for _, item in ipairs(itens:GetChildren()) do
+			if item:IsA("Model") then
+				local highlight = item:FindFirstChild("ItemHighlight")
+
+				if state then
+					local handle = item:FindFirstChild("Handle", true)
+
+					if not highlight then
+						highlight = Instance.new("Highlight")
+						highlight.Name = "ItemHighlight"
+						highlight.Parent = item
+					end
+
+					highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+					highlight.FillTransparency = 0.5
+					highlight.OutlineTransparency = 0
+
+					if handle and handle:IsA("BasePart") then
+						highlight.FillColor = handle.Color
+						highlight.OutlineColor = handle.Color
+					end
+				else
+					if highlight then
+						highlight:Destroy()
+					end
+				end
+			end
+		end
+	end,
+})
+
+TabE:MakeToggle({
+	Name = "Player ESP",
+	Default = false,
+	Callback = function(state)
+		local Players = game:GetService("Players")
+		local LocalPlayer = Players.LocalPlayer
+
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer then
+				local character = player.Character
+				local isSpider = character and character:FindFirstChild("IsSpiderCharacter", true)
+
+				-- Ignora personagens que possuem IsSpiderCharacter
+				if not isSpider or not isSpider:IsA("BoolValue") or isSpider.Value == false then
+					if state then
+						if character then
+							local highlight = character:FindFirstChild("PlayerHighlight")
+
+							if not highlight then
+								highlight = Instance.new("Highlight")
+								highlight.Name = "PlayerHighlight"
+								highlight.Parent = character
+							end
+
+							highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+							highlight.FillColor = Color3.fromRGB(0, 255, 0)
+							highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+							highlight.FillTransparency = 0.5
+							highlight.OutlineTransparency = 0
+						end
+					else
+						if character then
+							local highlight = character:FindFirstChild("PlayerHighlight")
+							if highlight then
+								highlight:Destroy()
+							end
+						end
+					end
+				end
+			end
+		end
+	end,
+})
+
+TabE:MakeToggle({
+	Name = "Spider ESP",
+	Default = false,
+	Callback = function(state)
+		local Players = game:GetService("Players")
+		local LocalPlayer = Players.LocalPlayer
+
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer then
+				local character = player.Character
+				local isSpider = character and character:FindFirstChild("IsSpiderCharacter", true)
+
+				if isSpider and isSpider:IsA("BoolValue") and isSpider.Value == true then
+					if state then
+						local highlight = character:FindFirstChild("SpiderHighlight")
+
+						if not highlight then
+							highlight = Instance.new("Highlight")
+							highlight.Name = "SpiderHighlight"
+							highlight.Parent = character
+						end
+
+						highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+						highlight.FillColor = Color3.fromRGB(255, 0, 0)
+						highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+						highlight.FillTransparency = 0.5
+						highlight.OutlineTransparency = 0
+					else
+						local highlight = character:FindFirstChild("SpiderHighlight")
+
+						if highlight then
+							highlight:Destroy()
+						end
+					end
+				end
+			end
+		end
+	end,
+})
+
+local TabS = Win:MakeTab({
+    Name = " 🌍 Survivor 🌍",
+    Icon = "rbxassetid://1398742230",
+})
+TabS:MakeSection("Survivor")
+
+local RunService = game:GetService("RunService")
+
+local spiderWebConnection
+
+TabS:MakeToggle({
+    Name = "Anti Webs",
+    Default = false,
+
+    Callback = function(state)
+        if state then
+            -- Remove os TouchInterests que já existem
+            local ignore = workspace:FindFirstChild("ignore")
+            local spiderWebs = ignore and ignore:FindFirstChild("SpiderWebs")
+
+            if spiderWebs then
+                for _, obj in ipairs(spiderWebs:GetDescendants()) do
+                    if obj:IsA("MeshPart") and obj.Name == "SpiderWeb" then
+                        for _, child in ipairs(obj:GetChildren()) do
+                            if child:IsA("TouchTransmitter") then
+                                child:Destroy()
+                            end
+                        end
+                    end
+                end
+            end
+
+            -- Continua removendo automaticamente novos TouchInterests
+            spiderWebConnection = RunService.Heartbeat:Connect(function()
+                local ignore = workspace:FindFirstChild("ignore")
+                local spiderWebs = ignore and ignore:FindFirstChild("SpiderWebs")
+
+                if not spiderWebs then
+                    return
+                end
+
+                for _, obj in ipairs(spiderWebs:GetDescendants()) do
+                    if obj:IsA("MeshPart") and obj.Name == "SpiderWeb" then
+                        for _, child in ipairs(obj:GetChildren()) do
+                            if child:IsA("TouchTransmitter") then
+                                child:Destroy()
+                            end
+                        end
+                    end
+                end
+            end)
+
+        else
+            -- Para completamente quando desativado
+            if spiderWebConnection then
+                spiderWebConnection:Disconnect()
+                spiderWebConnection = nil
+            end
+        end
+    end,
+})
+
+TabS:MakeToggle({
+    Name = "Auto Bug Spray",
+    Default = false,
+
+    Callback = function(state)
+        if not state then
+            return
+        end
+
+        task.spawn(function()
+            while state do
+                local player = game:GetService("Players").LocalPlayer
+                local character = player.Character
+
+                if character then
+                    -- Verifica se o Bug Spray está equipado
+                    local bugSpray = character:FindFirstChild("Bug Spray")
+
+                    if bugSpray then
+                        -- Procura o personagem/modelo com IsSpiderCharacter
+                        local target
+
+                        for _, obj in ipairs(workspace:GetDescendants()) do
+                            if obj:IsA("BoolValue")
+                                and obj.Name == "IsSpiderCharacter"
+                                and obj.Value == true then
+
+                                target = obj.Parent
+                                break
+                            end
+                        end
+
+                        if target then
+                            local targetPart
+
+                            if target:IsA("Model") then
+                                targetPart =
+                                    target:FindFirstChild("HumanoidRootPart")
+                                    or target.PrimaryPart
+                            elseif target:IsA("BasePart") then
+                                targetPart = target
+                            end
+
+                            if targetPart then
+                                local Event = game:GetService("ReplicatedStorage")
+                                    .modules.up.Network.RemoteEvent
+
+                                Event:FireServer(
+                                    "AttemptUseBugSpray",
+                                    285,
+                                    targetPart.Position
+                                )
+                            end
+                        end
+                    end
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end,
+})
+
+TabS:MakeToggle({
+    Name = "Anti Drag",
+    Default = false,
+
+    Callback = function(state)
+        if not state then
+            return
+        end
+
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+
+            while state do
+                local character = player.Character
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+                if humanoid and humanoid.WalkSpeed < 16 then
+                    humanoid.WalkSpeed = 32
+
+                    task.wait(3)
+
+                    if humanoid and humanoid.Parent then
+                        humanoid.WalkSpeed = 16
+                    end
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end,
+})
+
+local TabG = Win:MakeTab({
+    Name = "🥀 Give Items 🥀",
+    Icon = "rbxassetid://10239810225",
+})
+TabG:MakeSection("Give Items")
+
+TabG:MakeButton({
+    Name = "Give Green Key",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        local itens = workspace:FindFirstChild("Itens")
+
+        if not itens then
+            warn("Pasta Itens não encontrada!")
+            return
+        end
+
+        -- Procura o Green Key
+        local greenKey
+
+        for _, obj in ipairs(itens:GetDescendants()) do
+            if obj.Name == "Green Key" then
+                greenKey = obj
+                break
+            end
+        end
+
+        if not greenKey then
+            warn("Green Key não encontrado!")
+            return
+        end
+
+        -- Procura a Hitbox
+        local hitbox = greenKey:FindFirstChild("Hitbox", true)
+
+        if not hitbox then
+            warn("Hitbox não encontrada!")
+            return
+        end
+
+        -- Procura o ClickDetector dentro da Hitbox
+        local clickDetector = hitbox:FindFirstChildOfClass("ClickDetector")
+
+        if not clickDetector then
+            warn("ClickDetector não encontrado!")
+            return
+        end
+
+        -- Salva a posição original
+        local oldCFrame = root.CFrame
+
+        -- Teleporta para a Hitbox
+        root.CFrame = hitbox.CFrame + Vector3.new(0, 3, 0)
+
+        task.wait(0.2)
+
+        -- Clica
+        fireclickdetector(clickDetector)
+
+        task.wait(0.2)
+
+        -- Volta para a posição anterior
+        root.CFrame = oldCFrame
+    end,
+})
+
+TabG:MakeButton({
+    Name = "Give Red Key",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        local itens = workspace:FindFirstChild("Itens")
+
+        if not itens then
+            warn("Pasta Itens não encontrada!")
+            return
+        end
+
+        -- Procura o Green Key
+        local greenKey
+
+        for _, obj in ipairs(itens:GetDescendants()) do
+            if obj.Name == "Red Key" then
+                greenKey = obj
+                break
+            end
+        end
+
+        if not greenKey then
+            warn("Green Key não encontrado!")
+            return
+        end
+
+        -- Procura a Hitbox
+        local hitbox = greenKey:FindFirstChild("Hitbox", true)
+
+        if not hitbox then
+            warn("Hitbox não encontrada!")
+            return
+        end
+
+        -- Procura o ClickDetector dentro da Hitbox
+        local clickDetector = hitbox:FindFirstChildOfClass("ClickDetector")
+
+        if not clickDetector then
+            warn("ClickDetector não encontrado!")
+            return
+        end
+
+        -- Salva a posição original
+        local oldCFrame = root.CFrame
+
+        -- Teleporta para a Hitbox
+        root.CFrame = hitbox.CFrame + Vector3.new(0, 3, 0)
+
+        task.wait(0.2)
+
+        -- Clica
+        fireclickdetector(clickDetector)
+
+        task.wait(0.2)
+
+        -- Volta para a posição anterior
+        root.CFrame = oldCFrame
+    end,
+})
+
+TabG:MakeButton({
+    Name = "Give Yellow Key",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        local itens = workspace:FindFirstChild("Itens")
+
+        if not itens then
+            warn("Pasta Itens não encontrada!")
+            return
+        end
+
+        -- Procura o Green Key
+        local greenKey
+
+        for _, obj in ipairs(itens:GetDescendants()) do
+            if obj.Name == "Yellow Key" then
+                greenKey = obj
+                break
+            end
+        end
+
+        if not greenKey then
+            warn("Green Key não encontrado!")
+            return
+        end
+
+        -- Procura a Hitbox
+        local hitbox = greenKey:FindFirstChild("Hitbox", true)
+
+        if not hitbox then
+            warn("Hitbox não encontrada!")
+            return
+        end
+
+        -- Procura o ClickDetector dentro da Hitbox
+        local clickDetector = hitbox:FindFirstChildOfClass("ClickDetector")
+
+        if not clickDetector then
+            warn("ClickDetector não encontrado!")
+            return
+        end
+
+        -- Salva a posição original
+        local oldCFrame = root.CFrame
+
+        -- Teleporta para a Hitbox
+        root.CFrame = hitbox.CFrame + Vector3.new(0, 3, 0)
+
+        task.wait(0.2)
+
+        -- Clica
+        fireclickdetector(clickDetector)
+
+        task.wait(0.2)
+
+        -- Volta para a posição anterior
+        root.CFrame = oldCFrame
+    end,
+})
+
+TabG:MakeButton({
+    Name = "Give Orange Key",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        local itens = workspace:FindFirstChild("Itens")
+
+        if not itens then
+            warn("Pasta Itens não encontrada!")
+            return
+        end
+
+        -- Procura o Green Key
+        local greenKey
+
+        for _, obj in ipairs(itens:GetDescendants()) do
+            if obj.Name == "Orange Key" then
+                greenKey = obj
+                break
+            end
+        end
+
+        if not greenKey then
+            warn("Green Key não encontrado!")
+            return
+        end
+
+        -- Procura a Hitbox
+        local hitbox = greenKey:FindFirstChild("Hitbox", true)
+
+        if not hitbox then
+            warn("Hitbox não encontrada!")
+            return
+        end
+
+        -- Procura o ClickDetector dentro da Hitbox
+        local clickDetector = hitbox:FindFirstChildOfClass("ClickDetector")
+
+        if not clickDetector then
+            warn("ClickDetector não encontrado!")
+            return
+        end
+
+        -- Salva a posição original
+        local oldCFrame = root.CFrame
+
+        -- Teleporta para a Hitbox
+        root.CFrame = hitbox.CFrame + Vector3.new(0, 3, 0)
+
+        task.wait(0.2)
+
+        -- Clica
+        fireclickdetector(clickDetector)
+
+        task.wait(0.2)
+
+        -- Volta para a posição anterior
+        root.CFrame = oldCFrame
+    end,
+})
+
+TabG:MakeButton({
+    Name = "Give Purple Key",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        local itens = workspace:FindFirstChild("Itens")
+
+        if not itens then
+            warn("Pasta Itens não encontrada!")
+            return
+        end
+
+        -- Procura o Green Key
+        local greenKey
+
+        for _, obj in ipairs(itens:GetDescendants()) do
+            if obj.Name == "Purple Key" then
+                greenKey = obj
+                break
+            end
+        end
+
+        if not greenKey then
+            warn("Green Key não encontrado!")
+            return
+        end
+
+        -- Procura a Hitbox
+        local hitbox = greenKey:FindFirstChild("Hitbox", true)
+
+        if not hitbox then
+            warn("Hitbox não encontrada!")
+            return
+        end
+
+        -- Procura o ClickDetector dentro da Hitbox
+        local clickDetector = hitbox:FindFirstChildOfClass("ClickDetector")
+
+        if not clickDetector then
+            warn("ClickDetector não encontrado!")
+            return
+        end
+
+        -- Salva a posição original
+        local oldCFrame = root.CFrame
+
+        -- Teleporta para a Hitbox
+        root.CFrame = hitbox.CFrame + Vector3.new(0, 3, 0)
+
+        task.wait(0.2)
+
+        -- Clica
+        fireclickdetector(clickDetector)
+
+        task.wait(0.2)
+
+        -- Volta para a posição anterior
+        root.CFrame = oldCFrame
+    end,
+})
+
+local TabP = Win:MakeTab({
+    Name = "🪐 Teleport 🪐",
+    Icon = "rbxassetid://722466216",
+})
+TabP:MakeSection("Teleport")
+
+TabP:MakeButton({
+    Name = "Teleport To Map",
+    Callback = function()
+
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character
+
+        if not character then
+            return
+        end
+
+        local root = character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        -- Posição para onde será teleportado
+        local Posicao = Vector3.new(517, 58, -62)
+
+        root.CFrame = CFrame.new(Posicao)
+    end,
+})
+
+TabP:MakeButton({
+    Name = "Teleport To SpiderRoom",
+    Callback = function()
+
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character
+
+        if not character then
+            return
+        end
+
+        local root = character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        -- Posição para onde será teleportado
+        local Posicao = Vector3.new(-21, 73, -258)
+
+        root.CFrame = CFrame.new(Posicao)
+    end,
+})
+
+TabP:MakeButton({
+    Name = "Teleport To SpiderTable",
+    Callback = function()
+
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character
+
+        if not character then
+            return
+        end
+
+        local root = character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        -- Posição para onde será teleportado
+        local Posicao = Vector3.new(-18, 84, -170)
+
+        root.CFrame = CFrame.new(Posicao)
+    end,
+})
+
+Tab1:MakeButton({
+    Name = "Teleport To Lobby",
+    Callback = function()
+
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character
+
+        if not character then
+            return
+        end
+
+        local root = character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        -- Posição para onde será teleportado
+        local Posicao = Vector3.new(-109, 89, -170)
+
+        root.CFrame = CFrame.new(Posicao)
+    end,
+})
+
+Tab1:MakeButton({
+    Name = "Teleport To Cutcene",
+    Callback = function()
+
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character
+
+        if not character then
+            return
+        end
+
+        local root = character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            return
+        end
+
+        -- Posição para onde será teleportado
+        local Posicao = Vector3.new(504, 59, -292)
+
+        root.CFrame = CFrame.new(Posicao)
+    end,
+})
+
+NexusUI:MakeDialog({
+    Title = "Tem certeza?",
+    Text  = "Isso vai resetar o personagem.",
+    Buttons = {
+        {Text = "Confirmar", Callback = function() print("confirmado") end},
+        {Text = "Cancelar",  Callback = function() print("cancelado") end},
+        {Text = "Saiba mais",Callback = function() print("info") end},
+    }
+})
+
+local TabR = Win:MakeTab({
+    Name = "⚙️ Setting ⚙️",
+    Icon = "rbxassetid://2747371789",
+})
+TabR:MakeSection("Setting")
+
+TabR:MakeButton({
+	Name = "Fechar Hub",
+	Callback = function()
+		NexusUI:MakeDialog({
+    Title = "Tem certeza?",
+    Text = "Isso vai fechar o Hub.",
+
+    Buttons = {
+        {
+            Text = "Confirmar",
+            Callback = function()
+                if Win then
+                    Win:Destroy()
+                end
+            end
+        },
+
+        {
+            Text = "Cancelar",
+            Callback = function()
+                -- Não faz nada
+            end
+        },
+    }
+})
+	end,
+})
