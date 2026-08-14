@@ -868,7 +868,7 @@ TabP:MakeButton({
     end,
 })
 
-Tab1:MakeButton({
+TabP:MakeButton({
     Name = "Teleport To Lobby",
     Callback = function()
 
@@ -893,7 +893,7 @@ Tab1:MakeButton({
     end,
 })
 
-Tab1:MakeButton({
+TabP:MakeButton({
     Name = "Teleport To Cutcene",
     Callback = function()
 
@@ -918,23 +918,13 @@ Tab1:MakeButton({
     end,
 })
 
-NexusUI:MakeDialog({
-    Title = "Tem certeza?",
-    Text  = "Isso vai resetar o personagem.",
-    Buttons = {
-        {Text = "Confirmar", Callback = function() print("confirmado") end},
-        {Text = "Cancelar",  Callback = function() print("cancelado") end},
-        {Text = "Saiba mais",Callback = function() print("info") end},
-    }
-})
-
-local TabR = Win:MakeTab({
+local TabO = Win:MakeTab({
     Name = "⚙️ Setting ⚙️",
     Icon = "rbxassetid://2747371789",
 })
-TabR:MakeSection("Setting")
+TabO:MakeSection("Setting")
 
-TabR:MakeButton({
+TabO:MakeButton({
 	Name = "Fechar Hub",
 	Callback = function()
 		NexusUI:MakeDialog({
