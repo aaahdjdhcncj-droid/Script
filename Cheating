@@ -1,0 +1,1583 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Cheating During Testing",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "Loading...",
+   LoadingSubtitle = "by Yoricks",
+   ShowText = "Rayfield", -- for mobile users to unhide Rayfield, change if you'd like
+   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from emitting warnings when the script has a version mismatch with the interface.
+
+   -- ScriptID = "sid_xxxxxxxxxxxx", -- Your Script ID from developer.sirius.menu — enables analytics, managed keys, and script hosting
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Cheating Hub"
+   },
+
+   Discord = {
+      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "noinvitelink", -- The Discord invite code, do not include Discord.gg/. E.g. Discord.gg/ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
+   },
+
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique, as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Hello"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
+   }
+})
+
+local ATab = Window:CreateTab("👨‍🏫 Teacher 👨‍🏫", nil) -- Title, Image
+local ASection = Tab:CreateSection("Teacher")
+
+--========================================================--
+-- TEACHER RADAR + STUDENT RADAR + TEACHER HIGHLIGHT
+--========================================================--
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local Player = Players.LocalPlayer
+
+--========================================================--
+-- CONFIGURAÇÕES
+--========================================================--
+
+local RADAR_SIZE = 180
+local RADAR_RANGE = 100
+
+local VERY_NEAR_DISTANCE = 15
+local NEAR_DISTANCE = 30
+
+--========================================================--
+-- GUI PRINCIPAL
+--========================================================--
+
+local RadarGui = Instance.new("ScreenGui")
+RadarGui.Name = "TeacherRadarGui"
+RadarGui.ResetOnSpawn = false
+RadarGui.Enabled = false
+RadarGui.Parent = Player:WaitForChild("PlayerGui")
+
+local Main = Instance.new("Frame")
+Main.Name = "Radar"
+Main.Size = UDim2.fromOffset(RADAR_SIZE, RADAR_SIZE + 45)
+Main.Position = UDim2.new(0.5, -RADAR_SIZE / 2, 0.5, -100)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Main.BorderSizePixel = 0
+Main.Parent = RadarGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = Main
+
+--========================================================--
+-- TÍTULO
+--========================================================--
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.Text = "TEACHER RADAR"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 15
+Title.Font = Enum.Font.GothamBold
+Title.Parent = Main
+
+--========================================================--
+-- RADAR
+--========================================================--
+
+local Radar = Instance.new("Frame")
+Radar.Size = UDim2.fromOffset(RADAR_SIZE - 20, RADAR_SIZE - 20)
+Radar.Position = UDim2.fromOffset(10, 30)
+Radar.BackgroundColor3 = Color3.fromRGB(10, 35, 10)
+Radar.BorderSizePixel = 0
+Radar.ClipsDescendants = true
+Radar.Parent = Main
+
+local RadarCorner = Instance.new("UICorner")
+RadarCorner.CornerRadius = UDim.new(1, 0)
+RadarCorner.Parent = Radar
+
+--========================================================--
+-- CÍRCULOS
+--========================================================--
+
+local Circle1 = Instance.new("Frame")
+Circle1.Size = UDim2.fromScale(0.66, 0.66)
+Circle1.Position = UDim2.fromScale(0.17, 0.17)
+Circle1.BackgroundTransparency = 1
+Circle1.BorderSizePixel = 1
+Circle1.BorderColor3 = Color3.fromRGB(50, 100, 50)
+Circle1.Parent = Radar
+
+local Circle1Corner = Instance.new("UICorner")
+Circle1Corner.CornerRadius = UDim.new(1, 0)
+Circle1Corner.Parent = Circle1
+
+local Circle2 = Instance.new("Frame")
+Circle2.Size = UDim2.fromScale(0.33, 0.33)
+Circle2.Position = UDim2.fromScale(0.335, 0.335)
+Circle2.BackgroundTransparency = 1
+Circle2.BorderSizePixel = 1
+Circle2.BorderColor3 = Color3.fromRGB(50, 100, 50)
+Circle2.Parent = Radar
+
+local Circle2Corner = Instance.new("UICorner")
+Circle2Corner.CornerRadius = UDim.new(1, 0)
+Circle2Corner.Parent = Circle2
+
+--========================================================--
+-- LINHAS
+--========================================================--
+
+local Horizontal = Instance.new("Frame")
+Horizontal.Size = UDim2.new(1, 0, 0, 1)
+Horizontal.Position = UDim2.fromScale(0, 0.5)
+Horizontal.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
+Horizontal.BorderSizePixel = 0
+Horizontal.Parent = Radar
+
+local Vertical = Instance.new("Frame")
+Vertical.Size = UDim2.new(0, 1, 1, 0)
+Vertical.Position = UDim2.fromScale(0.5, 0)
+Vertical.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
+Vertical.BorderSizePixel = 0
+Vertical.Parent = Radar
+
+--========================================================--
+-- BOLINHA DO PLAYER
+--========================================================--
+
+local PlayerDot = Instance.new("Frame")
+PlayerDot.Size = UDim2.fromOffset(8, 8)
+PlayerDot.Position = UDim2.fromScale(0.5, 0.5)
+PlayerDot.AnchorPoint = Vector2.new(0.5, 0.5)
+PlayerDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+PlayerDot.BorderSizePixel = 0
+PlayerDot.ZIndex = 10
+PlayerDot.Parent = Radar
+
+local PlayerCorner = Instance.new("UICorner")
+PlayerCorner.CornerRadius = UDim.new(1, 0)
+PlayerCorner.Parent = PlayerDot
+
+--========================================================--
+-- BOLINHA DO TEACHER
+--========================================================--
+
+local TeacherDot = Instance.new("Frame")
+TeacherDot.Size = UDim2.fromOffset(12, 12)
+TeacherDot.AnchorPoint = Vector2.new(0.5, 0.5)
+TeacherDot.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+TeacherDot.BorderSizePixel = 0
+TeacherDot.Visible = false
+TeacherDot.ZIndex = 9
+TeacherDot.Parent = Radar
+
+local TeacherCorner = Instance.new("UICorner")
+TeacherCorner.CornerRadius = UDim.new(1, 0)
+TeacherCorner.Parent = TeacherDot
+
+--========================================================--
+-- TEXTO DA DISTÂNCIA
+--========================================================--
+
+local DistanceText = Instance.new("TextLabel")
+DistanceText.Size = UDim2.new(1, 0, 0, 20)
+DistanceText.Position = UDim2.new(0, 0, 1, -20)
+DistanceText.BackgroundTransparency = 1
+DistanceText.Text = "Teacher: procurando..."
+DistanceText.TextColor3 = Color3.fromRGB(255, 255, 255)
+DistanceText.TextSize = 12
+DistanceText.Font = Enum.Font.Gotham
+DistanceText.Parent = Main
+
+--========================================================--
+-- TEXTO DE VISÃO
+--========================================================--
+
+local LookingText = Instance.new("TextLabel")
+LookingText.Size = UDim2.fromOffset(150, 40)
+LookingText.Position = UDim2.new(1, 8, 0, 35)
+LookingText.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+LookingText.BorderSizePixel = 0
+LookingText.Text = "Teacher\nprocurando..."
+LookingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+LookingText.TextSize = 12
+LookingText.Font = Enum.Font.GothamBold
+LookingText.Parent = Main
+
+local LookingCorner = Instance.new("UICorner")
+LookingCorner.CornerRadius = UDim.new(0, 8)
+LookingCorner.Parent = LookingText
+
+--========================================================--
+-- ARRASTAR RADAR
+--========================================================--
+
+local Dragging = false
+local DragStart
+local StartPosition
+
+Main.InputBegan:Connect(function(Input)
+
+    if Input.UserInputType == Enum.UserInputType.MouseButton1
+        or Input.UserInputType == Enum.UserInputType.Touch then
+
+        Dragging = true
+        DragStart = Input.Position
+        StartPosition = Main.Position
+
+        Input.Changed:Connect(function()
+
+            if Input.UserInputState == Enum.UserInputState.End then
+                Dragging = false
+            end
+
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(Input)
+
+    if not Dragging then
+        return
+    end
+
+    if Input.UserInputType == Enum.UserInputType.MouseMovement
+        or Input.UserInputType == Enum.UserInputType.Touch then
+
+        local Delta = Input.Position - DragStart
+
+        Main.Position = UDim2.new(
+            StartPosition.X.Scale,
+            StartPosition.X.Offset + Delta.X,
+
+            StartPosition.Y.Scale,
+            StartPosition.Y.Offset + Delta.Y
+        )
+    end
+end)
+
+--========================================================--
+-- ENCONTRAR ROOT
+--========================================================--
+
+local function GetRoot(Object)
+
+    if not Object then
+        return nil
+    end
+
+    if Object:IsA("BasePart") then
+        return Object
+    end
+
+    if Object:IsA("Model") then
+
+        return Object:FindFirstChild("HumanoidRootPart")
+            or Object.PrimaryPart
+            or Object:FindFirstChildWhichIsA("BasePart", true)
+
+    end
+
+    return nil
+end
+
+--========================================================--
+-- ENCONTRAR TEACHER
+--========================================================--
+
+local function GetTeacher()
+
+    return workspace:FindFirstChild("Teacher", true)
+
+end
+
+--========================================================--
+-- ENCONTRAR STUDENTS
+--========================================================--
+
+local function GetStudents()
+
+    local Students = {}
+
+    for _, Object in ipairs(workspace:GetDescendants()) do
+
+        if Object:IsA("Model") and Object.Name == "Student" then
+            table.insert(Students, Object)
+        end
+
+    end
+
+    return Students
+end
+
+--========================================================--
+-- STUDENT DOTS
+--========================================================--
+
+local StudentDots = {}
+
+local function CreateStudentDot(Student)
+
+    local Dot = Instance.new("Frame")
+
+    Dot.Name = "StudentDot"
+    Dot.Size = UDim2.fromOffset(8, 8)
+    Dot.AnchorPoint = Vector2.new(0.5, 0.5)
+
+    -- 🔵 AZUL
+    Dot.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+
+    Dot.BorderSizePixel = 0
+    Dot.ZIndex = 8
+    Dot.Parent = Radar
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(1, 0)
+    Corner.Parent = Dot
+
+    StudentDots[Student] = Dot
+
+    return Dot
+end
+
+local function RemoveStudentDot(Student)
+
+    if StudentDots[Student] then
+
+        StudentDots[Student]:Destroy()
+        StudentDots[Student] = nil
+
+    end
+end
+
+--========================================================--
+-- TEACHER OLHANDO PARA O PLAYER
+--========================================================--
+
+local function IsLookingAtPlayer(TeacherRoot, PlayerRoot)
+
+    local Direction = PlayerRoot.Position - TeacherRoot.Position
+
+    if Direction.Magnitude <= 0 then
+        return true
+    end
+
+    Direction = Direction.Unit
+
+    local Dot = TeacherRoot.CFrame.LookVector:Dot(Direction)
+
+    return Dot > 0.55
+end
+
+--========================================================--
+-- ATUALIZAR RADAR
+--========================================================--
+
+RunService.RenderStepped:Connect(function()
+
+    if not RadarGui.Enabled then
+        return
+    end
+
+    local Character = Player.Character
+    local PlayerRoot = Character and Character:FindFirstChild("HumanoidRootPart")
+
+    if not PlayerRoot then
+
+        TeacherDot.Visible = false
+        DistanceText.Text = "Teacher: procurando..."
+
+        return
+    end
+
+    --====================================================--
+    -- TEACHER
+    --====================================================--
+
+    local Teacher = GetTeacher()
+    local TeacherRoot = GetRoot(Teacher)
+
+    if TeacherRoot then
+
+        TeacherDot.Visible = true
+
+        local Offset = TeacherRoot.Position - PlayerRoot.Position
+        local Distance = Offset.Magnitude
+
+        DistanceText.Text = string.format(
+            "Teacher: %.1f studs",
+            Distance
+        )
+
+        --================================================--
+        -- COR DO TEACHER
+        --================================================--
+
+        if Distance <= VERY_NEAR_DISTANCE then
+
+            -- 🔴 MUITO PERTO
+            TeacherDot.BackgroundColor3 =
+                Color3.fromRGB(255, 0, 0)
+
+        elseif Distance <= NEAR_DISTANCE then
+
+            -- 🟡 PERTO
+            TeacherDot.BackgroundColor3 =
+                Color3.fromRGB(255, 220, 0)
+
+        else
+
+            -- 🟢 LONGE
+            TeacherDot.BackgroundColor3 =
+                Color3.fromRGB(0, 255, 0)
+
+        end
+
+        --================================================--
+        -- POSIÇÃO NO RADAR
+        --================================================--
+
+        local RelativeX = Offset.X / RADAR_RANGE
+        local RelativeY = Offset.Z / RADAR_RANGE
+
+        RelativeX = math.clamp(RelativeX, -1, 1)
+        RelativeY = math.clamp(RelativeY, -1, 1)
+
+        TeacherDot.Position = UDim2.fromScale(
+            0.5 + RelativeX * 0.45,
+            0.5 + RelativeY * 0.45
+        )
+
+        --================================================--
+        -- OLHANDO
+        --================================================--
+
+        if IsLookingAtPlayer(TeacherRoot, PlayerRoot) then
+
+            LookingText.Text = "👁 OLHANDO\nPARA VOCÊ"
+
+            LookingText.TextColor3 =
+                Color3.fromRGB(255, 70, 70)
+
+        else
+
+            LookingText.Text = "✓ NÃO ESTÁ\nOLHANDO"
+
+            LookingText.TextColor3 =
+                Color3.fromRGB(80, 255, 80)
+
+        end
+
+    else
+
+        TeacherDot.Visible = false
+
+        DistanceText.Text = "Teacher: não encontrado"
+
+        LookingText.Text = "Teacher\nnão encontrado"
+
+        LookingText.TextColor3 =
+            Color3.fromRGB(255, 255, 255)
+
+    end
+
+    --====================================================--
+    -- STUDENTS
+    --====================================================--
+
+    local CurrentStudents = {}
+
+    for _, Student in ipairs(GetStudents()) do
+
+        CurrentStudents[Student] = true
+
+        local StudentRoot = GetRoot(Student)
+
+        if StudentRoot then
+
+            local Dot = StudentDots[Student]
+
+            if not Dot then
+                Dot = CreateStudentDot(Student)
+            end
+
+            local Offset =
+                StudentRoot.Position - PlayerRoot.Position
+
+            local RelativeX =
+                Offset.X / RADAR_RANGE
+
+            local RelativeY =
+                Offset.Z / RADAR_RANGE
+
+            RelativeX = math.clamp(RelativeX, -1, 1)
+            RelativeY = math.clamp(RelativeY, -1, 1)
+
+            Dot.Position = UDim2.fromScale(
+                0.5 + RelativeX * 0.45,
+                0.5 + RelativeY * 0.45
+            )
+
+            Dot.Visible = true
+
+        end
+    end
+
+    --====================================================--
+    -- REMOVER STUDENTS QUE SUMIRAM
+    --====================================================--
+
+    for Student, Dot in pairs(StudentDots) do
+
+        if not CurrentStudents[Student]
+            or not Student.Parent then
+
+            RemoveStudentDot(Student)
+
+        end
+    end
+
+end)
+
+--========================================================--
+-- TEACHER HIGHLIGHT
+--========================================================--
+
+local TeacherHighlight = nil
+
+local function CreateTeacherHighlight()
+
+    local Teacher = GetTeacher()
+
+    if not Teacher then
+        warn("Teacher não encontrado!")
+        return
+    end
+
+    if TeacherHighlight then
+        TeacherHighlight:Destroy()
+        TeacherHighlight = nil
+    end
+
+    TeacherHighlight = Instance.new("Highlight")
+
+    TeacherHighlight.Name = "TeacherHighlight"
+    TeacherHighlight.Adornee = Teacher
+
+    TeacherHighlight.DepthMode =
+        Enum.HighlightDepthMode.AlwaysOnTop
+
+    TeacherHighlight.FillColor =
+        Color3.fromRGB(255, 0, 0)
+
+    TeacherHighlight.OutlineColor =
+        Color3.fromRGB(255, 255, 255)
+
+    TeacherHighlight.FillTransparency = 0.5
+    TeacherHighlight.OutlineTransparency = 0
+
+    TeacherHighlight.Parent = Teacher
+end
+
+local function RemoveTeacherHighlight()
+
+    if TeacherHighlight then
+
+        TeacherHighlight:Destroy()
+        TeacherHighlight = nil
+
+    end
+end
+
+--========================================================--
+-- TOGGLE DO RADAR
+--========================================================--
+
+local RadarToggle = ATab:CreateToggle({
+    Name = "Teacher Radar",
+    CurrentValue = false,
+    Flag = "TeacherRadar",
+
+    Callback = function(Value)
+
+        RadarGui.Enabled = Value
+
+    end,
+})
+
+local TeacherHighlight = nil
+
+local function GetTeacher()
+    return workspace:FindFirstChild("Teacher", true)
+end
+
+local Toggle = ATab:CreateToggle({
+    Name = "Teacher Highlight",
+    CurrentValue = false,
+    Flag = "TeacherHighlight",
+
+    Callback = function(Value)
+
+        local Teacher = GetTeacher()
+
+        if Value then
+            -- Procura o Teacher novamente caso ele ainda não exista
+            if not Teacher then
+                warn("Teacher não encontrado!")
+                return
+            end
+
+            -- Evita criar vários Highlights
+            if TeacherHighlight then
+                TeacherHighlight:Destroy()
+            end
+
+            TeacherHighlight = Instance.new("Highlight")
+            TeacherHighlight.Name = "TeacherHighlight"
+            TeacherHighlight.Adornee = Teacher
+            TeacherHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+
+            -- Cor do Highlight
+            TeacherHighlight.FillColor = Color3.fromRGB(255, 0, 0)
+            TeacherHighlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+
+            TeacherHighlight.FillTransparency = 0.5
+            TeacherHighlight.OutlineTransparency = 0
+
+            TeacherHighlight.Parent = Teacher
+
+        else
+            -- Remove o Highlight
+            if TeacherHighlight then
+                TeacherHighlight:Destroy()
+                TeacherHighlight = nil
+            end
+        end
+    end,
+})
+
+--========================================================--
+-- TEACHER CAMERA
+--========================================================--
+
+local Camera = workspace.CurrentCamera
+local Player = game.Players.LocalPlayer
+
+local CameraWasCFrame = nil
+local CameraWasType = nil
+
+local function GetTeacher()
+    return workspace:FindFirstChild("Teacher", true)
+end
+
+local function GetTeacherHead(Teacher)
+    if not Teacher then
+        return nil
+    end
+
+    return Teacher:FindFirstChild("Head", true)
+        or Teacher:FindFirstChild("HumanoidRootPart", true)
+        or Teacher.PrimaryPart
+end
+
+local function StartTeacherCamera()
+
+    local Teacher = GetTeacher()
+
+    if not Teacher then
+        warn("Teacher não encontrado!")
+        return
+    end
+
+    local Head = GetTeacherHead(Teacher)
+
+    if not Head 
+        warn("Cabeça do Teacher não encontrada!")
+        return
+    end
+
+    -- Salva a câmera atual
+    CameraWasCFrame = Camera.CFrame
+    CameraWasType = Camera.CameraType
+
+    -- Coloca a câmera 3 studs atrás da cabeça
+    local CameraPosition =
+        Head.Position - Head.CFrame.LookVector * 3
+
+    -- Faz a câmera olhar para a mesma direção que o Teacher
+    Camera.CFrame = CFrame.lookAt(
+        CameraPosition,
+        CameraPosition + Head.CFrame.LookVector
+    )
+
+    Camera.CameraType = Enum.CameraType.Scriptable
+end
+
+local function StopTeacherCamera()
+
+    if CameraWasCFrame then
+        Camera.CFrame = CameraWasCFrame
+    end
+
+    if CameraWasType then
+        Camera.CameraType = CameraWasType
+    else
+        Camera.CameraType = Enum.CameraType.Custom
+    end
+
+    CameraWasCFrame = nil
+    CameraWasType = nil
+end
+
+--========================================================--
+-- TOGGLE
+--========================================================--
+
+local Toggle = ATab:CreateToggle({
+    Name = "Teacher Camera",
+    CurrentValue = false,
+    Flag = "TeacherCamera",
+
+    Callback = function(Value)
+
+        if Value then
+            StartTeacherCamera()
+        else
+            StopTeacherCamera()
+        end
+
+    end,
+})
+
+--========================================================--
+-- TEACHER CAMERA - BOTÃO + TOGGLE
+--========================================================--
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local Player = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+--========================================================--
+-- CONFIGURAÇÕES
+--========================================================--
+
+local CAMERA_DISTANCE = 3
+
+local CameraActive = false
+local OldCameraCFrame = nil
+local OldCameraType = nil
+
+--========================================================--
+-- GUI
+--========================================================--
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TeacherCameraGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+
+local Button = Instance.new("TextButton")
+Button.Name = "TeacherCameraButton"
+
+Button.Size = UDim2.fromOffset(140, 45)
+Button.Position = UDim2.new(0.5, -70, 0.8, 0)
+
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Button.Text = "👁 Teacher"
+Button.TextSize = 14
+Button.Font = Enum.Font.GothamBold
+
+Button.BorderSizePixel = 0
+Button.AutoButtonColor = true
+
+Button.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 10)
+Corner.Parent = Button
+
+--========================================================--
+-- ENCONTRAR TEACHER
+--========================================================--
+
+local function GetTeacher()
+    return workspace:FindFirstChild("Teacher", true)
+end
+
+--========================================================--
+-- ENCONTRAR CABEÇA
+--========================================================--
+
+local function GetHead(Teacher)
+
+    if not Teacher then
+        return nil
+    end
+
+    return Teacher:FindFirstChild("Head", true)
+        or Teacher:FindFirstChild("HumanoidRootPart", true)
+        or Teacher.PrimaryPart
+end
+
+--========================================================--
+-- ATIVAR CÂMERA
+--========================================================--
+
+local function EnableTeacherCamera()
+
+    local Teacher = GetTeacher()
+
+    if not Teacher then
+        warn("Teacher não encontrado!")
+        return
+    end
+
+    local Head = GetHead(Teacher)
+
+    if not Head then
+        warn("Cabeça do Teacher não encontrada!")
+        return
+    end
+
+    -- Salva a câmera atual
+    OldCameraCFrame = Camera.CFrame
+    OldCameraType = Camera.CameraType
+
+    CameraActive = true
+
+    Button.Text = "❌ Voltar"
+end
+
+--========================================================--
+-- DESATIVAR CÂMERA
+--========================================================--
+
+local function DisableTeacherCamera()
+
+    CameraActive = false
+
+    if OldCameraCFrame then
+        Camera.CFrame = OldCameraCFrame
+    end
+
+    if OldCameraType then
+        Camera.CameraType = OldCameraType
+    else
+        Camera.CameraType = Enum.CameraType.Custom
+    end
+
+    OldCameraCFrame = nil
+    OldCameraType = nil
+
+    Button.Text = "👁 Teacher"
+end
+
+--========================================================--
+-- CÂMERA SEGUINDO O TEACHER
+--========================================================--
+
+RunService.RenderStepped:Connect(function()
+
+    if not CameraActive then
+        return
+    end
+
+    local Teacher = GetTeacher()
+
+    if not Teacher then
+        DisableTeacherCamera()
+        return
+    end
+
+    local Head = GetHead(Teacher)
+
+    if not Head then
+        return
+    end
+
+    Camera.CameraType = Enum.CameraType.Scriptable
+
+    --====================================================--
+    -- 3 STUDS À FRENTE DA CABEÇA
+    --====================================================--
+
+    local Position =
+        Head.Position + Head.CFrame.LookVector * CAMERA_DISTANCE
+
+    -- Olha na mesma direção que o Teacher
+    Camera.CFrame = CFrame.lookAt(
+        Position,
+        Position + Head.CFrame.LookVector
+    )
+
+end)
+
+--========================================================--
+-- BOTÃO
+--========================================================--
+
+Button.Activated:Connect(function()
+
+    if CameraActive then
+        DisableTeacherCamera()
+    else
+        EnableTeacherCamera()
+    end
+
+end)
+
+--========================================================--
+-- ARRASTAR BOTÃO - CELULAR + PC
+--========================================================--
+
+local Dragging = false
+local DragStart = nil
+local StartPosition = nil
+
+Button.InputBegan:Connect(function(Input)
+
+    if Input.UserInputType == Enum.UserInputType.MouseButton1
+        or Input.UserInputType == Enum.UserInputType.Touch then
+
+        Dragging = true
+        DragStart = Input.Position
+        StartPosition = Button.Position
+
+        Input.Changed:Connect(function()
+
+            if Input.UserInputState == Enum.UserInputState.End then
+                Dragging = false
+            end
+
+        end)
+
+    end
+
+end)
+
+UserInputService.InputChanged:Connect(function(Input)
+
+    if not Dragging then
+        return
+    end
+
+    if Input.UserInputType == Enum.UserInputType.MouseMovement
+        or Input.UserInputType == Enum.UserInputType.Touch then
+
+        local Delta = Input.Position - DragStart
+
+        Button.Position = UDim2.new(
+            StartPosition.X.Scale,
+            StartPosition.X.Offset + Delta.X,
+
+            StartPosition.Y.Scale,
+            StartPosition.Y.Offset + Delta.Y
+        )
+
+    end
+
+end)
+
+--========================================================--
+-- TOGGLE DO RAYFIELD
+--========================================================--
+
+local Toggle = ATab:CreateToggle({
+    Name = "Teacher Camera",
+    CurrentValue = true,
+    Flag = "TeacherCameraButton",
+
+    Callback = function(Value)
+
+        Button.Visible = Value
+
+        -- Se desativar o Toggle enquanto estiver
+        -- usando a câmera, retorna para a câmera normal.
+        if not Value and CameraActive then
+            DisableTeacherCamera()
+        end
+
+    end,
+})
+
+local PTab = Window:CreateTab("Player Or Student", nil) -- Title, Image
+local Section = PTab:CreateSection("Player")
+
+
+    --========================================================--
+-- ANSWERS HISTORY - PHONE1
+--========================================================--
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local AnswersGui = nil
+local ListFrame = nil
+local AnswersConnection = nil
+
+local AnswerHistory = {}
+local LastAnswer = nil
+local AnswerNumber = 0
+
+--========================================================--
+-- ENCONTRAR PHONE1
+--========================================================--
+
+local function GetPhone1()
+
+    local Character = Player.Character
+
+    if Character then
+        local Phone1 = Character:FindFirstChild("Phone1")
+
+        if Phone1 then
+            return Phone1
+        end
+    end
+
+    local Backpack = Player:FindFirstChild("Backpack")
+
+    if Backpack then
+        local Phone1 = Backpack:FindFirstChild("Phone1")
+
+        if Phone1 then
+            return Phone1
+        end
+    end
+
+    return nil
+end
+
+--========================================================--
+-- ENCONTRAR ANSWERSTEXT
+--========================================================--
+
+local function GetAnswersText()
+
+    local Phone1 = GetPhone1()
+
+    if not Phone1 then
+        return nil
+    end
+
+    local Phone = Phone1:FindFirstChild("Phone", true)
+
+    if not Phone then
+        return nil
+    end
+
+    local SurfaceGui =
+        Phone:FindFirstChildWhichIsA("SurfaceGui", true)
+
+    if not SurfaceGui then
+        return nil
+    end
+
+    local Frame =
+        SurfaceGui:FindFirstChild("Frame", true)
+
+    if not Frame then
+        return nil
+    end
+
+    local AnswersText =
+        Frame:FindFirstChild("AnswersText", true)
+
+    if AnswersText
+        and (
+            AnswersText:IsA("TextLabel")
+            or AnswersText:IsA("TextButton")
+            or AnswersText:IsA("TextBox")
+        ) then
+
+        return AnswersText
+    end
+
+    return nil
+end
+
+--========================================================--
+-- CRIAR GUI
+--========================================================--
+
+local function CreateGui()
+
+    if AnswersGui then
+        AnswersGui:Destroy()
+    end
+
+    AnswersGui = Instance.new("ScreenGui")
+    AnswersGui.Name = "AnswersHistoryGui"
+    AnswersGui.ResetOnSpawn = false
+    AnswersGui.Parent = PlayerGui
+
+    --====================================================--
+    -- JANELA
+    --====================================================--
+
+    local Main = Instance.new("Frame")
+    Main.Name = "Main"
+    Main.Size = UDim2.fromOffset(280, 230)
+    Main.Position = UDim2.new(0.5, -140, 0.55, -115)
+
+    Main.BackgroundColor3 =
+        Color3.fromRGB(20, 20, 20)
+
+    Main.BorderSizePixel = 0
+    Main.Parent = AnswersGui
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.Parent = Main
+
+    --====================================================--
+    -- TÍTULO
+    --====================================================--
+
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 35)
+
+    Title.BackgroundTransparency = 1
+    Title.Text = "ANSWERS"
+    Title.TextColor3 =
+        Color3.fromRGB(255, 255, 255)
+
+    Title.TextSize = 16
+    Title.Font = Enum.Font.GothamBold
+    Title.Parent = Main
+
+    --====================================================--
+    -- LISTA
+    --====================================================--
+
+    ListFrame = Instance.new("ScrollingFrame")
+    ListFrame.Name = "AnswerList"
+
+    ListFrame.Size =
+        UDim2.new(1, -20, 1, -45)
+
+    ListFrame.Position =
+        UDim2.fromOffset(10, 40)
+
+    ListFrame.BackgroundTransparency = 1
+
+    ListFrame.BorderSizePixel = 0
+
+    ListFrame.ScrollBarThickness = 4
+
+    ListFrame.CanvasSize =
+        UDim2.new(0, 0, 0, 0)
+
+    ListFrame.Parent = Main
+
+    local Layout =
+        Instance.new("UIListLayout")
+
+    Layout.Padding =
+        UDim.new(0, 4)
+
+    Layout.SortOrder =
+        Enum.SortOrder.LayoutOrder
+
+    Layout.Parent = ListFrame
+
+    Layout:GetPropertyChangedSignal(
+        "AbsoluteContentSize"
+    ):Connect(function()
+
+        ListFrame.CanvasSize =
+            UDim2.new(
+                0,
+                0,
+                0,
+                Layout.AbsoluteContentSize.Y + 10
+            )
+
+    end)
+
+    --====================================================--
+    -- ARRASTAR GUI
+    --====================================================--
+
+    local Dragging = false
+    local DragStart
+    local StartPosition
+
+    Main.InputBegan:Connect(function(Input)
+
+        if Input.UserInputType ==
+            Enum.UserInputType.MouseButton1
+
+            or Input.UserInputType ==
+            Enum.UserInputType.Touch then
+
+            Dragging = true
+
+            DragStart = Input.Position
+            StartPosition = Main.Position
+
+            Input.Changed:Connect(function()
+
+                if Input.UserInputState ==
+                    Enum.UserInputState.End then
+
+                    Dragging = false
+
+                end
+
+            end)
+
+        end
+
+    end)
+
+    UserInputService.InputChanged:Connect(function(Input)
+
+        if not Dragging then
+            return
+        end
+
+        if Input.UserInputType ==
+            Enum.UserInputType.MouseMovement
+
+            or Input.UserInputType ==
+            Enum.UserInputType.Touch then
+
+            local Delta =
+                Input.Position - DragStart
+
+            Main.Position = UDim2.new(
+
+                StartPosition.X.Scale,
+
+                StartPosition.X.Offset + Delta.X,
+
+                StartPosition.Y.Scale,
+
+                StartPosition.Y.Offset + Delta.Y
+            )
+
+        end
+
+    end)
+
+end
+
+--========================================================--
+-- ADICIONAR RESPOSTA
+--========================================================--
+
+local function AddAnswer(Text)
+
+    if not Text or Text == "" then
+        return
+    end
+
+    -- Não adiciona o mesmo texto repetidamente
+    if Text == LastAnswer then
+        return
+    end
+
+    LastAnswer = Text
+
+    AnswerNumber += 1
+
+    table.insert(
+        AnswerHistory,
+        Text
+    )
+
+    if not ListFrame then
+        return
+    end
+
+    --====================================================--
+    -- NOVA LINHA
+    --====================================================--
+
+    local Label = Instance.new("TextLabel")
+
+    Label.Name =
+        "Answer_" .. AnswerNumber
+
+    Label.Size =
+        UDim2.new(1, -5, 0, 30)
+
+    Label.BackgroundColor3 =
+        Color3.fromRGB(35, 35, 35)
+
+    Label.BorderSizePixel = 0
+
+    Label.Text =
+        AnswerNumber .. ": " .. Text
+
+    Label.TextColor3 =
+        Color3.fromRGB(255, 255, 255)
+
+    Label.TextSize = 15
+    Label.Font = Enum.Font.GothamBold
+
+    Label.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Label.Parent = ListFrame
+
+    local Padding =
+        Instance.new("UIPadding")
+
+    Padding.PaddingLeft =
+        UDim.new(0, 8)
+
+    Padding.Parent = Label
+
+    local Corner =
+        Instance.new("UICorner")
+
+    Corner.CornerRadius =
+        UDim.new(0, 6)
+
+    Corner.Parent = Label
+
+    -- Vai automaticamente para a resposta mais recente
+    task.defer(function()
+
+        if ListFrame then
+
+            ListFrame.CanvasPosition =
+                Vector2.new(
+                    0,
+                    math.max(
+                        0,
+                        ListFrame.AbsoluteCanvasSize.Y
+                        - ListFrame.AbsoluteWindowSize.Y
+                    )
+                )
+
+        end
+
+    end)
+end
+
+--========================================================--
+-- MONITORAR ANSWERSTEXT
+--========================================================--
+
+local function StartMonitoring()
+
+    if AnswersConnection then
+        task.cancel(AnswersConnection)
+    end
+
+    AnswersConnection = task.spawn(function()
+
+        while AnswersGui
+            and AnswersGui.Parent do
+
+            local AnswersText =
+                GetAnswersText()
+
+            if AnswersText then
+
+                local Text =
+                    AnswersText.Text
+
+                AddAnswer(Text)
+
+            end
+
+            task.wait(0.1)
+
+        end
+
+    end)
+end
+
+--========================================================--
+-- ATIVAR
+--========================================================--
+
+local function EnableAnswers()
+
+    CreateGui()
+
+    -- Reseta somente quando ligar novamente
+    AnswerHistory = {}
+    LastAnswer = nil
+    AnswerNumber = 0
+
+    StartMonitoring()
+end
+
+--========================================================--
+-- DESATIVAR
+--========================================================--
+
+local function DisableAnswers()
+
+    if AnswersConnection then
+
+        task.cancel(
+            AnswersConnection
+        )
+
+        AnswersConnection = nil
+
+    end
+
+    if AnswersGui then
+
+        AnswersGui:Destroy()
+        AnswersGui = nil
+
+    end
+
+    ListFrame = nil
+end
+
+--========================================================--
+-- TOGGLE RAYFIELD
+--========================================================--
+
+local Toggle = PTab:CreateToggle({
+    Name = "Show Answers",
+    CurrentValue = false,
+    Flag = "ShowAnswersHistory",
+
+    Callback = function(Value)
+
+        if Value then
+
+            EnableAnswers()
+
+        else
+
+            DisableAnswers()
+
+        end
+
+    end,
+})
+
+local StudentHighlights = {}
+
+local function AddStudentHighlight(Student)
+    if not Student:IsA("Model") or Student.Name ~= "Student" then
+        return
+    end
+
+    if StudentHighlights[Student] then
+        return
+    end
+
+    local Highlight = Instance.new("Highlight")
+    Highlight.Name = "StudentHighlight"
+    Highlight.FillColor = Color3.fromRGB(0, 170, 255)
+    Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    Highlight.FillTransparency = 0.5
+    Highlight.OutlineTransparency = 0
+    Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    Highlight.Parent = Student
+
+    StudentHighlights[Student] = Highlight
+end
+
+local function RemoveStudentHighlights()
+    for Student, Highlight in pairs(StudentHighlights) do
+        if Highlight then
+            Highlight:Destroy()
+        end
+    end
+
+    table.clear(StudentHighlights)
+end
+
+local function UpdateStudents()
+    for _, Object in ipairs(workspace:GetDescendants()) do
+        if Object:IsA("Model") and Object.Name == "Student" then
+            AddStudentHighlight(Object)
+        end
+    end
+end
+
+local Toggle = PTab:CreateToggle({
+    Name = "Student Highlight",
+    CurrentValue = false,
+    Flag = "StudentHighlight",
+    Callback = function(Value)
+        if Value then
+            UpdateStudents()
+        else
+            RemoveStudentHighlights()
+        end
+    end,
+})
+
+workspace.DescendantAdded:Connect(function(Object)
+    if Object:IsA("Model") and Object.Name == "Student" then
+        task.wait()
+        AddStudentHighlight(Object)
+    end
+end)
+
+local Lighting = game:GetService("Lighting")
+
+local OldBrightness = Lighting.Brightness
+local OldClockTime = Lighting.ClockTime
+local OldFogEnd = Lighting.FogEnd
+local OldGlobalShadows = Lighting.GlobalShadows
+
+local Toggle = PTab:CreateToggle({
+    Name = "FullBright",
+    CurrentValue = false,
+    Flag = "FullBright",
+    Callback = function(Value)
+
+        if Value then
+            Lighting.Brightness = 2
+            Lighting.ClockTime = 14
+            Lighting.FogEnd = 100000
+            Lighting.GlobalShadows = false
+
+            for _, Effect in ipairs(Lighting:GetChildren()) do
+                if Effect:IsA("Atmosphere") then
+                    Effect.Density = 0
+                    Effect.Haze = 0
+                    Effect.Glare = 0
+                end
+            end
+
+        else
+            Lighting.Brightness = OldBrightness
+            Lighting.ClockTime = OldClockTime
+            Lighting.FogEnd = OldFogEnd
+            Lighting.GlobalShadows = OldGlobalShadows
+        end
+
+    end,
+})
