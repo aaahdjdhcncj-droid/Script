@@ -629,7 +629,7 @@ local function GetTeacher()
     return workspace:FindFirstChild("Teacher", true)
 end
 
-local Toggle = ATab:CreateToggle({
+local Toggle = Tab:CreateToggle({
     Name = "Teacher Highlight",
     CurrentValue = false,
     Flag = "TeacherHighlight",
@@ -1583,4 +1583,30 @@ ATab:CreateToggle({
             Lighting.GlobalShadows = OldGlobalShadows
         end
     end
+})
+
+local Toggle = PTab:CreateToggle({
+    Name = "Mover Answer Paper",
+    CurrentValue = false,
+    Flag = "MoveAnswerPaper",
+    Callback = function(Value)
+
+        local player = game:GetService("Players").LocalPlayer
+        local gui = player.PlayerGui:FindFirstChild("AnswerPaperScreenGui")
+
+        if not gui then return end
+
+        local scroll = gui:FindFirstChild("MobileAnswerPaperScroll", true)
+
+        if not scroll then return end
+
+        if Value then
+            scroll.Position = UDim2.new(0, 300, 0, 0)
+            scroll.Size = UDim2.new(0.3, 0, 1, 0)
+        else
+            -- Volta ao tamanho/posição original
+            scroll.Position = UDim2.new(0, 0, 0, 0)
+            scroll.Size = UDim2.new(1, 0, 1, 0)
+        end
+    end,
 })
