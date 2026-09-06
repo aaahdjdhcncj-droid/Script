@@ -1023,7 +1023,7 @@ local Toggle = ATab:CreateToggle({
     end,
 })
 
-local PTab = Window:CreateTab("Player Or Student", nil) -- Title, Image
+local PTab = Window:CreateTab("✌️ Player Or Student ✌️", nil) -- Title, Image
 local Section = PTab:CreateSection("Player")
 
 
@@ -1602,7 +1602,7 @@ local Toggle = PTab:CreateToggle({
 
         if Value then
             scroll.Position = UDim2.new(0, 300, 0, 0)
-            scroll.Size = UDim2.new(0.3, 0, 1, 0)
+            scroll.Size = UDim2.new(0.5, 0, 1, 0)
         else
             -- Volta ao tamanho/posição original
             scroll.Position = UDim2.new(0, 0, 0, 0)
