@@ -40,7 +40,7 @@ local Window = Rayfield:CreateWindow({
 })
 
 local ATab = Window:CreateTab("👨‍🏫 Teacher 👨‍🏫", nil) -- Title, Image
-local ASection = Tab:CreateSection("Teacher")
+local Section = ATab:CreateSection("Teacher")
 
 --========================================================--
 -- TEACHER RADAR + STUDENT RADAR + TEACHER HIGHLIGHT
@@ -1552,32 +1552,35 @@ local OldClockTime = Lighting.ClockTime
 local OldFogEnd = Lighting.FogEnd
 local OldGlobalShadows = Lighting.GlobalShadows
 
-local Toggle = PTab:CreateToggle({
+local FullBright = false
+
+ATab:CreateToggle({
     Name = "FullBright",
     CurrentValue = false,
     Flag = "FullBright",
+
     Callback = function(Value)
+        FullBright = Value
 
         if Value then
-            Lighting.Brightness = 2
+            -- Salva os valores atuais
+            OldBrightness = Lighting.Brightness
+            OldClockTime = Lighting.ClockTime
+            OldFogEnd = Lighting.FogEnd
+            OldGlobalShadows = Lighting.GlobalShadows
+
+            -- FullBright
+            Lighting.Brightness = 3
             Lighting.ClockTime = 14
             Lighting.FogEnd = 100000
             Lighting.GlobalShadows = false
 
-            for _, Effect in ipairs(Lighting:GetChildren()) do
-                if Effect:IsA("Atmosphere") then
-                    Effect.Density = 0
-                    Effect.Haze = 0
-                    Effect.Glare = 0
-                end
-            end
-
         else
+            -- Restaura
             Lighting.Brightness = OldBrightness
             Lighting.ClockTime = OldClockTime
             Lighting.FogEnd = OldFogEnd
             Lighting.GlobalShadows = OldGlobalShadows
         end
-
-    end,
+    end
 })
