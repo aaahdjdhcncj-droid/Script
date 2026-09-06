@@ -56,7 +56,7 @@ local Player = Players.LocalPlayer
 -- CONFIGURAÇÕES
 --========================================================--
 
-local RADAR_SIZE = 100
+local RADAR_SIZE = 150
 local RADAR_RANGE = 100
 
 local VERY_NEAR_DISTANCE = 15
