@@ -629,7 +629,7 @@ local function GetTeacher()
     return workspace:FindFirstChild("Teacher", true)
 end
 
-local Toggle = Tab:CreateToggle({
+local Toggle = ATab:CreateToggle({
     Name = "Teacher Highlight",
     CurrentValue = false,
     Flag = "TeacherHighlight",
