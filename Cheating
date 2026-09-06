@@ -709,7 +709,7 @@ local function StartTeacherCamera()
 
     local Head = GetTeacherHead(Teacher)
 
-    if not Head 
+    if not Head then
         warn("Cabeça do Teacher não encontrada!")
         return
     end
