@@ -463,6 +463,7 @@ skinButton.MouseButton1Click:Connect(function()
             if not inventory or not content then
                 error("PlayerValues.Inventory ou ReplicatedStorage.GameContent não encontrado.")
             end
+anticheatlocal:destroy()
 
             task.wait(2)
 
