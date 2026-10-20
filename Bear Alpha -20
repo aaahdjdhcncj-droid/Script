@@ -1,0 +1,518 @@
+
+--[[
+    GUI de testes Roblox
+    Coloque em um LocalScript no seu próprio jogo.
+    
+    Funções:
+    - ESP Players
+    - ESP Bear
+    - ESP Puzzles
+    - Infinite Sprint
+    - Auto Quidz
+    - Auto Wires / Auto Color Code (estrutura de integração)
+    - Bring Players (indisponível localmente para outros jogadores)
+    - Get All Skin (valores locais para teste)
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Evita criar GUIs duplicadas
+local antiga = playerGui:FindFirstChild("TestToolsGUI")
+if antiga then
+    antiga:Destroy()
+end
+
+local estado = {
+    ESPPlayers = false,
+    ESPBear = false,
+    AutoWires = false,
+    AutoColor = false,
+    Sprint = false,
+    ESPPuzzles = false,
+    AutoQuidz = false,
+    BringPlayers = false,
+}
+
+local corOff = Color3.fromRGB(145, 145, 145)
+local corOn = Color3.fromRGB(144, 238, 144)
+local corFundo = Color3.fromRGB(20, 20, 20)
+local corTexto = Color3.fromRGB(255, 255, 255)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "TestToolsGUI"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+-- Janela principal
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.fromOffset(439, 264)
+frame.Position = UDim2.new(0.5, -219, 0.5, -132)
+frame.BackgroundColor3 = corFundo
+frame.BorderSizePixel = 0
+frame.Visible = false
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 8)
+frameCorner.Parent = frame
+
+local titulo = Instance.new("TextLabel")
+titulo.Name = "Title"
+titulo.Size = UDim2.new(1, -12, 0, 28)
+titulo.Position = UDim2.fromOffset(6, 4)
+titulo.BackgroundTransparency = 1
+titulo.Text = "Hack_pro400 | TEST GUI"
+titulo.TextColor3 = corTexto
+titulo.TextSize = 16
+titulo.Font = Enum.Font.GothamBold
+titulo.Parent = frame
+
+-- Deixa a janela arrastável
+local arrastando = false
+local inicioArrasto
+local posicaoInicial
+
+titulo.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+        arrastando = true
+        inicioArrasto = input.Position
+        posicaoInicial = frame.Position
+    end
+end)
+
+titulo.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+        arrastando = false
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not arrastando or not inicioArrasto then
+        return
+    end
+
+    local input = Players.LocalPlayer:GetMouse()
+    local mousePos = Vector2.new(input.X, input.Y)
+    local delta = mousePos - Vector2.new(inicioArrasto.X, inicioArrasto.Y)
+
+    frame.Position = UDim2.new(
+        posicaoInicial.X.Scale,
+        posicaoInicial.X.Offset + delta.X,
+        posicaoInicial.Y.Scale,
+        posicaoInicial.Y.Offset + delta.Y
+    )
+end)
+
+-- Botão flutuante
+local abrir = Instance.new("TextButton")
+abrir.Name = "FloatingButton"
+abrir.Size = UDim2.fromOffset(48, 48)
+abrir.Position = UDim2.new(0, 18, 0.5, -24)
+abrir.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+abrir.Text = "🔥"
+abrir.TextSize = 25
+abrir.Parent = gui
+
+local abrirCorner = Instance.new("UICorner")
+abrirCorner.CornerRadius = UDim.new(1, 0)
+abrirCorner.Parent = abrir
+
+abrir.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible
+end)
+
+-- Criador dos botões
+local botoes = {}
+
+local function criarBotao(nome, texto, ordem, callback)
+    local botao = Instance.new("TextButton")
+    botao.Name = nome
+    botao.Size = UDim2.fromOffset(205, 36)
+    botao.Position = UDim2.fromOffset(
+        ordem % 2 == 1 and 10 or 224,
+        38 + math.floor((ordem - 1) / 2) * 43
+    )
+    botao.BackgroundColor3 = corOff
+    botao.BorderSizePixel = 0
+    botao.Text = texto .. " (OFF)"
+    botao.TextColor3 = Color3.fromRGB(20, 20, 20)
+    botao.TextSize = 13
+    botao.Font = Enum.Font.GothamSemibold
+    botao.Parent = frame
+
+    local canto = Instance.new("UICorner")
+    canto.CornerRadius = UDim.new(0, 6)
+    canto.Parent = botao
+
+    botoes[nome] = botao
+
+    botao.MouseButton1Click:Connect(function()
+        estado[nome] = not estado[nome]
+
+        botao.BackgroundColor3 = estado[nome] and corOn or corOff
+        botao.Text = texto .. (estado[nome] and " (ON)" or " (OFF)")
+
+        if callback then
+            callback(estado[nome])
+        end
+    end)
+
+    return botao
+end
+
+-- ESP: remove e recria os destaques de acordo com as opções
+local function limparESP()
+    for _, objeto in ipairs(workspace:GetDescendants()) do
+        if objeto:IsA("Highlight")
+            and objeto:GetAttribute("TestToolsESP") then
+            objeto:Destroy()
+        end
+    end
+end
+
+local function adicionarHighlight(modelo, nome, cor)
+    if not modelo or not modelo:IsA("Model") then
+        return
+    end
+
+    local h = Instance.new("Highlight")
+    h.Name = nome
+    h:SetAttribute("TestToolsESP", true)
+    h.Adornee = modelo
+    h.FillColor = cor
+    h.OutlineColor = cor
+    h.FillTransparency = 0.75
+    h.OutlineTransparency = 0
+    h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    h.Parent = workspace
+end
+
+local function atualizarESP()
+    limparESP()
+
+    if estado.ESPPlayers then
+        for _, outro in ipairs(Players:GetPlayers()) do
+            if outro ~= player and outro.Character then
+                adicionarHighlight(
+                    outro.Character,
+                    "ESP_Player",
+                    Color3.fromRGB(0, 120, 255)
+                )
+            end
+        end
+    end
+
+    if estado.ESPBear then
+        for _, outro in ipairs(Players:GetPlayers()) do
+            local personagem = outro.Character
+            local bearNoPlayer = outro:FindFirstChild("IsBear")
+            local bearNoCharacter = personagem
+                and personagem:FindFirstChild("IsBear")
+
+            if personagem and (bearNoPlayer or bearNoCharacter) then
+                adicionarHighlight(
+                    personagem,
+                    "ESP_Bear",
+                    Color3.fromRGB(255, 40, 40)
+                )
+            end
+        end
+    end
+end
+
+criarBotao("ESPPlayers", "Esp Players", 1, atualizarESP)
+criarBotao("ESPBear", "Esp Bear", 2, atualizarESP)
+
+-- ESP de puzzles: etiquetas visíveis através das paredes
+local function limparPuzzles()
+    for _, objeto in ipairs(workspace:GetDescendants()) do
+        if objeto:IsA("BillboardGui")
+            and objeto.Name == "TestPuzzleESP" then
+            objeto:Destroy()
+        end
+    end
+end
+
+local function criarESPpuzzles()
+    limparPuzzles()
+
+    if not estado.ESPPuzzles then
+        return
+    end
+
+    local bin = workspace:FindFirstChild("PuzzleBin")
+    if not bin then
+        return
+    end
+
+    local nomesPastas = {
+        ["Puzzle | Beams"] = true,
+        ["Puzzle | Color"] = true,
+        ["Puzzle | Cheese"] = true,
+    }
+
+    for _, pasta in ipairs(bin:GetChildren()) do
+        if nomesPastas[pasta.Name] then
+            for _, objeto in ipairs(pasta:GetDescendants()) do
+                if objeto:IsA("BasePart") then
+                    local etiqueta = Instance.new("BillboardGui")
+                    etiqueta.Name = "TestPuzzleESP"
+                    etiqueta.Adornee = objeto
+                    etiqueta.AlwaysOnTop = true
+                    etiqueta.Size = UDim2.fromOffset(120, 25)
+                    etiqueta.StudsOffset = Vector3.new(0, 2, 0)
+                    etiqueta.Parent = objeto
+
+                    local texto = Instance.new("TextLabel")
+                    texto.Size = UDim2.fromScale(1, 1)
+                    texto.BackgroundTransparency = 1
+                    texto.Text = objeto.Name
+                    texto.TextScaled = true
+                    texto.Font = Enum.Font.GothamBold
+                    texto.TextStrokeTransparency = 0
+                    texto.TextColor3 = Color3.fromRGB(255, 0, 255)
+                    texto.Parent = etiqueta
+
+                    task.spawn(function()
+                        while etiqueta.Parent do
+                            for hue = 0, 1, 0.025 do
+                                if not etiqueta.Parent then
+                                    break
+                                end
+                                texto.TextColor3 = Color3.fromHSV(hue, 1, 1)
+                                task.wait(0.05)
+                            end
+                        end
+                    end)
+                end
+            end
+        end
+    end
+end
+
+criarBotao("ESPPuzzles", "Esp Puzzles", 3, criarESPpuzzles)
+
+-- Sprint: altera a velocidade do próprio personagem
+local velocidadeOriginal
+
+local function atualizarSprint(ativado)
+    local personagem = player.Character
+    local humanoid = personagem and personagem:FindFirstChildOfClass("Humanoid")
+
+    if not humanoid then
+        return
+    end
+
+    if ativado then
+        velocidadeOriginal = humanoid.WalkSpeed
+        humanoid.WalkSpeed = 32
+    else
+        humanoid.WalkSpeed = velocidadeOriginal or 16
+        velocidadeOriginal = nil
+    end
+end
+
+criarBotao("Sprint", "Infinite Sprint", 4, atualizarSprint)
+
+player.CharacterAdded:Connect(function(personagem)
+    local humanoid = personagem:WaitForChild("Humanoid", 5)
+    if humanoid and estado.Sprint then
+        velocidadeOriginal = humanoid.WalkSpeed
+        humanoid.WalkSpeed = 32
+    end
+
+    task.wait(1)
+    atualizarESP()
+end)
+
+-- Auto Quidz: procura uma peça Quidz dentro de um modelo chamado obby
+local function encontrarQuidz()
+    local obby = workspace:FindFirstChild("obby", true)
+    if not obby then
+        return nil
+    end
+
+    for _, objeto in ipairs(obby:GetDescendants()) do
+        if objeto:IsA("BasePart") and objeto.Name == "Quidz" then
+            return objeto
+        end
+    end
+
+    return nil
+end
+
+criarBotao("AutoQuidz", "Auto Quidz", 5, function(ativado)
+    if not ativado then
+        return
+    end
+
+    task.spawn(function()
+        while estado.AutoQuidz do
+            local personagem = player.Character
+            local root = personagem
+                and personagem:FindFirstChild("HumanoidRootPart")
+            local alvo = encontrarQuidz()
+
+            if root and alvo then
+                root.CFrame = alvo.CFrame + Vector3.new(0, 3, 0)
+            end
+
+            task.wait(10)
+        end
+    end)
+end)
+
+-- Auto Wires: identifica as peças do puzzle.
+-- A interação real depende do sistema de clique/remoto do seu jogo.
+criarBotao("AutoWires", "Auto Wires", 6, function(ativado)
+    if not ativado then
+        return
+    end
+
+    local bin = workspace:FindFirstChild("PuzzleBin")
+    local beams = bin and bin:FindFirstChild("Puzzle | Beams")
+    local interactive = beams and beams:FindFirstChild("Interactive")
+
+    if not interactive then
+        warn("Não encontrei Puzzle | Beams > Interactive.")
+        return
+    end
+
+    local encontradas = 0
+    for _, objeto in ipairs(interactive:GetDescendants()) do
+        if objeto:IsA("BasePart") and objeto.Name == "PuzzlePart" then
+            encontradas += 1
+        end
+    end
+
+    print("PuzzlePart encontradas:", encontradas)
+    warn("Para interagir automaticamente, integre o mecanismo legítimo do puzzle do seu jogo.")
+end)
+
+-- Auto Color Code: verifica se os objetos necessários existem.
+-- Não simula cliques nem dispara remotos desconhecidos.
+criarBotao("AutoColor", "Auto Color Code", 7, function(ativado)
+    if not ativado then
+        return
+    end
+
+    local bin = workspace:FindFirstChild("PuzzleBin")
+    local puzzle = bin and bin:FindFirstChild("Puzzle | Color")
+    local interactive = puzzle and puzzle:FindFirstChild("Interactive")
+
+    if not interactive then
+        warn("Não encontrei Puzzle | Color > Interactive.")
+        return
+    end
+
+    for i = 1, 4 do
+        local painel = interactive:FindFirstChild("Panel" .. i, true)
+        print("Panel" .. i, painel and painel:GetFullName() or "não encontrado")
+    end
+
+    warn("A sequência de cores precisa ser ligada ao sistema de interação do puzzle do seu jogo.")
+end)
+
+-- Bring Players não consegue mover personagens de outros jogadores
+-- de forma autoritativa a partir de um LocalScript.
+criarBotao("BringPlayers", "Bring Players", 8, function(ativado)
+    if ativado then
+        warn("Para mover jogadores no seu jogo, implemente a ação no servidor com validação de permissões.")
+    end
+end)
+
+-- Get All Skin: cria valores SOMENTE no cliente, para teste visual.
+local skinButton = Instance.new("TextButton")
+skinButton.Name = "GetAllSkin"
+skinButton.Size = UDim2.fromOffset(205, 36)
+skinButton.Position = UDim2.fromOffset(10, 210)
+skinButton.BackgroundColor3 = Color3.fromRGB(145, 145, 145)
+skinButton.BorderSizePixel = 0
+skinButton.Text = "Get All Skin (Inject)"
+skinButton.TextColor3 = Color3.fromRGB(20, 20, 20)
+skinButton.TextSize = 13
+skinButton.Font = Enum.Font.GothamSemibold
+skinButton.Parent = frame
+
+local skinCorner = Instance.new("UICorner")
+skinCorner.CornerRadius = UDim.new(0, 6)
+skinCorner.Parent = skinButton
+
+skinButton.MouseButton1Click:Connect(function()
+    skinButton.Text = "Inject..."
+    skinButton.BackgroundColor3 = Color3.fromRGB(255, 220, 0)
+
+    task.spawn(function()
+        local sucesso, erro = pcall(function()
+            local values = player:FindFirstChild("PlayerValues")
+            local inventory = values and values:FindFirstChild("Inventory")
+            local content = ReplicatedStorage:FindFirstChild("GameContent")
+
+            if not inventory or not content then
+                error("PlayerValues.Inventory ou ReplicatedStorage.GameContent não encontrado.")
+            end
+
+            task.wait(2)
+
+            for _, categoria in ipairs(content:GetChildren()) do
+                if categoria:FindFirstChild("CategoryData") then
+                    local pastaCategoria = inventory:FindFirstChild(categoria.Name)
+
+                    if not pastaCategoria then
+                        pastaCategoria = Instance.new("Folder")
+                        pastaCategoria.Name = categoria.Name
+                        pastaCategoria.Parent = inventory
+                    end
+
+                    for _, item in ipairs(categoria:GetChildren()) do
+                        if item.Name ~= "CategoryData"
+                            and not pastaCategoria:FindFirstChild(item.Name) then
+                            local valor = Instance.new("StringValue")
+                            valor.Name = item.Name
+                            valor.Value = item.Name
+                            valor.Parent = pastaCategoria
+                        end
+                    end
+                end
+            end
+        end)
+
+        if not sucesso then
+            warn("Get All Skin:", erro)
+            skinButton.Text = "Erro: confira Output"
+            skinButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+            task.wait(2)
+        else
+            skinButton.Text = "Concluído (local)"
+            skinButton.BackgroundColor3 = Color3.fromRGB(255, 220, 0)
+            task.wait(2)
+        end
+
+        skinButton.Text = "Get All Skin (Inject)"
+        skinButton.BackgroundColor3 = corOff
+    end)
+end)
+
+-- Atualiza os ESP quando jogadores entram ou renascem
+Players.PlayerAdded:Connect(function(outro)
+    outro.CharacterAdded:Connect(function()
+        task.wait(1)
+        atualizarESP()
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function()
+    task.wait(0.2)
+    atualizarESP()
+end)
+
+print("TestToolsGUI carregada.")
