@@ -1,33 +1,17 @@
-
---[[
-    TestToolsGUI
-    LocalScript para Roblox Studio.
-
-    Recursos:
-    - GUI arrastável com botão flutuante
-    - ESP Players
-    - ESP Bear (StringValue IsBear dentro do Character)
-    - ESP Puzzles com etiquetas pequenas
-    - Infinite Sprint
-    - Auto Quidz a cada 10 segundos
-    - Auto Wires: procura PuzzlePart
-    - Auto Color Code: lê as pistas e reconhece abreviações
-    - Get All Skin: cria valores locais para testes
-
-    Os recursos que alteram o estado real do jogo devem ser
-    implementados e validados pelo servidor do seu próprio jogo.
-]]
+-- Bear -20 Best Gui rainbow
+-- LocalScript para Roblox Studio
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local Players = game:GetService("Players")
 
-local anticheat = playerGui:FindFirstChild("anticheatlocal")
-local antiga = playerGui:FindFirstChild("TestToolsGUI")
+local GUI_NAME = "Bear -20 Best Gui"
+
+local antiga = playerGui:FindFirstChild(GUI_NAME)
 if antiga then
     antiga:Destroy()
 end
@@ -49,11 +33,11 @@ local corFundo = Color3.fromRGB(20, 20, 20)
 local corTexto = Color3.fromRGB(255, 255, 255)
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "TestToolsGUI"
+gui.Name = GUI_NAME
 gui.ResetOnSpawn = false
 gui.Parent = playerGui
 
--- Janela
+-- Janela principal
 local frame = Instance.new("Frame")
 frame.Name = "MainFrame"
 frame.Size = UDim2.fromOffset(439, 264)
@@ -72,14 +56,13 @@ titulo.Name = "Title"
 titulo.Size = UDim2.new(1, -12, 0, 28)
 titulo.Position = UDim2.fromOffset(6, 4)
 titulo.BackgroundTransparency = 1
-titulo.Text = "Hack_pro400 | TEST GUI"
+titulo.Text = GUI_NAME
 titulo.TextColor3 = corTexto
-titulo.TextSize = 16
+titulo.TextSize = 15
 titulo.Font = Enum.Font.GothamBold
 titulo.Parent = frame
 
 -- Arrastar a janela com mouse ou toque
-local UserInputService = game:GetService("UserInputService")
 local arrastando = false
 local inicioArrasto
 local posicaoInicial
@@ -96,12 +79,10 @@ titulo.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if not arrastando then
-        return
-    end
-
-    if input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch then
+    if arrastando and (
+        input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+    ) then
         local delta = input.Position - inicioArrasto
 
         frame.Position = UDim2.new(
@@ -114,8 +95,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-    if input == inputArrasto
-        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input == inputArrasto then
         arrastando = false
         inputArrasto = nil
     end
@@ -140,7 +120,7 @@ abrir.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible
 end)
 
--- Botões
+-- Sistema de botões
 local botoes = {}
 
 local function criarBotao(nome, texto, ordem, callback)
@@ -168,7 +148,8 @@ local function criarBotao(nome, texto, ordem, callback)
     botao.MouseButton1Click:Connect(function()
         estado[nome] = not estado[nome]
         botao.BackgroundColor3 = estado[nome] and corOn or corOff
-        botao.Text = texto .. (estado[nome] and " (ON)" or " (OFF)")
+        botao.Text = texto
+            .. (estado[nome] and " (ON)" or " (OFF)")
 
         if callback then
             callback(estado[nome])
@@ -178,11 +159,11 @@ local function criarBotao(nome, texto, ordem, callback)
     return botao
 end
 
--- ESP de personagens
+-- ESP: remover apenas os Highlights criados por esta GUI
 local function limparESP()
     for _, objeto in ipairs(workspace:GetDescendants()) do
         if objeto:IsA("Highlight")
-            and objeto:GetAttribute("TestToolsESP") then
+            and objeto:GetAttribute("BearRainbowESP") then
             objeto:Destroy()
         end
     end
@@ -195,7 +176,7 @@ local function adicionarHighlight(modelo, nome, cor)
 
     local h = Instance.new("Highlight")
     h.Name = nome
-    h:SetAttribute("TestToolsESP", true)
+    h:SetAttribute("BearRainbowESP", true)
     h.Adornee = modelo
     h.FillColor = cor
     h.OutlineColor = cor
@@ -206,11 +187,9 @@ local function adicionarHighlight(modelo, nome, cor)
 end
 
 local function temIsBear(personagem)
-    if not personagem then
-        return false
-    end
+    local valor = personagem
+        and personagem:FindFirstChild("IsBear", true)
 
-    local valor = personagem:FindFirstChild("IsBear", true)
     return valor ~= nil and valor:IsA("StringValue")
 end
 
@@ -240,14 +219,14 @@ local function atualizarESP()
     end
 end
 
-criarBotao("ESPPlayers", "Esp Players", 1, atualizarESP)
-criarBotao("ESPBear", "Esp Bear", 2, atualizarESP)
+criarBotao("ESPPlayers", "ESP Players", 1, atualizarESP)
+criarBotao("ESPBear", "ESP Bear", 2, atualizarESP)
 
--- ESP Puzzles: uma etiqueta pequena por peça relevante
+-- ESP Puzzles: Highlights roxos, sem etiquetas de texto
 local function limparPuzzles()
     for _, objeto in ipairs(workspace:GetDescendants()) do
-        if objeto:IsA("BillboardGui")
-            and objeto.Name == "TestPuzzleESP" then
+        if objeto:IsA("Highlight")
+            and objeto:GetAttribute("BearRainbowPuzzleESP") then
             objeto:Destroy()
         end
     end
@@ -266,47 +245,37 @@ local function criarESPpuzzles()
         return
     end
 
-    local nomesPastas = {
-        ["Puzzle | Beams"] = true,
-        ["Puzzle | Color"] = true,
-        ["Puzzle | Cheese"] = true,
+    local pastas = {
+        "Puzzle | Beams",
+        "Puzzle | Color",
+        "Puzzle | Cheese",
     }
 
-    for nomePasta in pairs(nomesPastas) do
-        local pasta = bin:FindFirstChild(nomePasta)
+    for _, nome in ipairs(pastas) do
+        local pasta = bin:FindFirstChild(nome)
 
         if pasta then
-            local interactive = pasta:FindFirstChild("Interactive")
-            local origem = interactive or pasta
+            local origem = pasta:FindFirstChild("Interactive") or pasta
 
             for _, objeto in ipairs(origem:GetDescendants()) do
                 if objeto:IsA("BasePart") then
-                    local etiqueta = Instance.new("BillboardGui")
-                    etiqueta.Name = "TestPuzzleESP"
-                    etiqueta.Adornee = objeto
-                    etiqueta.AlwaysOnTop = true
-                    etiqueta.Size = UDim2.fromOffset(65, 14)
-                    etiqueta.StudsOffset = Vector3.new(0, 1.5, 0)
-                    etiqueta.MaxDistance = 250
-                    etiqueta.Parent = objeto
-
-                    local texto = Instance.new("TextLabel")
-                    texto.Size = UDim2.fromScale(1, 1)
-                    texto.BackgroundTransparency = 1
-                    texto.Text = objeto.Name
-                    texto.TextScaled = false
-                    texto.TextSize = 10
-                    texto.Font = Enum.Font.GothamBold
-                    texto.TextStrokeTransparency = 0
-                    texto.TextColor3 = Color3.fromRGB(255, 0, 255)
-                    texto.Parent = etiqueta
+                    local h = Instance.new("Highlight")
+                    h.Name = "ESP_Puzzle"
+                    h:SetAttribute("BearRainbowPuzzleESP", true)
+                    h.Adornee = objeto
+                    h.FillColor = Color3.fromRGB(180, 0, 255)
+                    h.OutlineColor = Color3.fromRGB(180, 0, 255)
+                    h.FillTransparency = 0.7
+                    h.OutlineTransparency = 0
+                    h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    h.Parent = objeto
                 end
             end
         end
     end
 end
 
-criarBotao("ESPPuzzles", "Esp Puzzles", 3, criarESPpuzzles)
+criarBotao("ESPPuzzles", "ESP Puzzles", 3, criarESPpuzzles)
 
 -- Infinite Sprint
 local velocidadeOriginal
@@ -331,26 +300,17 @@ end
 
 criarBotao("Sprint", "Infinite Sprint", 4, atualizarSprint)
 
--- Localiza Obby/obby e Quidz/quidz
+-- Localizar Obby/obby e Quidz/quidz
 local function encontrarQuidz()
-    local obby
-
     for _, objeto in ipairs(workspace:GetDescendants()) do
         if objeto:IsA("Model")
-            and string.lower(objeto.Name) == "obby" then
-            obby = objeto
-            break
-        end
-    end
-
-    if not obby then
-        return nil
-    end
-
-    for _, objeto in ipairs(obby:GetDescendants()) do
-        if objeto:IsA("BasePart")
-            and string.lower(objeto.Name) == "quidz" then
-            return objeto
+            and objeto.Name:lower() == "obby" then
+            for _, item in ipairs(objeto:GetDescendants()) do
+                if item:IsA("BasePart")
+                    and item.Name:lower() == "quidz" then
+                    return item
+                end
+            end
         end
     end
 
@@ -370,7 +330,6 @@ criarBotao("AutoQuidz", "Auto Quidz", 5, function(ativado)
             local alvo = encontrarQuidz()
 
             if root and alvo then
-                -- Teleporte de teste no próprio jogo.
                 root.CFrame = alvo.CFrame + Vector3.new(0, 3, 0)
             end
 
@@ -379,7 +338,7 @@ criarBotao("AutoQuidz", "Auto Quidz", 5, function(ativado)
     end)
 end)
 
--- Auto Wires: localizar peças e validar a estrutura
+-- Verificar a estrutura dos puzzles
 local function encontrarInteractive(nomePuzzle)
     local bin = workspace:FindFirstChild("PuzzleBin")
     local puzzle = bin and bin:FindFirstChild(nomePuzzle)
@@ -392,33 +351,36 @@ criarBotao("AutoWires", "Auto Wires", 6, function(ativado)
     end
 
     local interactive = encontrarInteractive("Puzzle | Beams")
+
     if not interactive then
-        warn("Não encontrei PuzzleBin > Puzzle | Beams > Interactive.")
+        warn("Puzzle | Beams > Interactive não foi encontrado.")
         return
     end
 
     local quantidade = 0
 
     for _, objeto in ipairs(interactive:GetDescendants()) do
-        if objeto:IsA("BasePart") and objeto.Name == "PuzzlePart" then
+        if objeto:IsA("BasePart")
+            and objeto.Name == "PuzzlePart"
+            and objeto:FindFirstChildOfClass("ClickDetector") then
             quantidade += 1
         end
     end
 
-    print("PuzzlePart encontradas:", quantidade)
-    print("Ligue a interação ao mecanismo do puzzle do seu próprio jogo.")
+    print("PuzzlePart com ClickDetector encontradas:", quantidade)
+    warn("Conecte a automação ao sistema autorizado do puzzle no servidor.")
 end)
 
--- Auto Color Code: ler pistas R, Y, Pu, O, P, G, Bl e B
+-- Reconhecer códigos de cores
 local cores = {
-    Y = Color3.fromRGB(255, 255, 0),       -- Yellow
-    R = Color3.fromRGB(255, 0, 0),         -- Red
-    Pu = Color3.fromRGB(128, 0, 128),      -- Purple
-    O = Color3.fromRGB(255, 165, 0),       -- Orange
-    P = Color3.fromRGB(255, 105, 180),     -- Pink
-    G = Color3.fromRGB(0, 255, 0),         -- Green
-    Bl = Color3.fromRGB(0, 0, 0),          -- Black
-    B = Color3.fromRGB(0, 100, 255),       -- Blue
+    Y = Color3.fromRGB(255, 255, 0),
+    R = Color3.fromRGB(255, 0, 0),
+    Pu = Color3.fromRGB(128, 0, 128),
+    O = Color3.fromRGB(255, 165, 0),
+    P = Color3.fromRGB(255, 105, 180),
+    G = Color3.fromRGB(0, 255, 0),
+    Bl = Color3.fromRGB(0, 0, 0),
+    B = Color3.fromRGB(0, 100, 255),
 }
 
 local nomesCores = {
@@ -433,42 +395,29 @@ local nomesCores = {
 }
 
 local function identificarCor(texto)
-    texto = string.lower(tostring(texto or ""))
-    texto = string.gsub(texto, "%s+", "")
+    texto = tostring(texto or ""):lower()
+    texto = texto:gsub("%s+", "")
 
-    -- Tenta nomes completos antes das abreviações.
     for nome, codigo in pairs(nomesCores) do
-        if string.find(texto, nome, 1, true) then
+        if texto:find(nome, 1, true) then
             return codigo
         end
     end
 
-    -- As abreviações de duas letras são verificadas primeiro.
-    local codigo = string.match(texto, "pu")
-        or string.match(texto, "bl")
-
-    if codigo then
-        return codigo == "pu" and "Pu" or "Bl"
+    if texto:find("pu", 1, true) then
+        return "Pu"
     end
 
-    local primeira = string.sub(texto, 1, 1):upper()
+    if texto:find("bl", 1, true) then
+        return "Bl"
+    end
+
+    local primeira = texto:sub(1, 1):upper()
     if cores[primeira] then
         return primeira
     end
 
     return nil
-end
-
-local function lerTextoDescendente(objeto)
-    for _, item in ipairs(objeto:GetDescendants()) do
-        if item:IsA("TextLabel") or item:IsA("TextButton") then
-            if item.Text ~= "" then
-                return item.Text
-            end
-        end
-    end
-
-    return objeto.Name
 end
 
 criarBotao("AutoColor", "Auto Color Code", 7, function(ativado)
@@ -477,50 +426,46 @@ criarBotao("AutoColor", "Auto Color Code", 7, function(ativado)
     end
 
     local interactive = encontrarInteractive("Puzzle | Color")
+
     if not interactive then
-        warn("Não encontrei PuzzleBin > Puzzle | Color > Interactive.")
+        warn("Puzzle | Color > Interactive não foi encontrado.")
         return
     end
 
     for i = 1, 4 do
         local painel = interactive:FindFirstChild("Panel" .. i, true)
 
-        if painel and painel:IsA("BasePart") then
-            local pista = lerTextoDescendente(painel)
-            local codigo = identificarCor(pista)
-
+        if painel then
+            local detector = painel:FindFirstChildOfClass("ClickDetector")
             print(
-                "Panel" .. i,
-                "pista:",
-                pista,
-                "código reconhecido:",
-                codigo or "não identificado"
+                painel.Name,
+                "ClickDetector:",
+                detector ~= nil
             )
         else
             warn("Panel" .. i .. " não foi encontrado.")
         end
     end
 
-    print("Cores disponíveis:", "Y, R, Pu, O, P, G, Bl, B")
-    warn("A leitura da pista precisa ser associada ao objeto Clue/Note real do seu puzzle.")
-    warn("A interação automática deve usar o sistema de validação do seu próprio jogo.")
+    print("Códigos de cores:", "Y, R, Pu, O, P, G, Bl, B")
+    warn("A leitura das pistas deve ser conectada ao sistema real do puzzle.")
 end)
 
--- Bring Players: interface para futura implementação no servidor
+-- Bring Players: apenas aviso, sem mover outros jogadores
 criarBotao("BringPlayers", "Bring Players", 8, function(ativado)
     if ativado then
-        warn("Mover outros jogadores requer lógica autorizada no servidor do seu jogo.")
+        warn("Para mover jogadores, implemente uma função autorizada no servidor do seu próprio jogo.")
     end
 end)
 
--- Get All Skin: somente valores locais de teste
+-- Get All Skin: valores locais para teste
 local skinButton = Instance.new("TextButton")
 skinButton.Name = "GetAllSkin"
 skinButton.Size = UDim2.fromOffset(205, 36)
-skinButton.Position = UDim2.fromOffset(10, 210)
+skinButton.Position = UDim2.fromOffset(224, 210)
 skinButton.BackgroundColor3 = corOff
 skinButton.BorderSizePixel = 0
-skinButton.Text = "Get All Skin (Inject)"
+skinButton.Text = "Get All Skin (Local)"
 skinButton.TextColor3 = corTexto
 skinButton.TextSize = 13
 skinButton.Font = Enum.Font.GothamSemibold
@@ -538,7 +483,7 @@ skinButton.MouseButton1Click:Connect(function()
     end
 
     executandoSkin = true
-    skinButton.Text = "Inject..."
+    skinButton.Text = "Processando..."
     skinButton.BackgroundColor3 = Color3.fromRGB(255, 220, 0)
 
     local sucesso, erro = pcall(function()
@@ -549,7 +494,7 @@ skinButton.MouseButton1Click:Connect(function()
         if not inventory or not content then
             error("PlayerValues.Inventory ou GameContent não encontrado.")
         end
-anticheat:destroy()
+
         task.wait(2)
 
         for _, categoria in ipairs(content:GetChildren()) do
@@ -585,14 +530,22 @@ anticheat:destroy()
     end
 
     task.wait(2)
-    skinButton.Text = "Get All Skin (Inject)"
+    skinButton.Text = "Get All Skin (Local)"
     skinButton.BackgroundColor3 = corOff
     executandoSkin = false
 end)
 
--- Atualização de ESP e renascimento
+-- Atualizar ESP ao reaparecerem personagens
 local function conectarJogador(outro)
-    outro.CharacterAdded:Connect(function()
+    outro.CharacterAdded:Connect(function(personagem)
+        if outro == player and estado.Sprint then
+            local humanoid = personagem:WaitForChild("Humanoid", 5)
+            if humanoid then
+                velocidadeOriginal = humanoid.WalkSpeed
+                humanoid.WalkSpeed = 32
+            end
+        end
+
         task.wait(1)
         atualizarESP()
     end)
@@ -613,16 +566,9 @@ Players.PlayerRemoving:Connect(function()
     atualizarESP()
 end)
 
-player.CharacterAdded:Connect(function(personagem)
-    local humanoid = personagem:WaitForChild("Humanoid", 5)
-
-    if humanoid and estado.Sprint then
-        velocidadeOriginal = humanoid.WalkSpeed
-        humanoid.WalkSpeed = 32
-    end
-
+player.CharacterAdded:Connect(function()
     task.wait(1)
     atualizarESP()
 end)
 
-print("TestToolsGUI carregada.")
+print(GUI_NAME .. " carregada.")
