@@ -1,31 +1,30 @@
 
 --[[
-    GUI de testes Roblox
-    Coloque em um LocalScript no seu próprio jogo.
-    
-    Funções:
+    TestToolsGUI
+    LocalScript para Roblox Studio.
+
+    Recursos:
+    - GUI arrastável com botão flutuante
     - ESP Players
-    - ESP Bear
-    - ESP Puzzles
+    - ESP Bear (StringValue IsBear dentro do Character)
+    - ESP Puzzles com etiquetas pequenas
     - Infinite Sprint
-    - Auto Quidz
-    - Auto Wires / Auto Color Code (estrutura de integração)
-    - Bring Players (indisponível localmente para outros jogadores)
-    - Get All Skin (valores locais para teste)
+    - Auto Quidz a cada 10 segundos
+    - Auto Wires: procura PuzzlePart
+    - Auto Color Code: lê as pistas e reconhece abreviações
+    - Get All Skin: cria valores locais para testes
+
+    Os recursos que alteram o estado real do jogo devem ser
+    implementados e validados pelo servidor do seu próprio jogo.
 ]]
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Verifica o LocalScript anticheatlocal
-local anticheatlocal = playerGui:FindFirstChild("anticheatlocal")
-
--- Evita criar GUIs duplicadas
 local antiga = playerGui:FindFirstChild("TestToolsGUI")
 if antiga then
     antiga:Destroy()
@@ -42,8 +41,8 @@ local estado = {
     BringPlayers = false,
 }
 
-local corOff = Color3.fromRGB(145, 145, 145)
-local corOn = Color3.fromRGB(144, 238, 144)
+local corOff = Color3.fromRGB(30, 30, 30)
+local corOn = Color3.fromRGB(0, 200, 80)
 local corFundo = Color3.fromRGB(20, 20, 20)
 local corTexto = Color3.fromRGB(255, 255, 255)
 
@@ -52,7 +51,7 @@ gui.Name = "TestToolsGUI"
 gui.ResetOnSpawn = false
 gui.Parent = playerGui
 
--- Janela principal
+-- Janela
 local frame = Instance.new("Frame")
 frame.Name = "MainFrame"
 frame.Size = UDim2.fromOffset(439, 264)
@@ -77,10 +76,12 @@ titulo.TextSize = 16
 titulo.Font = Enum.Font.GothamBold
 titulo.Parent = frame
 
--- Deixa a janela arrastável
+-- Arrastar a janela com mouse ou toque
+local UserInputService = game:GetService("UserInputService")
 local arrastando = false
 local inicioArrasto
 local posicaoInicial
+local inputArrasto
 
 titulo.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
@@ -88,31 +89,34 @@ titulo.InputBegan:Connect(function(input)
         arrastando = true
         inicioArrasto = input.Position
         posicaoInicial = frame.Position
+        inputArrasto = input
     end
 end)
 
-titulo.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-        arrastando = false
-    end
-end)
-
-RunService.RenderStepped:Connect(function()
-    if not arrastando or not inicioArrasto then
+UserInputService.InputChanged:Connect(function(input)
+    if not arrastando then
         return
     end
 
-    local input = Players.LocalPlayer:GetMouse()
-    local mousePos = Vector2.new(input.X, input.Y)
-    local delta = mousePos - Vector2.new(inicioArrasto.X, inicioArrasto.Y)
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - inicioArrasto
 
-    frame.Position = UDim2.new(
-        posicaoInicial.X.Scale,
-        posicaoInicial.X.Offset + delta.X,
-        posicaoInicial.Y.Scale,
-        posicaoInicial.Y.Offset + delta.Y
-    )
+        frame.Position = UDim2.new(
+            posicaoInicial.X.Scale,
+            posicaoInicial.X.Offset + delta.X,
+            posicaoInicial.Y.Scale,
+            posicaoInicial.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input == inputArrasto
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        arrastando = false
+        inputArrasto = nil
+    end
 end)
 
 -- Botão flutuante
@@ -120,9 +124,10 @@ local abrir = Instance.new("TextButton")
 abrir.Name = "FloatingButton"
 abrir.Size = UDim2.fromOffset(48, 48)
 abrir.Position = UDim2.new(0, 18, 0.5, -24)
-abrir.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+abrir.BackgroundColor3 = corOff
 abrir.Text = "🔥"
 abrir.TextSize = 25
+abrir.TextColor3 = corTexto
 abrir.Parent = gui
 
 local abrirCorner = Instance.new("UICorner")
@@ -133,7 +138,7 @@ abrir.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible
 end)
 
--- Criador dos botões
+-- Botões
 local botoes = {}
 
 local function criarBotao(nome, texto, ordem, callback)
@@ -147,7 +152,7 @@ local function criarBotao(nome, texto, ordem, callback)
     botao.BackgroundColor3 = corOff
     botao.BorderSizePixel = 0
     botao.Text = texto .. " (OFF)"
-    botao.TextColor3 = Color3.fromRGB(20, 20, 20)
+    botao.TextColor3 = corTexto
     botao.TextSize = 13
     botao.Font = Enum.Font.GothamSemibold
     botao.Parent = frame
@@ -160,7 +165,6 @@ local function criarBotao(nome, texto, ordem, callback)
 
     botao.MouseButton1Click:Connect(function()
         estado[nome] = not estado[nome]
-
         botao.BackgroundColor3 = estado[nome] and corOn or corOff
         botao.Text = texto .. (estado[nome] and " (ON)" or " (OFF)")
 
@@ -172,7 +176,7 @@ local function criarBotao(nome, texto, ordem, callback)
     return botao
 end
 
--- ESP: remove e recria os destaques de acordo com as opções
+-- ESP de personagens
 local function limparESP()
     for _, objeto in ipairs(workspace:GetDescendants()) do
         if objeto:IsA("Highlight")
@@ -193,35 +197,37 @@ local function adicionarHighlight(modelo, nome, cor)
     h.Adornee = modelo
     h.FillColor = cor
     h.OutlineColor = cor
-    h.FillTransparency = 0.75
+    h.FillTransparency = 0.65
     h.OutlineTransparency = 0
     h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     h.Parent = workspace
 end
 
+local function temIsBear(personagem)
+    if not personagem then
+        return false
+    end
+
+    local valor = personagem:FindFirstChild("IsBear", true)
+    return valor ~= nil and valor:IsA("StringValue")
+end
+
 local function atualizarESP()
     limparESP()
 
-    if estado.ESPPlayers then
-        for _, outro in ipairs(Players:GetPlayers()) do
-            if outro ~= player and outro.Character then
+    for _, outro in ipairs(Players:GetPlayers()) do
+        local personagem = outro.Character
+
+        if personagem then
+            if estado.ESPPlayers and outro ~= player then
                 adicionarHighlight(
-                    outro.Character,
+                    personagem,
                     "ESP_Player",
                     Color3.fromRGB(0, 120, 255)
                 )
             end
-        end
-    end
 
-    if estado.ESPBear then
-        for _, outro in ipairs(Players:GetPlayers()) do
-            local personagem = outro.Character
-            local bearNoPlayer = outro:FindFirstChild("IsBear")
-            local bearNoCharacter = personagem
-                and personagem:FindFirstChild("IsBear")
-
-            if personagem and (bearNoPlayer or bearNoCharacter) then
+            if estado.ESPBear and temIsBear(personagem) then
                 adicionarHighlight(
                     personagem,
                     "ESP_Bear",
@@ -235,7 +241,7 @@ end
 criarBotao("ESPPlayers", "Esp Players", 1, atualizarESP)
 criarBotao("ESPBear", "Esp Bear", 2, atualizarESP)
 
--- ESP de puzzles: etiquetas visíveis através das paredes
+-- ESP Puzzles: uma etiqueta pequena por peça relevante
 local function limparPuzzles()
     for _, objeto in ipairs(workspace:GetDescendants()) do
         if objeto:IsA("BillboardGui")
@@ -254,6 +260,7 @@ local function criarESPpuzzles()
 
     local bin = workspace:FindFirstChild("PuzzleBin")
     if not bin then
+        warn("PuzzleBin não foi encontrado.")
         return
     end
 
@@ -263,39 +270,34 @@ local function criarESPpuzzles()
         ["Puzzle | Cheese"] = true,
     }
 
-    for _, pasta in ipairs(bin:GetChildren()) do
-        if nomesPastas[pasta.Name] then
-            for _, objeto in ipairs(pasta:GetDescendants()) do
+    for nomePasta in pairs(nomesPastas) do
+        local pasta = bin:FindFirstChild(nomePasta)
+
+        if pasta then
+            local interactive = pasta:FindFirstChild("Interactive")
+            local origem = interactive or pasta
+
+            for _, objeto in ipairs(origem:GetDescendants()) do
                 if objeto:IsA("BasePart") then
                     local etiqueta = Instance.new("BillboardGui")
                     etiqueta.Name = "TestPuzzleESP"
                     etiqueta.Adornee = objeto
                     etiqueta.AlwaysOnTop = true
-                    etiqueta.Size = UDim2.fromOffset(120, 25)
-                    etiqueta.StudsOffset = Vector3.new(0, 2, 0)
+                    etiqueta.Size = UDim2.fromOffset(65, 14)
+                    etiqueta.StudsOffset = Vector3.new(0, 1.5, 0)
+                    etiqueta.MaxDistance = 250
                     etiqueta.Parent = objeto
 
                     local texto = Instance.new("TextLabel")
                     texto.Size = UDim2.fromScale(1, 1)
                     texto.BackgroundTransparency = 1
                     texto.Text = objeto.Name
-                    texto.TextScaled = true
+                    texto.TextScaled = false
+                    texto.TextSize = 10
                     texto.Font = Enum.Font.GothamBold
                     texto.TextStrokeTransparency = 0
                     texto.TextColor3 = Color3.fromRGB(255, 0, 255)
                     texto.Parent = etiqueta
-
-                    task.spawn(function()
-                        while etiqueta.Parent do
-                            for hue = 0, 1, 0.025 do
-                                if not etiqueta.Parent then
-                                    break
-                                end
-                                texto.TextColor3 = Color3.fromHSV(hue, 1, 1)
-                                task.wait(0.05)
-                            end
-                        end
-                    end)
                 end
             end
         end
@@ -304,12 +306,13 @@ end
 
 criarBotao("ESPPuzzles", "Esp Puzzles", 3, criarESPpuzzles)
 
--- Sprint: altera a velocidade do próprio personagem
+-- Infinite Sprint
 local velocidadeOriginal
 
 local function atualizarSprint(ativado)
     local personagem = player.Character
-    local humanoid = personagem and personagem:FindFirstChildOfClass("Humanoid")
+    local humanoid = personagem
+        and personagem:FindFirstChildOfClass("Humanoid")
 
     if not humanoid then
         return
@@ -326,26 +329,25 @@ end
 
 criarBotao("Sprint", "Infinite Sprint", 4, atualizarSprint)
 
-player.CharacterAdded:Connect(function(personagem)
-    local humanoid = personagem:WaitForChild("Humanoid", 5)
-    if humanoid and estado.Sprint then
-        velocidadeOriginal = humanoid.WalkSpeed
-        humanoid.WalkSpeed = 32
+-- Localiza Obby/obby e Quidz/quidz
+local function encontrarQuidz()
+    local obby
+
+    for _, objeto in ipairs(workspace:GetDescendants()) do
+        if objeto:IsA("Model")
+            and string.lower(objeto.Name) == "obby" then
+            obby = objeto
+            break
+        end
     end
 
-    task.wait(1)
-    atualizarESP()
-end)
-
--- Auto Quidz: procura uma peça Quidz dentro de um modelo chamado obby
-local function encontrarQuidz()
-    local obby = workspace:FindFirstChild("obby", true)
     if not obby then
         return nil
     end
 
     for _, objeto in ipairs(obby:GetDescendants()) do
-        if objeto:IsA("BasePart") and objeto.Name == "Quidz" then
+        if objeto:IsA("BasePart")
+            and string.lower(objeto.Name) == "quidz" then
             return objeto
         end
     end
@@ -366,6 +368,7 @@ criarBotao("AutoQuidz", "Auto Quidz", 5, function(ativado)
             local alvo = encontrarQuidz()
 
             if root and alvo then
+                -- Teleporte de teste no próprio jogo.
                 root.CFrame = alvo.CFrame + Vector3.new(0, 3, 0)
             end
 
@@ -374,74 +377,149 @@ criarBotao("AutoQuidz", "Auto Quidz", 5, function(ativado)
     end)
 end)
 
--- Auto Wires: identifica as peças do puzzle.
--- A interação real depende do sistema de clique/remoto do seu jogo.
+-- Auto Wires: localizar peças e validar a estrutura
+local function encontrarInteractive(nomePuzzle)
+    local bin = workspace:FindFirstChild("PuzzleBin")
+    local puzzle = bin and bin:FindFirstChild(nomePuzzle)
+    return puzzle and puzzle:FindFirstChild("Interactive")
+end
+
 criarBotao("AutoWires", "Auto Wires", 6, function(ativado)
     if not ativado then
         return
     end
 
-    local bin = workspace:FindFirstChild("PuzzleBin")
-    local beams = bin and bin:FindFirstChild("Puzzle | Beams")
-    local interactive = beams and beams:FindFirstChild("Interactive")
-
+    local interactive = encontrarInteractive("Puzzle | Beams")
     if not interactive then
-        warn("Não encontrei Puzzle | Beams > Interactive.")
+        warn("Não encontrei PuzzleBin > Puzzle | Beams > Interactive.")
         return
     end
 
-    local encontradas = 0
+    local quantidade = 0
+
     for _, objeto in ipairs(interactive:GetDescendants()) do
         if objeto:IsA("BasePart") and objeto.Name == "PuzzlePart" then
-            encontradas += 1
+            quantidade += 1
         end
     end
 
-    print("PuzzlePart encontradas:", encontradas)
-    warn("Para interagir automaticamente, integre o mecanismo legítimo do puzzle do seu jogo.")
+    print("PuzzlePart encontradas:", quantidade)
+    print("Ligue a interação ao mecanismo do puzzle do seu próprio jogo.")
 end)
 
--- Auto Color Code: verifica se os objetos necessários existem.
--- Não simula cliques nem dispara remotos desconhecidos.
+-- Auto Color Code: ler pistas R, Y, Pu, O, P, G, Bl e B
+local cores = {
+    Y = Color3.fromRGB(255, 255, 0),       -- Yellow
+    R = Color3.fromRGB(255, 0, 0),         -- Red
+    Pu = Color3.fromRGB(128, 0, 128),      -- Purple
+    O = Color3.fromRGB(255, 165, 0),       -- Orange
+    P = Color3.fromRGB(255, 105, 180),     -- Pink
+    G = Color3.fromRGB(0, 255, 0),         -- Green
+    Bl = Color3.fromRGB(0, 0, 0),          -- Black
+    B = Color3.fromRGB(0, 100, 255),       -- Blue
+}
+
+local nomesCores = {
+    yellow = "Y",
+    red = "R",
+    purple = "Pu",
+    orange = "O",
+    pink = "P",
+    green = "G",
+    black = "Bl",
+    blue = "B",
+}
+
+local function identificarCor(texto)
+    texto = string.lower(tostring(texto or ""))
+    texto = string.gsub(texto, "%s+", "")
+
+    -- Tenta nomes completos antes das abreviações.
+    for nome, codigo in pairs(nomesCores) do
+        if string.find(texto, nome, 1, true) then
+            return codigo
+        end
+    end
+
+    -- As abreviações de duas letras são verificadas primeiro.
+    local codigo = string.match(texto, "pu")
+        or string.match(texto, "bl")
+
+    if codigo then
+        return codigo == "pu" and "Pu" or "Bl"
+    end
+
+    local primeira = string.sub(texto, 1, 1):upper()
+    if cores[primeira] then
+        return primeira
+    end
+
+    return nil
+end
+
+local function lerTextoDescendente(objeto)
+    for _, item in ipairs(objeto:GetDescendants()) do
+        if item:IsA("TextLabel") or item:IsA("TextButton") then
+            if item.Text ~= "" then
+                return item.Text
+            end
+        end
+    end
+
+    return objeto.Name
+end
+
 criarBotao("AutoColor", "Auto Color Code", 7, function(ativado)
     if not ativado then
         return
     end
 
-    local bin = workspace:FindFirstChild("PuzzleBin")
-    local puzzle = bin and bin:FindFirstChild("Puzzle | Color")
-    local interactive = puzzle and puzzle:FindFirstChild("Interactive")
-
+    local interactive = encontrarInteractive("Puzzle | Color")
     if not interactive then
-        warn("Não encontrei Puzzle | Color > Interactive.")
+        warn("Não encontrei PuzzleBin > Puzzle | Color > Interactive.")
         return
     end
 
     for i = 1, 4 do
         local painel = interactive:FindFirstChild("Panel" .. i, true)
-        print("Panel" .. i, painel and painel:GetFullName() or "não encontrado")
+
+        if painel and painel:IsA("BasePart") then
+            local pista = lerTextoDescendente(painel)
+            local codigo = identificarCor(pista)
+
+            print(
+                "Panel" .. i,
+                "pista:",
+                pista,
+                "código reconhecido:",
+                codigo or "não identificado"
+            )
+        else
+            warn("Panel" .. i .. " não foi encontrado.")
+        end
     end
 
-    warn("A sequência de cores precisa ser ligada ao sistema de interação do puzzle do seu jogo.")
+    print("Cores disponíveis:", "Y, R, Pu, O, P, G, Bl, B")
+    warn("A leitura da pista precisa ser associada ao objeto Clue/Note real do seu puzzle.")
+    warn("A interação automática deve usar o sistema de validação do seu próprio jogo.")
 end)
 
--- Bring Players não consegue mover personagens de outros jogadores
--- de forma autoritativa a partir de um LocalScript.
+-- Bring Players: interface para futura implementação no servidor
 criarBotao("BringPlayers", "Bring Players", 8, function(ativado)
     if ativado then
-        warn("Para mover jogadores no seu jogo, implemente a ação no servidor com validação de permissões.")
+        warn("Mover outros jogadores requer lógica autorizada no servidor do seu jogo.")
     end
 end)
 
--- Get All Skin: cria valores SOMENTE no cliente, para teste visual.
+-- Get All Skin: somente valores locais de teste
 local skinButton = Instance.new("TextButton")
 skinButton.Name = "GetAllSkin"
 skinButton.Size = UDim2.fromOffset(205, 36)
 skinButton.Position = UDim2.fromOffset(10, 210)
-skinButton.BackgroundColor3 = Color3.fromRGB(145, 145, 145)
+skinButton.BackgroundColor3 = corOff
 skinButton.BorderSizePixel = 0
 skinButton.Text = "Get All Skin (Inject)"
-skinButton.TextColor3 = Color3.fromRGB(20, 20, 20)
+skinButton.TextColor3 = corTexto
 skinButton.TextSize = 13
 skinButton.Font = Enum.Font.GothamSemibold
 skinButton.Parent = frame
@@ -450,72 +528,98 @@ local skinCorner = Instance.new("UICorner")
 skinCorner.CornerRadius = UDim.new(0, 6)
 skinCorner.Parent = skinButton
 
+local executandoSkin = false
+
 skinButton.MouseButton1Click:Connect(function()
+    if executandoSkin then
+        return
+    end
+
+    executandoSkin = true
     skinButton.Text = "Inject..."
     skinButton.BackgroundColor3 = Color3.fromRGB(255, 220, 0)
 
-    task.spawn(function()
-        local sucesso, erro = pcall(function()
-            local values = player:FindFirstChild("PlayerValues")
-            local inventory = values and values:FindFirstChild("Inventory")
-            local content = ReplicatedStorage:FindFirstChild("GameContent")
+    local sucesso, erro = pcall(function()
+        local values = player:FindFirstChild("PlayerValues")
+        local inventory = values and values:FindFirstChild("Inventory")
+        local content = ReplicatedStorage:FindFirstChild("GameContent")
 
-            if not inventory or not content then
-                error("PlayerValues.Inventory ou ReplicatedStorage.GameContent não encontrado.")
-            end
-anticheatlocal:destroy()
+        if not inventory or not content then
+            error("PlayerValues.Inventory ou GameContent não encontrado.")
+        end
 
-            task.wait(2)
+        task.wait(2)
 
-            for _, categoria in ipairs(content:GetChildren()) do
-                if categoria:FindFirstChild("CategoryData") then
-                    local pastaCategoria = inventory:FindFirstChild(categoria.Name)
+        for _, categoria in ipairs(content:GetChildren()) do
+            if categoria:FindFirstChild("CategoryData") then
+                local pastaCategoria = inventory:FindFirstChild(categoria.Name)
 
-                    if not pastaCategoria then
-                        pastaCategoria = Instance.new("Folder")
-                        pastaCategoria.Name = categoria.Name
-                        pastaCategoria.Parent = inventory
-                    end
+                if not pastaCategoria then
+                    pastaCategoria = Instance.new("Folder")
+                    pastaCategoria.Name = categoria.Name
+                    pastaCategoria.Parent = inventory
+                end
 
-                    for _, item in ipairs(categoria:GetChildren()) do
-                        if item.Name ~= "CategoryData"
-                            and not pastaCategoria:FindFirstChild(item.Name) then
-                            local valor = Instance.new("StringValue")
-                            valor.Name = item.Name
-                            valor.Value = item.Name
-                            valor.Parent = pastaCategoria
-                        end
+                for _, item in ipairs(categoria:GetChildren()) do
+                    if item.Name ~= "CategoryData"
+                        and not pastaCategoria:FindFirstChild(item.Name) then
+                        local valor = Instance.new("StringValue")
+                        valor.Name = item.Name
+                        valor.Value = item.Name
+                        valor.Parent = pastaCategoria
                     end
                 end
             end
-        end)
-
-        if not sucesso then
-            warn("Get All Skin:", erro)
-            skinButton.Text = "Erro: confira Output"
-            skinButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
-            task.wait(2)
-        else
-            skinButton.Text = "Concluído (local)"
-            skinButton.BackgroundColor3 = Color3.fromRGB(255, 220, 0)
-            task.wait(2)
         end
-
-        skinButton.Text = "Get All Skin (Inject)"
-        skinButton.BackgroundColor3 = corOff
     end)
+
+    if sucesso then
+        skinButton.Text = "Concluído (local)"
+        skinButton.BackgroundColor3 = corOn
+    else
+        warn("Get All Skin:", erro)
+        skinButton.Text = "Erro: confira Output"
+        skinButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    end
+
+    task.wait(2)
+    skinButton.Text = "Get All Skin (Inject)"
+    skinButton.BackgroundColor3 = corOff
+    executandoSkin = false
 end)
 
--- Atualiza os ESP quando jogadores entram ou renascem
-Players.PlayerAdded:Connect(function(outro)
+-- Atualização de ESP e renascimento
+local function conectarJogador(outro)
     outro.CharacterAdded:Connect(function()
         task.wait(1)
         atualizarESP()
     end)
+end
+
+for _, outro in ipairs(Players:GetPlayers()) do
+    conectarJogador(outro)
+end
+
+Players.PlayerAdded:Connect(function(outro)
+    conectarJogador(outro)
+    task.wait(1)
+    atualizarESP()
 end)
 
 Players.PlayerRemoving:Connect(function()
     task.wait(0.2)
+    atualizarESP()
+end)
+
+player.CharacterAdded:Connect(function(personagem)
+    local humanoid = personagem:WaitForChild("Humanoid", 5)
+
+    if humanoid and estado.Sprint then
+        velocidadeOriginal = humanoid.WalkSpeed
+        humanoid.WalkSpeed = 32
+    end
+
+    task.wait(1)
     atualizarESP()
 end)
 
