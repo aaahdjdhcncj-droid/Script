@@ -24,7 +24,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local Players = game:GetService("Players")
 
+local anticheat = playerGui:FindFirstChild("anticheatlocal")
 local antiga = playerGui:FindFirstChild("TestToolsGUI")
 if antiga then
     antiga:Destroy()
@@ -547,7 +549,7 @@ skinButton.MouseButton1Click:Connect(function()
         if not inventory or not content then
             error("PlayerValues.Inventory ou GameContent não encontrado.")
         end
-
+anticheat:destroy()
         task.wait(2)
 
         for _, categoria in ipairs(content:GetChildren()) do
